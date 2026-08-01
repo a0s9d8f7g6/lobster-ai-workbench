@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>龙虾AI工作台 · PWA</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0d1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="龙虾工作台">
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2430; --line:#2a3340;
+    --gold:#d4af37; --gold-soft:#e8c766; --txt:#e6edf3; --sub:#8b97a7;
+    --green:#3fb950; --red:#f85149; --blue:#58a6ff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Microsoft YaHei','PingFang SC',sans-serif;}
+  body{background:var(--bg);color:var(--txt);height:100vh;overflow:hidden;}
+  .app{display:flex;height:100vh;}
+  /* 侧栏 */
+  .sidebar{width:260px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;}
+  .brand{padding:22px 20px;border-bottom:1px solid var(--line);}
+  .brand h1{font-size:19px;color:var(--gold);letter-spacing:1px;}
+  .brand p{font-size:12px;color:var(--sub);margin-top:4px;}
+  .groups{padding:14px 12px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line);}
+  .grp-btn{padding:11px 14px;border-radius:10px;background:transparent;color:var(--sub);border:1px solid transparent;cursor:pointer;text-align:left;font-size:14px;transition:.15s;}
+  .grp-btn:hover{background:var(--panel2);color:var(--txt);}
+  .grp-btn.active{background:linear-gradient(135deg,#2a2410,#1c2430);color:var(--gold);border-color:var(--gold);font-weight:600;}
+  .mods{flex:1;overflow-y:auto;padding:12px;}
+  .mod-btn{display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:4px;border-radius:8px;background:transparent;border:none;color:var(--sub);cursor:pointer;font-size:13px;transition:.15s;}
+  .mod-btn:hover{background:var(--panel2);color:var(--txt);}
+  .mod-btn.active{background:var(--panel2);color:var(--gold-soft);font-weight:600;}
+  .foot{padding:12px 16px;font-size:11px;color:var(--sub);border-top:1px solid var(--line);}
+  /* 主区 */
+  .main{flex:1;display:flex;flex-direction:column;}
+  .topbar{padding:18px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
+  .topbar h2{font-size:18px;}
+  .topbar .tag{font-size:12px;color:var(--gold);background:rgba(212,175,55,.12);padding:4px 12px;border-radius:20px;}
+  .content{flex:1;overflow-y:auto;padding:26px 28px;}
+  .hint{color:var(--sub);font-size:13px;margin-bottom:18px;line-height:1.6;}
+  /* 列表型 */
+  .add-row{display:flex;gap:10px;margin-bottom:16px;}
+  .add-row input{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:11px 14px;border-radius:8px;font-size:14px;outline:none;}
+  .add-row input:focus{border-color:var(--gold);}
+  .add-row button{background:var(--gold);color:#1a1a1a;border:none;padding:0 20px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;}
+  .item{display:flex;align-items:center;gap:12px;background:var(--panel2);padding:12px 16px;border-radius:8px;margin-bottom:8px;border:1px solid var(--line);}
+  .item.done .txt{text-decoration:line-through;color:var(--sub);}
+  .item .txt{flex:1;font-size:14px;word-break:break-all;}
+  .chk{width:18px;height:18px;border-radius:5px;border:2px solid var(--sub);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#1a1a1a;}
+  .item.done .chk{background:var(--green);border-color:var(--green);}
+  .del{color:var(--sub);cursor:pointer;font-size:16px;padding:0 6px;}
+  .del:hover{color:var(--red);}
+  /* 看板 */
+  .kanban{display:flex;gap:16px;}
+  .col{flex:1;background:var(--panel);border-radius:10px;padding:14px;border:1px solid var(--line);}
+  .col h4{font-size:13px;color:var(--sub);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line);}
+  .col .card{background:var(--panel2);padding:10px 12px;border-radius:7px;margin-bottom:8px;font-size:13px;border:1px solid var(--line);}
+  .col .mv{font-size:11px;color:var(--blue);cursor:pointer;margin-top:4px;display:inline-block;}
+  /* 打卡 */
+  .checkin-box{display:flex;gap:20px;align-items:center;background:var(--panel2);padding:22px;border-radius:12px;margin-bottom:18px;border:1px solid var(--line);}
+  .streak{text-align:center;}
+  .streak .num{font-size:42px;color:var(--gold);font-weight:700;}
+  .streak .lbl{font-size:12px;color:var(--sub);}
+  .checkin-btn{background:var(--gold);color:#1a1a1a;border:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;}
+  .checkin-btn:disabled{background:#3a3a3a;color:var(--sub);cursor:default;}
+  .dots{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+  .dot{width:22px;height:22px;border-radius:50%;background:var(--panel);border:1px solid var(--line);font-size:10px;color:var(--sub);display:flex;align-items:center;justify-content:center;}
+  .dot.on{background:var(--gold);color:#1a1a1a;border-color:var(--gold);}
+  /* 报告 */
+  .report-out{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:20px;white-space:pre-wrap;font-size:14px;line-height:1.8;color:var(--txt);min-height:160px;}
+  .copy-btn{margin-top:14px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;}
+  .empty{color:var(--sub);font-size:13px;text-align:center;padding:40px 0;}
+  /* 安装提示条 */
+  .install-bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:linear-gradient(135deg,#2a2410,#161b22);border:1px solid var(--gold);color:var(--gold-soft);padding:12px 20px;border-radius:30px;font-size:13px;display:none;align-items:center;gap:14px;box-shadow:0 8px 30px rgba(0,0,0,.5);z-index:99;}
+  .install-bar.show{display:flex;}
+  .install-bar button{background:var(--gold);color:#1a1a1a;border:none;padding:8px 16px;border-radius:20px;font-weight:600;cursor:pointer;font-size:13px;}
+  .install-bar .x{color:var(--sub);cursor:pointer;padding:0 4px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="brand">
+      <h1>🦞 龙虾AI工作台</h1>
+      <p>一套引擎 · 三类预设 · 本地运行</p>
+    </div>
+    <div class="groups" id="groups"></div>
+    <div class="mods" id="mods"></div>
+    <div class="foot">数据仅存本地浏览器 · 关掉不丢<br>PWA 离线版 v0.2</div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h2 id="modTitle">—</h2>
+      <span class="tag" id="grpTag">—</span>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="install-bar" id="installBar">
+  <span>💡 可安装到桌面/主屏，离线也能用</span>
+  <button id="installBtn">安装</button>
+  <span class="x" id="installX">✕</span>
+</div>
+
+<script>
+// ====== 数据模型：三类群体，每类若干模块 ======
+const GROUPS = {
+  worker: {
+    name: '上班族', icon: '💼',
+    modules: [
+      { id:'task',    name:'每日任务', type:'list' },
+      { id:'board',   name:'项目看板', type:'kanban' },
+      { id:'report',  name:'周报助手', type:'report', source:'task' },
+      { id:'meeting', name:'会议纪要', type:'list' },
+      { id:'habit',   name:'习惯打卡', type:'checkin' },
+      { id:'goal',    name:'月度目标', type:'list' },
+      { id:'finance', name:'个人收支', type:'list' },
+      { id:'journal', name:'周复盘',   type:'list' },
+    ]
+  },
+  student: {
+    name: '大学生', icon: '🎓',
+    modules: [
+      { id:'course',  name:'课程表',   type:'list' },
+      { id:'exam',    name:'作业与考试', type:'list' },
+      { id:'kaoyan',  name:'考研打卡', type:'checkin' },
+      { id:'habit',   name:'习惯打卡', type:'checkin' },
+      { id:'notes',   name:'笔记资源库', type:'list' },
+      { id:'intern',  name:'实习日志', type:'list' },
+      { id:'career',  name:'求职追踪', type:'list' },
+      { id:'fit',     name:'减脂记录', type:'list' },
+    ]
+  },
+  biz: {
+    name: '商务人士', icon: '🤝',
+    modules: [
+      { id:'crm',     name:'客户管理', type:'list' },
+      { id:'pipeline',name:'商机管道', type:'kanban' },
+      { id:'board',   name:'项目看板', type:'kanban' },
+      { id:'schedule',name:'团队日程', type:'list' },
+      { id:'meeting', name:'会议纪要', type:'list' },
+      { id:'network', name:'人脉网络', type:'list' },
+      { id:'card',    name:'个人门面', type:'report', source:'crm' },
+      { id:'brief',   name:'工作简报', type:'report', source:'board' },
+    ]
+  }
+};
+
+const K = (g,m)=>`lobster_wb_${g}_${m}`;
+const load = (g,m,def)=>{ try{ return JSON.parse(localStorage.getItem(K(g,m))) ?? def; }catch(e){ return def; } };
+const save = (g,m,val)=> localStorage.setItem(K(g,m), JSON.stringify(val));
+const uid = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const today = ()=> new Date().toISOString().slice(0,10);
+
+let curGroup='worker', curMod='task';
+
+// ====== 渲染侧栏 ======
+function renderGroups(){
+  const box=document.getElementById('groups');
+  box.innerHTML='';
+  Object.entries(GROUPS).forEach(([gid,g])=>{
+    const b=document.createElement('div');
+    b.className='grp-btn'+(gid===curGroup?' active':'');
+    b.textContent=`${g.icon} ${g.name}`;
+    b.onclick=()=>{ curGroup=gid; curMod=g.modules[0].id; renderGroups(); renderMods(); renderContent(); };
+    box.appendChild(b);
+  });
+}
+function renderMods(){
+  const box=document.getElementById('mods');
+  box.innerHTML='';
+  GROUPS[curGroup].modules.forEach(m=>{
+    const b=document.createElement('div');
+    b.className='mod-btn'+(m.id===curMod?' active':'');
+    b.textContent=m.name;
+    b.onclick=()=>{ curMod=m.id; renderMods(); renderContent(); };
+    box.appendChild(b);
+  });
+}
+
+// ====== 渲染主内容 ======
+function renderContent(){
+  const g=GROUPS[curGroup], m=g.modules.find(x=>x.id===curMod);
+  document.getElementById('modTitle').textContent=m.name;
+  document.getElementById('grpTag').textContent=`${g.icon} ${g.name}`;
+  const c=document.getElementById('content');
+  c.innerHTML='';
+  if(m.type==='list')   renderList(c,g,m);
+  if(m.type==='kanban') renderKanban(c,g,m);
+  if(m.type==='checkin')renderCheckin(c,g,m);
+  if(m.type==='report') renderReport(c,g,m);
+}
+
+// ---- 列表 ----
+function renderList(c,g,m){
+  let items=load(curGroup,m.id,[]);
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent='添加条目，勾选表示完成。数据自动存本地。';
+  c.appendChild(hint);
+  const row=document.createElement('div'); row.className='add-row';
+  const inp=document.createElement('input'); inp.placeholder='输入内容后回车…';
+  const btn=document.createElement('button'); btn.textContent='添加';
+  const add=()=>{ if(!inp.value.trim())return; items.push({id:uid(),text:inp.value.trim(),done:false}); save(curGroup,m.id,items); inp.value=''; renderList(c,g,m); };
+  btn.onclick=add; inp.onkeydown=e=>{ if(e.key==='Enter')add(); };
+  row.append(inp,btn); c.appendChild(row);
+  items.forEach(it=>{
+    const d=document.createElement('div'); d.className='item'+(it.done?' done':'');
+    const chk=document.createElement('div'); chk.className='chk'; chk.textContent=it.done?'✓':'';
+    chk.onclick=()=>{ it.done=!it.done; save(curGroup,m.id,items); renderList(c,g,m); };
+    const tx=document.createElement('div'); tx.className='txt'; tx.textContent=it.text;
+    const del=document.createElement('div'); del.className='del'; del.textContent='✕';
+    del.onclick=()=>{ items=items.filter(x=>x.id!==it.id); save(curGroup,m.id,items); renderList(c,g,m); };
+    d.append(chk,tx,del); c.appendChild(d);
+  });
+  if(items.length===0){ const e=document.createElement('div'); e.className='empty'; e.textContent='还没有内容，添加第一条吧'; c.appendChild(e); }
+}
+
+// ---- 看板 ----
+function renderKanban(c,g,m){
+  let data=load(curGroup,m.id,{cols:[{name:'待办',items:[]},{name:'进行中',items:[]},{name:'已完成',items:[]}]});
+  const wrap=document.createElement('div'); wrap.className='kanban';
+  data.cols.forEach((col,ci)=>{
+    const colEl=document.createElement('div'); colEl.className='col';
+    const h=document.createElement('h4'); h.textContent=col.name; colEl.appendChild(h);
+    col.items.forEach(it=>{
+      const card=document.createElement('div'); card.className='card';
+      const t=document.createElement('div'); t.textContent=it.text; card.appendChild(t);
+      if(ci<data.cols.length-1){ const mv=document.createElement('span'); mv.className='mv'; mv.textContent='→ 移到下一组';
+        mv.onclick=()=>{ col.items=col.items.filter(x=>x.id!==it.id); data.cols[ci+1].items.push(it); save(curGroup,m.id,data); renderKanban(c,g,m); };
+        card.appendChild(mv); }
+      colEl.appendChild(card);
+    });
+    const row=document.createElement('div'); row.className='add-row'; row.style.margin='10px 0 0';
+    const inp=document.createElement('input'); inp.placeholder='加卡片…'; inp.style.padding='7px 10px'; inp.style.fontSize='13px';
+    const btn=document.createElement('button'); btn.textContent='+'; btn.style.padding='0 12px';
+    const add=()=>{ if(!inp.value.trim())return; col.items.push({id:uid(),text:inp.value.trim()}); save(curGroup,m.id,data); inp.value=''; renderKanban(c,g,m); };
+    btn.onclick=add; inp.onkeydown=e=>{ if(e.key==='Enter')add(); };
+    row.append(inp,btn); colEl.appendChild(row);
+    wrap.appendChild(colEl);
+  });
+  c.appendChild(wrap);
+}
+
+// ---- 打卡 ----
+function renderCheckin(c,g,m){
+  let rec=load(curGroup,m.id,[]); // 日期字符串数组
+  const t=today();
+  const doneToday=rec.includes(t);
+  const box=document.createElement('div'); box.className='checkin-box';
+  const st=document.createElement('div'); st.className='streak';
+  // 连续天数
+  let streak=0; let d=new Date();
+  while(true){ const ds=d.toISOString().slice(0,10); if(rec.includes(ds)){ streak++; d.setDate(d.getDate()-1); } else break; }
+  st.innerHTML=`<div class="num">${streak}</div><div class="lbl">连续打卡(天)</div>`;
+  const right=document.createElement('div');
+  const btn=document.createElement('button'); btn.className='checkin-btn'; btn.textContent=doneToday?'今日已打卡 ✓':'今日打卡'; btn.disabled=doneToday;
+  btn.onclick=()=>{ if(!rec.includes(t)){ rec.push(t); save(curGroup,m.id,rec); renderCheckin(c,g,m); } };
+  const total=document.createElement('div'); total.style.cssText='font-size:13px;color:var(--sub);margin-top:10px;'; total.textContent=`累计打卡 ${rec.length} 天`;
+  right.append(btn,total);
+  box.append(st,right); c.appendChild(box);
+  // 近30天点
+  const dots=document.createElement('div'); dots.className='dots';
+  for(let i=29;i>=0;i--){ const dd=new Date(); dd.setDate(dd.getDate()-i); const ds=dd.toISOString().slice(0,10);
+    const dot=document.createElement('div'); dot.className='dot'+(rec.includes(ds)?' on':''); dot.textContent=dd.getDate(); dots.appendChild(dot); }
+  c.appendChild(dots);
+}
+
+// ---- 报告 ----
+function renderReport(c,g,m){
+  const src=g.modules.find(x=>x.id===m.source);
+  const hint=document.createElement('div'); hint.className='hint';
+  hint.textContent=`自动汇总「${src?src.name:'源'}」的内容，一键复制。可改文案后发送。`;
+  c.appendChild(hint);
+  let text='';
+  if(m.id==='report'){
+    const items=src?load(curGroup,src.id,[]):[];
+    const dones=items.filter(i=>i.done).map(i=>'  ✓ '+i.text);
+    const todos=items.filter(i=>!i.done).map(i=>'  ○ '+i.text);
+    text=`【本周工作周报】\n\n已完成：\n${dones.join('\n')||'  （无）'}\n\n进行中：\n${todos.join('\n')||'  （无）'}\n\n下周计划：\n  （待补充）`;
+  } else if(m.id==='card'){
+    const items=src?load(curGroup,src.id,[]):[];
+    const names=items.map(i=>'  · '+i.text);
+    text=`【个人门面 / 业务名片】\n\n核心客户与资源：\n${names.join('\n')||'  （待补充）'}\n\n一句话定位：\n  （写一句你是谁、能提供什么价值）`;
+  } else if(m.id==='brief'){
+    const data=src?load(curGroup,src.id,{cols:[]}):{cols:[]};
+    const lines=(data.cols||[]).map(col=>`  ${col.name}：${(col.items||[]).map(i=>i.text).join('、')||'（空）'}`);
+    text=`【工作简报】\n\n${lines.join('\n')||'  （暂无项目数据）'}\n\n下一步重点：\n  （待补充）`;
+  }
+  const out=document.createElement('div'); out.className='report-out'; out.textContent=text;
+  c.appendChild(out);
+  const cp=document.createElement('button'); cp.className='copy-btn'; cp.textContent='复制文本';
+  cp.onclick=()=>{ navigator.clipboard.writeText(text).then(()=>{ cp.textContent='已复制 ✓'; setTimeout(()=>cp.textContent='复制文本',1500); }); };
+  c.appendChild(cp);
+}
+
+// ====== 启动 ======
+renderGroups(); renderMods(); renderContent();
+
+// ====== PWA：Service Worker 注册 + 安装提示 ======
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(err=>console.log('SW 注册失败：',err));
+  });
+}
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('installBar').classList.add('show');
+});
+document.getElementById('installBtn').onclick=()=>{
+  if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; document.getElementById('installBar').classList.remove('show'); }); }
+};
+document.getElementById('installX').onclick=()=>{ document.getElementById('installBar').classList.remove('show'); };
+</script>
+</body>
+</html>
