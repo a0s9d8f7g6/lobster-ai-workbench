@@ -77,8 +77,8 @@
   .install-bar.show{display:flex;}
   .install-bar button{background:var(--gold);color:#1a1a1a;border:none;padding:8px 16px;border-radius:20px;font-weight:600;cursor:pointer;font-size:13px;}
   .install-bar .x{color:var(--sub);cursor:pointer;padding:0 4px;}
-  /* 微信内提示（仅手机显示） */
-  .wx-tip{position:fixed;top:0;left:0;right:0;background:#3a2a10;border-bottom:1px solid var(--gold);color:var(--gold-soft);padding:11px 16px;font-size:13px;line-height:1.5;z-index:200;display:none;}
+  /* 微信内提示（仅手机显示，放在 main 顶部文档流） */
+  .wx-tip{width:100%;background:#3a2a10;border-bottom:1px solid var(--gold);color:var(--gold-soft);padding:11px 16px;font-size:13px;line-height:1.5;display:none;}
   .wx-tip.show{display:block;}
   .wx-tip b{color:var(--gold);}
   @media(min-width:769px){ .wx-tip{display:none!important;} }
@@ -95,10 +95,30 @@
   .modal ol li b{color:var(--gold-soft);}
   .modal .note{margin-top:12px;font-size:12px;color:var(--red);line-height:1.6;background:rgba(248,81,73,.08);padding:10px 12px;border-radius:8px;}
   .modal .close{margin-top:18px;width:100%;background:var(--gold);color:#1a1a1a;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;}
+  /* 移动端菜单按钮 + 遮罩（桌面隐藏） */
+  .menu-btn{display:none;}
+  .overlay{display:none;}
+  @media(max-width:768px){
+    body{height:auto;overflow:auto;}
+    .app{height:auto;min-height:100vh;}
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:230px;transform:translateX(-100%);transition:transform .25s ease;z-index:110;border-right:none;}
+    .sidebar.open{transform:translateX(0);}
+    .main{width:100%;min-height:100vh;}
+    .topbar{position:sticky;top:0;background:var(--bg);padding:14px 16px;z-index:90;}
+    .topbar h2{font-size:16px;padding-left:38px;}
+    .menu-btn{display:block;position:absolute;left:14px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:6px;}
+    .content{padding:16px;}
+    .kanban{flex-direction:column;}
+    .col{width:100%;margin-bottom:14px;}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:105;display:block;opacity:0;pointer-events:none;transition:opacity .2s;}
+    .overlay.show{opacity:1;pointer-events:auto;}
+    .foot{font-size:10px;padding:10px 12px;}
+    .help-btn{font-size:11px;padding:8px;}
+    .install-bar{bottom:14px;padding:10px 16px;font-size:12px;}
+  }
 </style>
 </head>
 <body>
-<div class="wx-tip" id="wxTip">⚠ 检测到在微信内打开，无法直接安装到主屏。请点右上角「···」→「在浏览器中打开」（或「复制链接」后到 Safari / Chrome 打开），再安装。</div>
 <div class="app">
   <div class="sidebar">
     <div class="brand">
@@ -112,13 +132,17 @@
     </div>
   </div>
   <div class="main">
+    <div class="wx-tip" id="wxTip">⚠ 检测到在微信内打开，无法直接安装到主屏。请点右上角「···」→「在浏览器中打开」（或「复制链接」后到 Safari / Chrome 打开），再安装。</div>
     <div class="topbar">
+      <button class="menu-btn" id="menuBtn">☰</button>
       <h2 id="modTitle">—</h2>
       <span class="tag" id="grpTag">—</span>
     </div>
     <div class="content" id="content"></div>
   </div>
 </div>
+
+<div class="overlay" id="overlay"></div>
 
 <div class="install-bar" id="installBar">
   <span>💡 可安装到桌面/主屏，离线也能用</span>
@@ -207,7 +231,7 @@ function renderGroups(){
     const b=document.createElement('div');
     b.className='grp-btn'+(gid===curGroup?' active':'');
     b.textContent=`${g.icon} ${g.name}`;
-    b.onclick=()=>{ curGroup=gid; curMod=g.modules[0].id; renderGroups(); renderMods(); renderContent(); };
+    b.onclick=()=>{ curGroup=gid; curMod=g.modules[0].id; renderGroups(); renderMods(); renderContent(); maybeCloseMenu(); };
     box.appendChild(b);
   });
 }
@@ -218,7 +242,7 @@ function renderMods(){
     const b=document.createElement('div');
     b.className='mod-btn'+(m.id===curMod?' active':'');
     b.textContent=m.name;
-    b.onclick=()=>{ curMod=m.id; renderMods(); renderContent(); };
+    b.onclick=()=>{ curMod=m.id; renderMods(); renderContent(); maybeCloseMenu(); };
     box.appendChild(b);
   });
 }
@@ -348,6 +372,18 @@ if(/micromessenger/i.test(navigator.userAgent)){
 document.getElementById('helpBtn').onclick=()=>document.getElementById('mask').classList.add('show');
 document.getElementById('helpClose').onclick=()=>document.getElementById('mask').classList.remove('show');
 document.getElementById('mask').onclick=(e)=>{ if(e.target.id==='mask') e.target.classList.remove('show'); };
+
+// ====== 移动端侧栏菜单 ======
+const sidebar=document.querySelector('.sidebar');
+const overlay=document.getElementById('overlay');
+const menuBtn=document.getElementById('menuBtn');
+function toggleMenu(open){
+  if(open){ sidebar.classList.add('open'); overlay.classList.add('show'); }
+  else { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+}
+menuBtn.onclick=()=>toggleMenu(!sidebar.classList.contains('open'));
+overlay.onclick=()=>toggleMenu(false);
+const maybeCloseMenu=()=>{ if(window.innerWidth<=768) toggleMenu(false); };
 
 // ====== PWA：Service Worker 注册 + 安装提示 ======
 if('serviceWorker' in navigator){
