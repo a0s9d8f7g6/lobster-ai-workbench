@@ -1,4 +1,4 @@
-const CACHE = 'lobster-wb-v3';
+const CACHE = 'lobster-wb-v4';
 const ASSETS = [
   './',
   './index.html',
