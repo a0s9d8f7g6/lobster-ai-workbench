@@ -157,6 +157,7 @@
         <p>一套引擎 · 三类预设 · 本地运行</p>
       </div>
       <button class="help-mini" id="setBtn">⚙ AI设置</button>
+      <button class="help-mini" id="dataBtn">📦 数据</button>
       <button class="help-mini" id="helpBtn">📲 安装帮助</button>
     </div>
     <div class="groups" id="groups"></div>
@@ -169,6 +170,17 @@
       <span class="tag" id="grpTag">—</span>
     </div>
     <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="set-mask" id="dataMask">
+  <div class="set-box">
+    <h3>📦 数据备份与迁移</h3>
+    <div class="sub">A 阶段为纯本地存储，换设备请用此功能迁移。导出得到一个 JSON 文件，在另一台设备导入即可。</div>
+    <button class="set-save" id="exportBtn">⬇ 导出全部数据</button>
+    <div style="margin-top:12px"><input type="file" id="importFile" accept="application/json" style="display:none"><button class="set-save" id="importBtn" style="background:var(--panel2);color:var(--txt);border:1px solid var(--line)">⬆ 导入数据</button></div>
+    <div class="set-note">导入会覆盖当前设备的所有工作台数据，请确认。</div>
+    <button class="set-save" id="dataClose" style="margin-top:10px;background:transparent;color:var(--sub);border:1px solid var(--line)">关闭</button>
   </div>
 </div>
 
@@ -585,6 +597,32 @@ document.getElementById('setSave').onclick=()=>{
   setTimeout(()=>document.getElementById('setMask').classList.remove('show'),800);
 };
 document.getElementById('setMask').onclick=(e)=>{ if(e.target.id==='setMask') e.target.classList.remove('show'); };
+// 数据导出/导入（A 阶段多端迁移）
+document.getElementById('dataMask').onclick=(e)=>{ if(e.target.id==='dataMask') e.target.classList.remove('show'); };
+document.getElementById('dataBtn').onclick=()=>document.getElementById('dataMask').classList.add('show');
+document.getElementById('exportBtn').onclick=exportData;
+document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=(e)=>{ if(e.target.files[0]) importData(e.target.files[0]); e.target.value=''; };
+document.getElementById('dataClose').onclick=()=>document.getElementById('dataMask').classList.remove('show');
+function exportData(){
+  const data={};
+  for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith('lobster_wb_')) data[k]=localStorage.getItem(k); }
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='lobster-workbench-'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+function importData(file){
+  const r=new FileReader();
+  r.onload=()=>{ try{
+    const data=JSON.parse(r.result);
+    if(!confirm('导入将覆盖当前设备的所有工作台数据，确定继续？')) return;
+    Object.keys(data).forEach(k=>{ if(k.startsWith('lobster_wb_')) localStorage.setItem(k,data[k]); });
+    renderGroups(); renderMods(); renderContent();
+    document.getElementById('dataMask').classList.remove('show');
+    alert('✓ 导入成功，数据已迁移');
+  }catch(e){ alert('导入失败：文件格式不正确'); } };
+  r.readAsText(file);
+}
 
 // ====== PWA：Service Worker 注册 + 安装提示 ======
 if('serviceWorker' in navigator){
