@@ -72,6 +72,43 @@
   .report-out{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:20px;white-space:pre-wrap;font-size:14px;line-height:1.8;color:var(--txt);min-height:160px;}
   .copy-btn{margin-top:14px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;}
   .empty{color:var(--sub);font-size:13px;text-align:center;padding:40px 0;}
+  /* AI设置弹窗 + Dashboard + AI规划 + 视频入口 */
+  .set-mask{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+  .set-mask.show{display:flex;}
+  .set-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+  .set-box h3{font-size:17px;color:var(--gold);margin-bottom:4px;}
+  .set-box .sub{font-size:12px;color:var(--sub);margin-bottom:14px;line-height:1.5;}
+  .set-row{margin-bottom:12px;}
+  .set-row label{display:block;font-size:12px;color:var(--sub);margin-bottom:5px;}
+  .set-row input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:10px 12px;border-radius:8px;font-size:13px;outline:none;}
+  .set-row input:focus{border-color:var(--gold);}
+  .set-save{margin-top:8px;width:100%;background:var(--gold);color:#1a1a1a;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;}
+  .set-ok{font-size:12px;color:var(--green);margin-top:8px;display:none;}
+  .set-ok.show{display:block;}
+  .set-note{font-size:11px;color:var(--sub);margin-top:10px;line-height:1.5;}
+  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .dash-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .dash-card h4{font-size:13px;color:var(--gold-soft);margin-bottom:10px;}
+  .dash-card .li{font-size:13px;color:var(--sub);margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;}
+  .dash-card .li b{color:var(--txt);font-weight:500;}
+  .dash-jump{color:var(--blue);cursor:pointer;font-size:12px;margin-top:6px;}
+  .dash-empty{font-size:12px;color:var(--sub);}
+  .ai-form{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;}
+  .ai-form .set-row{margin-bottom:10px;}
+  .ai-gen{background:var(--gold);color:#1a1a1a;border:none;padding:11px 22px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;}
+  .ai-gen:disabled{background:#3a3a3a;color:var(--sub);cursor:default;}
+  .ai-status{font-size:12px;color:var(--sub);margin-top:10px;}
+  .ai-needkey{background:rgba(248,81,73,.08);border:1px solid var(--red);color:var(--gold-soft);padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;line-height:1.6;}
+  .ai-week{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+  .ai-week h4{font-size:14px;color:var(--gold);margin-bottom:4px;}
+  .ai-week .focus{font-size:12px;color:var(--sub);margin-bottom:10px;}
+  .ai-day{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+  .ai-day .dl{font-size:12px;color:var(--blue);font-weight:600;margin-bottom:4px;}
+  .ai-day .dt{font-size:13px;color:var(--txt);line-height:1.6;}
+  .ai-vids{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+  .ai-vid{flex:1;min-width:88px;text-align:center;background:var(--panel);border:1px solid var(--line);color:var(--sub);padding:6px 4px;border-radius:6px;font-size:12px;text-decoration:none;}
+  .ai-vid:hover{border-color:var(--gold);color:var(--gold-soft);}
+  @media(max-width:768px){ .dash-grid{grid-template-columns:1fr;} }
   /* 安装提示条 */
   .install-bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:linear-gradient(135deg,#2a2410,#161b22);border:1px solid var(--gold);color:var(--gold-soft);padding:12px 20px;border-radius:30px;font-size:13px;display:none;align-items:center;gap:14px;box-shadow:0 8px 30px rgba(0,0,0,.5);z-index:99;}
   .install-bar.show{display:flex;}
@@ -119,6 +156,7 @@
         <h1>🦞 龙虾AI工作台</h1>
         <p>一套引擎 · 三类预设 · 本地运行</p>
       </div>
+      <button class="help-mini" id="setBtn">⚙ AI设置</button>
       <button class="help-mini" id="helpBtn">📲 安装帮助</button>
     </div>
     <div class="groups" id="groups"></div>
@@ -161,13 +199,28 @@
   </div>
 </div>
 
+<div class="set-mask" id="setMask">
+  <div class="set-box">
+    <h3>⚙ AI 设置</h3>
+    <div class="sub">填入 OpenAI 兼容接口的 API（DeepSeek / 通义 / 智谱 / OpenAI / 本地 Ollama 均可）。<b style="color:var(--gold-soft)">Key 只存在你本机浏览器，绝不外传。</b></div>
+    <div class="set-row"><label>API Base URL</label><input id="setBase" placeholder="https://api.openai.com/v1"></div>
+    <div class="set-row"><label>API Key</label><input id="setKey" type="password" placeholder="sk-..."></div>
+    <div class="set-row"><label>模型名</label><input id="setModel" placeholder="gpt-4o-mini / deepseek-chat"></div>
+    <button class="set-save" id="setSave">保存</button>
+    <div class="set-ok" id="setOk">✓ 已保存</div>
+    <div class="set-note">示例：DeepSeek → Base: https://api.deepseek.com/v1，Key: sk-...，模型: deepseek-chat。本地 Ollama → Base: http://localhost:11434/v1，Key: ollama，模型: llama3。</div>
+  </div>
+</div>
+
 <script>
 // ====== 数据模型：三类群体，每类若干模块 ======
 const GROUPS = {
   worker: {
     name: '上班族', icon: '💼',
     modules: [
+      { id:'dashboard',name:'总览',     type:'dashboard' },
       { id:'task',    name:'每日任务', type:'list' },
+      { id:'aiplan',  name:'AI目标规划', type:'aiplan' },
       { id:'board',   name:'项目看板', type:'kanban' },
       { id:'report',  name:'周报助手', type:'report', source:'task' },
       { id:'meeting', name:'会议纪要', type:'list' },
@@ -180,7 +233,9 @@ const GROUPS = {
   student: {
     name: '大学生', icon: '🎓',
     modules: [
+      { id:'dashboard',name:'总览',     type:'dashboard' },
       { id:'course',  name:'课程表',   type:'list' },
+      { id:'aiplan',  name:'AI目标规划', type:'aiplan' },
       { id:'exam',    name:'作业与考试', type:'list' },
       { id:'kaoyan',  name:'考研打卡', type:'checkin' },
       { id:'habit',   name:'习惯打卡', type:'checkin' },
@@ -193,7 +248,9 @@ const GROUPS = {
   biz: {
     name: '商务人士', icon: '🤝',
     modules: [
+      { id:'dashboard',name:'总览',     type:'dashboard' },
       { id:'crm',     name:'客户管理', type:'list' },
+      { id:'aiplan',  name:'AI目标规划', type:'aiplan' },
       { id:'pipeline',name:'商机管道', type:'kanban' },
       { id:'board',   name:'项目看板', type:'kanban' },
       { id:'schedule',name:'团队日程', type:'list' },
@@ -244,10 +301,12 @@ function renderContent(){
   document.getElementById('grpTag').textContent=`${g.icon} ${g.name}`;
   const c=document.getElementById('content');
   c.innerHTML='';
+  if(m.type==='dashboard')renderDashboard(c,g,m);
   if(m.type==='list')   renderList(c,g,m);
   if(m.type==='kanban') renderKanban(c,g,m);
   if(m.type==='checkin')renderCheckin(c,g,m);
   if(m.type==='report') renderReport(c,g,m);
+  if(m.type==='aiplan') renderAiPlan(c,g,m);
 }
 
 // ---- 列表 ----
@@ -352,6 +411,155 @@ function renderReport(c,g,m){
   c.appendChild(cp);
 }
 
+// ====== AI 设置（OpenAI 兼容，本机存储） ======
+function getAISettings(){ try{ const raw=localStorage.getItem('lobster_wb_ai_settings'); if(!raw) return null; return JSON.parse(decodeURIComponent(escape(atob(raw)))); }catch(e){ return null; } }
+function setAISettings(s){ localStorage.setItem('lobster_wb_ai_settings', btoa(unescape(encodeURIComponent(JSON.stringify(s))))); }
+async function callAI(system, user){
+  const s=getAISettings();
+  if(!s||!s.key) throw new Error('未配置 AI Key');
+  const base=(s.base||'https://api.openai.com/v1').replace(/\/+$/,'');
+  const body={ model:s.model||'gpt-4o-mini', messages:[
+    {role:'system',content:system},
+    {role:'user',content:user}
+  ], temperature:0.7, stream:false };
+  const r=await fetch(base+'/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.key},
+    body:JSON.stringify(body)
+  });
+  if(!r.ok) throw new Error('API 错误 '+r.status);
+  const j=await r.json();
+  return j.choices[0].message.content;
+}
+
+// ====== 视频一键进（搜索深链，零成本） ======
+function videoLinks(kw){
+  const q=encodeURIComponent(kw||'');
+  return '<a class="ai-vid" href="https://search.bilibili.com/all?keyword='+q+'" target="_blank" rel="noopener">📺 B站</a>'+
+         '<a class="ai-vid" href="https://www.youtube.com/results?search_query='+q+'" target="_blank" rel="noopener">▶ YouTube</a>'+
+         '<a class="ai-vid" href="https://www.douyin.com/search/'+q+'" target="_blank" rel="noopener">🎵 抖音</a>';
+}
+
+// ====== 示例计划（未配置 AI 时展示，让用户看到效果） ======
+const DEMO_PLANS={
+  worker:{goal:'3个月学会 Python 自动化办公',weeks:[
+    {week:1,focus:'环境 + 基础语法',days:[
+      {label:'Day1-2',task:'安装 Python 与 VS Code，跑通第一个 print 程序',kw:'Python 安装 环境配置'},
+      {label:'Day3-4',task:'变量/条件/循环，手写一个批量重命名脚本',kw:'Python 循环 批量重命名'},
+      {label:'Day5-7',task:'函数与文件读写，整理桌面杂乱文件',kw:'Python 文件读写'}]},
+    {week:2,focus:'办公自动化实战',days:[
+      {label:'Day8-10',task:'用 openpyxl 处理 Excel 报表',kw:'Python openpyxl Excel'},
+      {label:'Day11-14',task:'用 requests 自动抓取网页数据',kw:'Python requests 爬虫'}]}]},
+  student:{goal:'6个月考研英语冲 70+',weeks:[
+    {week:1,focus:'词汇 + 长难句',days:[
+      {label:'Day1-3',task:'背核心词汇 List 1-3，每天 50 词',kw:'考研英语 核心词汇'},
+      {label:'Day4-5',task:'长难句拆解训练',kw:'考研英语 长难句'},
+      {label:'Day6-7',task:'阅读真题一篇精读',kw:'考研英语 阅读 精读'}]},
+    {week:2,focus:'阅读 + 写作',days:[
+      {label:'Day8-10',task:'阅读理解技巧专项',kw:'考研英语 阅读技巧'},
+      {label:'Day11-14',task:'小作文模板背诵与仿写',kw:'考研英语 小作文 模板'}]}]},
+  biz:{goal:'3个月把商务英语口语练到能开会',weeks:[
+    {week:1,focus:'发音 + 常用句式',days:[
+      {label:'Day1-3',task:'音标纠正与连读训练',kw:'英语 发音 连读 训练'},
+      {label:'Day4-5',task:'会议常用 50 句开口练',kw:'商务英语 会议 常用句'},
+      {label:'Day6-7',task:'TED 演讲跟读 1 篇',kw:'TED 演讲 跟读'}]},
+    {week:2,focus:'场景实战',days:[
+      {label:'Day8-10',task:'模拟电话/视频会议',kw:'商务英语 电话会议 模拟'},
+      {label:'Day11-14',task:'用英语做 3 分钟产品介绍',kw:'英语 产品介绍 演讲'}]}]}
+};
+
+// ====== 总览 Dashboard ======
+function renderDashboard(c,g,m){
+  const grid=document.createElement('div'); grid.className='dash-grid';
+  const card=(title,jumpMod,items,emptyTxt)=>{
+    const d=document.createElement('div'); d.className='dash-card';
+    const h=document.createElement('h4'); h.textContent=title; d.appendChild(h);
+    if(!items||items.length===0){ const e=document.createElement('div'); e.className='dash-empty'; e.textContent=emptyTxt; d.appendChild(e); }
+    else items.slice(0,5).forEach(it=>{ const li=document.createElement('div'); li.className='li'; const b=document.createElement('b'); b.textContent=it.text||it; li.appendChild(b); d.appendChild(li); });
+    if(jumpMod){ const j=document.createElement('div'); j.className='dash-jump'; j.textContent='查看全部 →'; j.onclick=()=>{ curMod=jumpMod; renderMods(); renderContent(); }; d.appendChild(j); }
+    return d;
+  };
+  const taskMod=g.modules.find(x=>['task','course','crm'].includes(x.id));
+  const tasks=taskMod?load(curGroup,taskMod.id,[]).filter(i=>!i.done):[];
+  grid.appendChild(card('📋 今日待办', taskMod&&taskMod.id, tasks, '暂无待办，去添加吧'));
+  let goals=[];
+  const ap=load(curGroup,'aiplan',null); if(ap&&ap.goal) goals.push({text:ap.goal});
+  const goalMod=g.modules.find(x=>x.id==='goal'); if(goalMod) load(curGroup,'goal',[]).forEach(i=>goals.push(i));
+  grid.appendChild(card('🎯 活跃目标', 'aiplan', goals, '去「AI目标规划」定一个吧'));
+  const chkMod=g.modules.find(x=>x.type==='checkin');
+  let streak=0; if(chkMod){ const rec=load(curGroup,chkMod.id,[]); let dd=new Date(); while(true){ const ds=dd.toISOString().slice(0,10); if(rec.includes(ds)){streak++;dd.setDate(dd.getDate()-1);}else break; } }
+  const c2=document.createElement('div'); c2.className='dash-card';
+  c2.innerHTML='<h4>🔥 习惯打卡</h4><div class="dash-empty">连续打卡 <b style="color:var(--gold)">'+streak+'</b> 天'+(chkMod?'':'（无打卡模块）')+'</div>';
+  if(chkMod){ const j=document.createElement('div'); j.className='dash-jump'; j.textContent='去打卡 →'; j.onclick=()=>{ curMod=chkMod.id; renderMods(); renderContent(); }; c2.appendChild(j); }
+  grid.appendChild(c2);
+  const c3=document.createElement('div'); c3.className='dash-card';
+  c3.innerHTML='<h4>🤖 AI 规划</h4><div class="dash-empty">让 AI 把目标拆成每周/每天计划，并配好学习视频入口。</div>';
+  const j2=document.createElement('div'); j2.className='dash-jump'; j2.textContent='打开 AI目标规划 →'; j2.onclick=()=>{ curMod='aiplan'; renderMods(); renderContent(); }; c3.appendChild(j2);
+  grid.appendChild(c3);
+  c.appendChild(grid);
+}
+
+// ====== AI 目标规划 ======
+function parseJSON(s){ try{ return JSON.parse(s); }catch(e){} const m=s&&s.match(/\{[\s\S]*\}/); if(m){ try{ return JSON.parse(m[0]); }catch(e){} } return null; }
+function renderAiPlan(c,g,m){
+  const set=getAISettings();
+  if(!set||!set.key){
+    const need=document.createElement('div'); need.className='ai-needkey';
+    need.innerHTML='⚠ 使用前请先配置 AI：点右上角 <b>「⚙ AI设置」</b>，填入 OpenAI 兼容的 API（DeepSeek / 通义 / 智谱 / OpenAI 均可）。Key 只存在你本机浏览器，不外传。';
+    c.appendChild(need);
+  }
+  const form=document.createElement('div'); form.className='ai-form';
+  form.innerHTML=
+    '<div class="set-row"><label>目标（想达成什么）</label><input id="aiGoal" placeholder="例：3个月学会小提琴"></div>'+
+    '<div class="set-row"><label>当前水平</label><input id="aiLevel" placeholder="例：零基础"></div>'+
+    '<div class="set-row"><label>每周可投入时长</label><input id="aiHours" placeholder="例：5 小时/周"></div>'+
+    '<div class="set-row"><label>期望达成日期</label><input id="aiDate" placeholder="例：2026-11-01"></div>'+
+    '<div class="set-row"><label>身份宣言（可选，提升坚持率）</label><input id="aiWho" placeholder="例：我是一个把爱好变成专长的人"></div>';
+  c.appendChild(form);
+  const gen=document.createElement('button'); gen.className='ai-gen'; gen.textContent='🤖 生成计划';
+  const status=document.createElement('div'); status.className='ai-status';
+  gen.onclick=async()=>{
+    const goal=document.getElementById('aiGoal').value.trim();
+    if(!goal){ status.textContent='请先填写目标'; return; }
+    if(!getAISettings()||!getAISettings().key){ status.textContent='请先配置 AI Key（右上角 ⚙）'; return; }
+    gen.disabled=true; status.textContent='AI 规划中…（约 10-30 秒）';
+    const level=document.getElementById('aiLevel').value.trim()||'未说明';
+    const hours=document.getElementById('aiHours').value.trim()||'未说明';
+    const date=document.getElementById('aiDate').value.trim()||'未说明';
+    const who=document.getElementById('aiWho').value.trim();
+    const sys='你是一个专业的成长教练与目标拆解专家。根据用户目标，只输出纯 JSON（不要任何解释、不要 markdown 代码块），格式：{"goal":"目标","weeks":[{"week":1,"focus":"本周主题","days":[{"label":"Day1-2","task":"具体可执行任务","kw":"用于搜索教学视频的中文关键词"}]}]}，做 2-3 周、每周 3-5 天。kw 要具体利于搜视频。';
+    const usr='目标：'+goal+'\n当前水平：'+level+'\n每周投入：'+hours+'\n期望日期：'+date+'\n'+(who?('身份宣言：'+who+'\n'):'')+'请拆成可执行的周/日计划。';
+    try{
+      const raw=await callAI(sys,usr);
+      const plan=parseJSON(raw);
+      if(!plan||!plan.weeks){ status.textContent='生成结果格式异常，请重试'; gen.disabled=false; return; }
+      save(curGroup,'aiplan',plan);
+      status.textContent='✓ 计划已生成并保存';
+      renderAiPlan(c,g,m);
+    }catch(e){ status.textContent='生成失败：'+e.message+'（检查 Key / 网络 / 模型名）'; gen.disabled=false; }
+  };
+  c.appendChild(gen); c.appendChild(status);
+  let plan=load(curGroup,'aiplan',null) || (DEMO_PLANS[curGroup]?Object.assign({demo:true},DEMO_PLANS[curGroup]):null);
+  if(plan){
+    if(plan.demo){ const tip=document.createElement('div'); tip.className='ai-status'; tip.textContent='👇 以下是示例计划，配置 AI 并点「生成计划」可生成你自己的：'; c.appendChild(tip); }
+    const title=document.createElement('div'); title.style.cssText='font-size:16px;color:var(--gold);margin:18px 0 10px;'; title.textContent='🎯 '+plan.goal; c.appendChild(title);
+    plan.weeks.forEach(w=>{
+      const wk=document.createElement('div'); wk.className='ai-week';
+      const fh=document.createElement('h4'); fh.textContent='第 '+w.week+' 周 · '+(w.focus||''); wk.appendChild(fh);
+      (w.days||[]).forEach(dy=>{
+        const d=document.createElement('div'); d.className='ai-day';
+        const dl=document.createElement('div'); dl.className='dl'; dl.textContent=dy.label||'';
+        const dt=document.createElement('div'); dt.className='dt'; dt.textContent=dy.task||'';
+        const vids=document.createElement('div'); vids.className='ai-vids'; vids.innerHTML=videoLinks(dy.kw||dy.task||plan.goal);
+        d.append(dl,dt,vids); wk.appendChild(d);
+      });
+      c.appendChild(wk);
+    });
+  } else {
+    const e=document.createElement('div'); e.className='empty'; e.textContent='填写上方信息，让 AI 为你拆解目标'; c.appendChild(e);
+  }
+}
+
 // ====== 启动 ======
 renderGroups(); renderMods(); renderContent();
 
@@ -362,6 +570,21 @@ if(/micromessenger/i.test(navigator.userAgent)){
 document.getElementById('helpBtn').onclick=()=>document.getElementById('mask').classList.add('show');
 document.getElementById('helpClose').onclick=()=>document.getElementById('mask').classList.remove('show');
 document.getElementById('mask').onclick=(e)=>{ if(e.target.id==='mask') e.target.classList.remove('show'); };
+// AI 设置弹窗
+document.getElementById('setBtn').onclick=()=>{
+  const s=getAISettings()||{};
+  document.getElementById('setBase').value=s.base||'';
+  document.getElementById('setKey').value=s.key||'';
+  document.getElementById('setModel').value=s.model||'';
+  document.getElementById('setOk').classList.remove('show');
+  document.getElementById('setMask').classList.add('show');
+};
+document.getElementById('setSave').onclick=()=>{
+  setAISettings({base:document.getElementById('setBase').value.trim(),key:document.getElementById('setKey').value.trim(),model:document.getElementById('setModel').value.trim()});
+  document.getElementById('setOk').classList.add('show');
+  setTimeout(()=>document.getElementById('setMask').classList.remove('show'),800);
+};
+document.getElementById('setMask').onclick=(e)=>{ if(e.target.id==='setMask') e.target.classList.remove('show'); };
 
 // ====== PWA：Service Worker 注册 + 安装提示 ======
 if('serviceWorker' in navigator){
