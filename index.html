@@ -18,23 +18,23 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;font-family:'Microsoft YaHei','PingFang SC',sans-serif;}
   body{background:var(--bg);color:var(--txt);height:100vh;overflow:hidden;}
-  .app{display:flex;height:100vh;}
-  /* 侧栏 */
-  .sidebar{width:260px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;}
-  .brand{padding:22px 20px;border-bottom:1px solid var(--line);}
-  .brand h1{font-size:19px;color:var(--gold);letter-spacing:1px;}
-  .brand p{font-size:12px;color:var(--sub);margin-top:4px;}
-  .groups{padding:14px 12px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line);}
-  .grp-btn{padding:11px 14px;border-radius:10px;background:transparent;color:var(--sub);border:1px solid transparent;cursor:pointer;text-align:left;font-size:14px;transition:.15s;}
+  .app{display:flex;flex-direction:column;height:100vh;}
+  /* 顶部导航：两级菜单 */
+  .topnav{background:var(--panel);border-bottom:1px solid var(--line);flex-shrink:0;}
+  .brand-row{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line);}
+  .brand h1{font-size:18px;color:var(--gold);letter-spacing:1px;}
+  .brand p{font-size:11px;color:var(--sub);margin-top:2px;}
+  .help-mini{background:transparent;border:1px solid var(--line);color:var(--sub);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;white-space:nowrap;}
+  .help-mini:hover{border-color:var(--gold);color:var(--gold-soft);}
+  .groups{display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid var(--line);}
+  .grp-btn{flex:1;padding:9px 10px;border-radius:8px;background:transparent;color:var(--sub);border:1px solid transparent;cursor:pointer;text-align:center;font-size:14px;transition:.15s;}
   .grp-btn:hover{background:var(--panel2);color:var(--txt);}
   .grp-btn.active{background:linear-gradient(135deg,#2a2410,#1c2430);color:var(--gold);border-color:var(--gold);font-weight:600;}
-  .mods{flex:1;overflow-y:auto;padding:12px;}
-  .mod-btn{display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:4px;border-radius:8px;background:transparent;border:none;color:var(--sub);cursor:pointer;font-size:13px;transition:.15s;}
-  .mod-btn:hover{background:var(--panel2);color:var(--txt);}
-  .mod-btn.active{background:var(--panel2);color:var(--gold-soft);font-weight:600;}
-  .foot{padding:12px 16px;font-size:11px;color:var(--sub);border-top:1px solid var(--line);}
+  .mods{display:flex;gap:6px;padding:8px 16px;overflow-x:auto;flex-shrink:0;}
+  .mod-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);color:var(--sub);cursor:pointer;font-size:13px;white-space:nowrap;transition:.15s;}
+  .mod-btn:hover{color:var(--txt);}
+  .mod-btn.active{background:var(--gold);color:#1a1a1a;border-color:var(--gold);font-weight:600;}
   /* 主区 */
-  .main{flex:1;display:flex;flex-direction:column;}
   .topbar{padding:18px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
   .topbar h2{font-size:18px;}
   .topbar .tag{font-size:12px;color:var(--gold);background:rgba(212,175,55,.12);padding:4px 12px;border-radius:20px;}
@@ -95,54 +95,44 @@
   .modal ol li b{color:var(--gold-soft);}
   .modal .note{margin-top:12px;font-size:12px;color:var(--red);line-height:1.6;background:rgba(248,81,73,.08);padding:10px 12px;border-radius:8px;}
   .modal .close{margin-top:18px;width:100%;background:var(--gold);color:#1a1a1a;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;}
-  /* 移动端菜单按钮 + 遮罩（桌面隐藏） */
-  .menu-btn{display:none;}
-  .overlay{display:none;}
   @media(max-width:768px){
-    body{height:auto;overflow:auto;}
-    .app{height:auto;min-height:100vh;}
-    .sidebar{position:fixed;left:0;top:0;bottom:0;width:230px;transform:translateX(-100%);transition:transform .25s ease;z-index:110;border-right:none;}
-    .sidebar.open{transform:translateX(0);}
-    .main{width:100%;min-height:100vh;}
-    .topbar{position:sticky;top:0;background:var(--bg);padding:14px 16px;z-index:90;}
-    .topbar h2{font-size:16px;padding-left:38px;}
-    .menu-btn{display:block;position:absolute;left:14px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--gold);font-size:22px;cursor:pointer;padding:6px;}
+    .topbar{position:sticky;top:0;background:var(--bg);padding:13px 14px;z-index:90;}
+    .topbar h2{font-size:16px;}
+    .brand-row{padding:10px 14px;}
+    .brand h1{font-size:16px;}
+    .groups{padding:8px 12px;gap:6px;}
+    .grp-btn{font-size:13px;padding:8px 4px;}
+    .mods{padding:7px 12px;}
+    .mod-btn{font-size:12px;padding:5px 11px;}
     .content{padding:16px;}
     .kanban{flex-direction:column;}
     .col{width:100%;margin-bottom:14px;}
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:105;display:block;opacity:0;pointer-events:none;transition:opacity .2s;}
-    .overlay.show{opacity:1;pointer-events:auto;}
-    .foot{font-size:10px;padding:10px 12px;}
-    .help-btn{font-size:11px;padding:8px;}
     .install-bar{bottom:14px;padding:10px 16px;font-size:12px;}
   }
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="sidebar">
-    <div class="brand">
-      <h1>🦞 龙虾AI工作台</h1>
-      <p>一套引擎 · 三类预设 · 本地运行</p>
+  <div class="topnav">
+    <div class="brand-row">
+      <div class="brand">
+        <h1>🦞 龙虾AI工作台</h1>
+        <p>一套引擎 · 三类预设 · 本地运行</p>
+      </div>
+      <button class="help-mini" id="helpBtn">📲 安装帮助</button>
     </div>
     <div class="groups" id="groups"></div>
     <div class="mods" id="mods"></div>
-    <div class="foot">数据仅存本地浏览器 · 关掉不丢<br>PWA 离线版 v0.2
-      <button class="help-btn" id="helpBtn">📲 安装帮助 / 使用说明</button>
-    </div>
   </div>
   <div class="main">
     <div class="wx-tip" id="wxTip">⚠ 检测到在微信内打开，无法直接安装到主屏。请点右上角「···」→「在浏览器中打开」（或「复制链接」后到 Safari / Chrome 打开），再安装。</div>
     <div class="topbar">
-      <button class="menu-btn" id="menuBtn">☰</button>
       <h2 id="modTitle">—</h2>
       <span class="tag" id="grpTag">—</span>
     </div>
     <div class="content" id="content"></div>
   </div>
 </div>
-
-<div class="overlay" id="overlay"></div>
 
 <div class="install-bar" id="installBar">
   <span>💡 可安装到桌面/主屏，离线也能用</span>
@@ -231,7 +221,7 @@ function renderGroups(){
     const b=document.createElement('div');
     b.className='grp-btn'+(gid===curGroup?' active':'');
     b.textContent=`${g.icon} ${g.name}`;
-    b.onclick=()=>{ curGroup=gid; curMod=g.modules[0].id; renderGroups(); renderMods(); renderContent(); maybeCloseMenu(); };
+    b.onclick=()=>{ curGroup=gid; curMod=g.modules[0].id; renderGroups(); renderMods(); renderContent(); };
     box.appendChild(b);
   });
 }
@@ -242,7 +232,7 @@ function renderMods(){
     const b=document.createElement('div');
     b.className='mod-btn'+(m.id===curMod?' active':'');
     b.textContent=m.name;
-    b.onclick=()=>{ curMod=m.id; renderMods(); renderContent(); maybeCloseMenu(); };
+    b.onclick=()=>{ curMod=m.id; renderMods(); renderContent(); };
     box.appendChild(b);
   });
 }
@@ -372,18 +362,6 @@ if(/micromessenger/i.test(navigator.userAgent)){
 document.getElementById('helpBtn').onclick=()=>document.getElementById('mask').classList.add('show');
 document.getElementById('helpClose').onclick=()=>document.getElementById('mask').classList.remove('show');
 document.getElementById('mask').onclick=(e)=>{ if(e.target.id==='mask') e.target.classList.remove('show'); };
-
-// ====== 移动端侧栏菜单 ======
-const sidebar=document.querySelector('.sidebar');
-const overlay=document.getElementById('overlay');
-const menuBtn=document.getElementById('menuBtn');
-function toggleMenu(open){
-  if(open){ sidebar.classList.add('open'); overlay.classList.add('show'); }
-  else { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
-}
-menuBtn.onclick=()=>toggleMenu(!sidebar.classList.contains('open'));
-overlay.onclick=()=>toggleMenu(false);
-const maybeCloseMenu=()=>{ if(window.innerWidth<=768) toggleMenu(false); };
 
 // ====== PWA：Service Worker 注册 + 安装提示 ======
 if('serviceWorker' in navigator){
