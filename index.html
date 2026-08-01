@@ -77,9 +77,28 @@
   .install-bar.show{display:flex;}
   .install-bar button{background:var(--gold);color:#1a1a1a;border:none;padding:8px 16px;border-radius:20px;font-weight:600;cursor:pointer;font-size:13px;}
   .install-bar .x{color:var(--sub);cursor:pointer;padding:0 4px;}
+  /* 微信内提示（仅手机显示） */
+  .wx-tip{position:fixed;top:0;left:0;right:0;background:#3a2a10;border-bottom:1px solid var(--gold);color:var(--gold-soft);padding:11px 16px;font-size:13px;line-height:1.5;z-index:200;display:none;}
+  .wx-tip.show{display:block;}
+  .wx-tip b{color:var(--gold);}
+  @media(min-width:769px){ .wx-tip{display:none!important;} }
+  /* 安装帮助弹窗 */
+  .help-btn{margin-top:10px;width:100%;background:transparent;border:1px solid var(--line);color:var(--sub);padding:9px;border-radius:8px;cursor:pointer;font-size:12px;}
+  .help-btn:hover{border-color:var(--gold);color:var(--gold-soft);}
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+  .mask.show{display:flex;}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+  .modal h3{font-size:17px;color:var(--gold);margin-bottom:6px;}
+  .modal .sub{font-size:12px;color:var(--sub);margin-bottom:16px;line-height:1.5;}
+  .modal h4{font-size:14px;margin:16px 0 8px;color:var(--txt);}
+  .modal ol{margin:0 0 0 18px;color:var(--sub);font-size:13px;line-height:1.9;}
+  .modal ol li b{color:var(--gold-soft);}
+  .modal .note{margin-top:12px;font-size:12px;color:var(--red);line-height:1.6;background:rgba(248,81,73,.08);padding:10px 12px;border-radius:8px;}
+  .modal .close{margin-top:18px;width:100%;background:var(--gold);color:#1a1a1a;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;}
 </style>
 </head>
 <body>
+<div class="wx-tip" id="wxTip">⚠ 检测到在微信内打开，无法直接安装到主屏。请点右上角「···」→「在浏览器中打开」（或「复制链接」后到 Safari / Chrome 打开），再安装。</div>
 <div class="app">
   <div class="sidebar">
     <div class="brand">
@@ -88,7 +107,9 @@
     </div>
     <div class="groups" id="groups"></div>
     <div class="mods" id="mods"></div>
-    <div class="foot">数据仅存本地浏览器 · 关掉不丢<br>PWA 离线版 v0.2</div>
+    <div class="foot">数据仅存本地浏览器 · 关掉不丢<br>PWA 离线版 v0.2
+      <button class="help-btn" id="helpBtn">📲 安装帮助 / 使用说明</button>
+    </div>
   </div>
   <div class="main">
     <div class="topbar">
@@ -103,6 +124,27 @@
   <span>💡 可安装到桌面/主屏，离线也能用</span>
   <button id="installBtn">安装</button>
   <span class="x" id="installX">✕</span>
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <h3>📲 安装到手机主屏</h3>
+    <div class="sub">安装后可像 App 一样从桌面打开，离线也能用，数据存本机。分两步：先在<b style="color:var(--gold-soft)">手机浏览器</b>打开本页，再按下方操作。</div>
+    <h4>🍎 iPhone（Safari）</h4>
+    <ol>
+      <li>用 <b>Safari</b> 打开本页链接（微信内请先「在浏览器中打开」）</li>
+      <li>点底部地址栏，展开后点右侧 <b>「⬆️ 分享」</b> 按钮</li>
+      <li>下滑找到 <b>「添加到主屏幕」</b> → 右上角「添加」</li>
+    </ol>
+    <h4>🤖 安卓（Chrome / Edge）</h4>
+    <ol>
+      <li>用 <b>Chrome 或 Edge</b> 打开本页（QQ、UC、OPPO/Vivo 自带浏览器多不支持）</li>
+      <li>地址栏右侧若出现 <b>「安装」</b> 图标，直接点它</li>
+      <li>或点右上角 <b>「⋮」</b> → <b>「安装应用」/「添加到主屏幕」</b></li>
+    </ol>
+    <div class="note">⚠ 微信、QQ 浏览器、OPPO/Vivo 自带浏览器均不支持 PWA 安装，请务必用 Safari / Chrome / Edge。</div>
+    <button class="close" id="helpClose">知道了</button>
+  </div>
 </div>
 
 <script>
@@ -298,6 +340,14 @@ function renderReport(c,g,m){
 
 // ====== 启动 ======
 renderGroups(); renderMods(); renderContent();
+
+// ====== 微信内打开提示 + 安装帮助弹窗 ======
+if(/micromessenger/i.test(navigator.userAgent)){
+  document.getElementById('wxTip').classList.add('show');
+}
+document.getElementById('helpBtn').onclick=()=>document.getElementById('mask').classList.add('show');
+document.getElementById('helpClose').onclick=()=>document.getElementById('mask').classList.remove('show');
+document.getElementById('mask').onclick=(e)=>{ if(e.target.id==='mask') e.target.classList.remove('show'); };
 
 // ====== PWA：Service Worker 注册 + 安装提示 ======
 if('serviceWorker' in navigator){
