@@ -153,17 +153,135 @@
     .install-bar{bottom:14px;padding:10px 16px;font-size:12px;}
   }
   /* ===== 三套主题专属覆盖 ===== */
-  /* 学生 student：纸质手账本风（明快温暖） */
+  /* 学生 student：便签手账本风（奶油纸+格纹胶带+小花装饰） */
   body[data-theme="student"]{
-    --bg:#fdf6ec; --panel:#fffaf0; --panel2:#fff3e0; --line:#e8d9c0;
-    --gold:#f2994a; --gold-soft:#f7b06a; --txt:#4a3f35; --sub:#9a8a76;
-    --green:#3f9e7a; --red:#e07b5a; --blue:#5b9bd5;
+    --bg:#fdf6e3; --panel:#fff9e6; --panel2:#eef7fb; --line:#e0d2b8;
+    --gold:#88b04b; --gold-soft:#9cc55d; --txt:#5d4e37; --sub:#9e8b78;
+    --green:#6ba86e; --red:#e07b5a; --blue:#7eb5d6;
     --ip-gold:#e08a2a;
-    --font:"华文圆体","圆体-简","楷体",sans-serif;
-    --font-serif:"华文圆体","楷体",serif;
-    --radius:16px; --shadow:0 3px 12px rgba(180,140,90,.12);
-    --bg-texture: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(180,150,110,.10) 28px), repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(180,150,110,.10) 28px);
+    --font:"圆体-简","华文圆体","楷体","Microsoft YaHei",sans-serif;
+    --font-serif:"华文楷体","楷体",serif;
+    --radius:18px; --shadow:0 4px 14px rgba(140,120,80,.10);
+    --bg-texture:
+      repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(180,160,120,.06) 24px),
+      radial-gradient(circle at 12% 8%, rgba(139,195,74,.06), transparent 34%),
+      radial-gradient(circle at 88% 92%, rgba(126,181,214,.06), transparent 38%);
   }
+  body[data-theme="student"] .topnav{background:var(--panel); position:relative;}
+  body[data-theme="student"] .topnav::after{
+    content:"🌼"; position:absolute; right:12px; bottom:-10px; font-size:22px;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.08)); transform:rotate(12deg);
+  }
+  body[data-theme="student"] .brand h1{font-family:var(--font); font-size:19px;}
+  body[data-theme="student"] .brand p{font-family:var(--font); opacity:.85;}
+  /* 群体切换按钮：圆润胶囊 */
+  body[data-theme="student"] .groups{padding:12px 16px 10px;}
+  body[data-theme="student"] .grp-btn{border-radius:24px; border:1px solid var(--line); background:rgba(255,255,255,.55); font-family:var(--font); font-weight:500;}
+  body[data-theme="student"] .grp-btn:hover{background:rgba(255,255,255,.9);}
+  body[data-theme="student"] .grp-btn.active{background:linear-gradient(135deg,var(--gold-soft),var(--gold)); color:#fff; border-color:transparent; box-shadow:0 3px 10px rgba(136,176,75,.28);}
+  /* 模块胶囊：小标签风格 */
+  body[data-theme="student"] .mod-btn{border-radius:20px; background:#fff; border:1px dashed var(--line); font-family:var(--font);}
+  body[data-theme="student"] .mod-btn.active{background:var(--panel2); color:var(--blue); border:1px solid var(--blue);}
+  /* 主内容区 */
+  body[data-theme="student"] .topbar h2{font-family:var(--font-serif); color:var(--txt);}
+  body[data-theme="student"] .topbar .tag{background:rgba(136,176,75,.12); color:var(--gold); font-family:var(--font);}
+  /* 便签纸卡片通用：奶油底+顶部胶带+横线内纹+撕边圆角 */
+  body[data-theme="student"] .item,
+  body[data-theme="student"] .col,
+  body[data-theme="student"] .dash-card,
+  body[data-theme="student"] .ai-form,
+  body[data-theme="student"] .ai-week,
+  body[data-theme="student"] .report-out{
+    background:#fffdf5;
+    border:1px dashed var(--line);
+    border-radius:18px 18px 16px 14px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  body[data-theme="student"] .item::before,
+  body[data-theme="student"] .col::before,
+  body[data-theme="student"] .dash-card::before,
+  body[data-theme="student"] .ai-form::before,
+  body[data-theme="student"] .ai-week::before,
+  body[data-theme="student"] .report-out::before{
+    content:"";
+    position:absolute; top:0; left:16px; right:16px; height:14px;
+    background:
+      repeating-linear-gradient(45deg, rgba(180,210,160,.35) 0 6px, transparent 6px 12px),
+      repeating-linear-gradient(-45deg, rgba(200,230,180,.25) 0 6px, transparent 6px 12px);
+    opacity:.7;
+  }
+  body[data-theme="student"] .item::after,
+  body[data-theme="student"] .col::after,
+  body[data-theme="student"] .dash-card::after,
+  body[data-theme="student"] .ai-form::after,
+  body[data-theme="student"] .ai-week::after,
+  body[data-theme="student"] .report-out::after{
+    content:"🍀";
+    position:absolute; right:8px; bottom:6px;
+    font-size:16px; opacity:.35; transform:rotate(-10deg);
+  }
+  /* 列表项内部横线纹理 */
+  body[data-theme="student"] .item{
+    background-image:repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(200,180,140,.10) 24px);
+    background-size:100% 24px;
+    padding-top:18px;
+  }
+  body[data-theme="student"] .item .txt{font-family:var(--font); font-size:15px;}
+  body[data-theme="student"] .chk{border-radius:6px; border-color:var(--line); background:#fff;}
+  body[data-theme="student"] .item.done .chk{background:var(--green); border-color:var(--green); color:#fff;}
+  body[data-theme="student"] .del:hover{color:var(--red);}
+  /* 看板列 */
+  body[data-theme="student"] .col{background:#fffdf5;}
+  body[data-theme="student"] .col h4{font-family:var(--font-serif); color:var(--gold); border-bottom:1px dashed var(--line);}
+  body[data-theme="student"] .col .card{background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 1px 4px rgba(140,120,80,.06); font-family:var(--font); position:relative;}
+  body[data-theme="student"] .col .card::before{content:"🌿"; position:absolute; right:4px; top:4px; font-size:12px; opacity:.4;}
+  body[data-theme="student"] .col .mv{color:var(--blue); font-weight:500;}
+  /* 打卡区 */
+  body[data-theme="student"] .checkin-box{background:#fffdf5; border-style:dashed; border-radius:18px;}
+  body[data-theme="student"] .streak .num{color:var(--gold); font-family:var(--font-serif);}
+  body[data-theme="student"] .checkin-btn{border-radius:24px; background:linear-gradient(135deg,var(--gold-soft),var(--gold)); color:#fff; box-shadow:0 4px 12px rgba(136,176,75,.28); font-family:var(--font);}
+  body[data-theme="student"] .checkin-btn:disabled{background:#d0ccc4; color:#fff; box-shadow:none;}
+  body[data-theme="student"] .dot{border-radius:8px; background:#fff;}
+  body[data-theme="student"] .dot.on{background:var(--gold); border-radius:50%;}
+  /* Dashboard */
+  body[data-theme="student"] .dash-card h4{color:var(--gold); font-family:var(--font-serif);}
+  body[data-theme="student"] .dash-jump{color:var(--blue); font-weight:500;}
+  /* AI 规划 */
+  body[data-theme="student"] .ai-gen{border-radius:24px; background:linear-gradient(135deg,var(--gold-soft),var(--gold)); color:#fff; box-shadow:0 4px 12px rgba(136,176,75,.28); font-family:var(--font);}
+  body[data-theme="student"] .ai-gen:disabled{background:#d0ccc4; color:#fff; box-shadow:none;}
+  body[data-theme="student"] .ai-week h4{color:var(--gold); font-family:var(--font-serif);}
+  body[data-theme="student"] .ai-week .focus{font-family:var(--font);}
+  body[data-theme="student"] .ai-day{background:#fff; border-radius:14px; border:1px dashed var(--line);}
+  body[data-theme="student"] .ai-day .dl{color:var(--blue);}
+  body[data-theme="student"] .ai-vid{background:#fff; border-radius:12px; font-family:var(--font);}
+  body[data-theme="student"] .ai-vid:hover{border-color:var(--blue); color:var(--blue);}
+  /* 输入框 */
+  body[data-theme="student"] .add-row input,
+  body[data-theme="student"] .set-row input{background:#fff; border:1px solid var(--line); border-radius:12px; font-family:var(--font);}
+  body[data-theme="student"] .add-row input:focus,
+  body[data-theme="student"] .set-row input:focus{border-color:var(--gold);}
+  body[data-theme="student"] .add-row button{border-radius:12px; background:var(--gold); color:#fff; font-family:var(--font);}
+  /* 弹窗 */
+  body[data-theme="student"] .set-box,
+  body[data-theme="student"] .modal{background:#fffdf5; border:1px dashed var(--line); border-radius:20px;}
+  body[data-theme="student"] .set-box h3,
+  body[data-theme="student"] .modal h3{color:var(--gold); font-family:var(--font-serif);}
+  body[data-theme="student"] .set-save{border-radius:20px; background:linear-gradient(135deg,var(--gold-soft),var(--gold)); color:#fff; font-family:var(--font);}
+  body[data-theme="student"] .modal .note{background:#fff; border-style:dashed;}
+  body[data-theme="student"] .modal .close{border-radius:20px;}
+  body[data-theme="student"] .help-mini{border-radius:14px; background:rgba(255,255,255,.6); font-family:var(--font);}
+  body[data-theme="student"] .install-bar{background:#fffdf5; border-style:dashed; color:var(--gold); border-radius:30px; font-family:var(--font);}
+  body[data-theme="student"] .install-bar button{border-radius:20px; background:var(--gold); color:#fff;}
+  body[data-theme="student"] .wx-tip{background:#fffdf5; border-bottom:2px dashed var(--gold); color:var(--txt); font-family:var(--font);}
+  body[data-theme="student"] .wx-tip b{color:var(--gold);}
+  /* 报告输出 */
+  body[data-theme="student"] .report-out{font-family:var(--font); background-image:repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(200,180,140,.10) 24px); background-size:100% 24px;}
+  body[data-theme="student"] .copy-btn{background:#fff; border:1px dashed var(--gold); color:var(--gold); border-radius:20px; font-family:var(--font);}
+  body[data-theme="student"] .copy-btn:hover{background:var(--gold); color:#fff;}
+  /* 空态 */
+  body[data-theme="student"] .empty{color:var(--sub); font-family:var(--font);}
   /* 商务 biz：精致奢华纹理（墨黑 + 香槟金） */
   body[data-theme="biz"]{
     --bg:#14110d; --panel:#1d1813; --panel2:#251e17; --line:#3a2f23;
