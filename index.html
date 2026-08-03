@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>陪跑精灵</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#d9743f">
@@ -13,107 +13,182 @@
 <style>
   :root{
     --bg:#faf6f1; --panel:#ffffff; --panel2:#f5efe9; --line:#e6ddd3;
-    --gold:#d9743f; --gold-soft:#e08a4f; --txt:#2e2a26; --sub:#8a7f74;
+    --gold:#d9743f; --gold-soft:#e08a4f; --gold-light:#fff4ed;
+    --txt:#2e2a26; --sub:#8a7f74;
     --green:#3a9d6e; --red:#d9534f; --blue:#4a7fb5;
     --ip-gold:#d4af37;
-    --font:'微软雅黑','PingFang SC',sans-serif;
-    --radius:12px; --shadow:0 2px 10px rgba(0,0,0,.06);
-    --bg-texture:none;
+    --font:'PingFang SC','Microsoft YaHei',sans-serif;
+    --radius:20px; --shadow:0 4px 20px rgba(0,0,0,.06);
   }
-  *{margin:0;padding:0;box-sizing:border-box;font-family:'Microsoft YaHei','PingFang SC',sans-serif;}
-  body{background:var(--bg);background-image:var(--bg-texture);background-attachment:fixed;color:var(--txt);font-family:var(--font);height:100vh;overflow:hidden;transition:background .3s,color .3s;}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:var(--font);-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{background:var(--bg);color:var(--txt);height:100vh;overflow:hidden;}
   .app{display:flex;flex-direction:column;height:100vh;}
-  .topnav{background:var(--panel);border-bottom:1px solid var(--line);flex-shrink:0;}
-  .brand-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);}
-  .brand h1{font-size:26px;font-weight:900;color:var(--ip-gold);letter-spacing:1.5px;line-height:1.2;}
-  .brand h1::after{content:"🧚";font-size:20px;display:inline-block;margin-left:6px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.08));}
-  .top-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;position:relative;}
-  .help-mini{background:transparent;border:1px solid var(--line);color:var(--sub);padding:9px 14px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;white-space:nowrap;}
-  .help-mini:hover{border-color:var(--gold);color:var(--gold-soft);}
-  .set-dropdown{display:none;position:absolute;top:calc(100% + 6px);right:0;width:240px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.2);padding:8px;z-index:1000;}
-  .set-dropdown.show{display:block;}
+
+  /* 开屏气泡 */
+  #splash{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#fff7f0 0%,#ffece0 50%,#fff1e6 100%);overflow:hidden;transition:opacity .6s ease,visibility .6s;}
+  #splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
+  .bubble{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.95),rgba(255,200,160,.45));box-shadow:0 8px 30px rgba(217,116,63,.12),inset 0 -4px 12px rgba(217,116,63,.08);animation:float 8s ease-in-out infinite;}
+  .bubble:nth-child(1){width:120px;height:120px;left:10%;top:18%;animation-duration:9s;animation-delay:-2s;}
+  .bubble:nth-child(2){width:60px;height:60px;right:14%;top:24%;animation-duration:7s;animation-delay:-1s;}
+  .bubble:nth-child(3){width:90px;height:90px;left:18%;bottom:20%;animation-duration:10s;animation-delay:-3s;}
+  .bubble:nth-child(4){width:45px;height:45px;right:22%;bottom:28%;animation-duration:6s;animation-delay:-4s;}
+  .bubble:nth-child(5){width:70px;height:70px;left:50%;top:10%;animation-duration:8s;animation-delay:-5s;}
+  @keyframes float{
+    0%,100%{transform:translateY(0) translateX(0);}
+    33%{transform:translateY(-18px) translateX(8px);}
+    66%{transform:translateY(10px) translateX(-6px);}
+  }
+  .hero-bubble{position:relative;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.98),rgba(255,210,175,.55));box-shadow:0 20px 60px rgba(217,116,63,.18),inset 0 -8px 24px rgba(217,116,63,.1);display:flex;align-items:center;justify-content:center;text-align:center;padding:36px;cursor:pointer;animation:breathe 4s ease-in-out infinite,shine 6s linear infinite;}
+  .hero-bubble:active{transform:scale(.96);}
+  @keyframes breathe{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.04);}
+  }
+  @keyframes shine{
+    0%{box-shadow:0 20px 60px rgba(217,116,63,.18),inset 0 -8px 24px rgba(217,116,63,.1);}
+    50%{box-shadow:0 28px 70px rgba(217,116,63,.28),inset 0 -8px 24px rgba(217,116,63,.14);}
+    100%{box-shadow:0 20px 60px rgba(217,116,63,.18),inset 0 -8px 24px rgba(217,116,63,.1);}
+  }
+  .hero-bubble .txt{font-size:20px;font-weight:700;color:var(--gold);line-height:1.7;}
+  .hero-bubble .txt small{display:block;font-size:13px;color:var(--sub);margin-top:10px;font-weight:500;}
+  .splash-hint{position:absolute;bottom:42px;font-size:13px;color:var(--sub);animation:fadeUp 2s ease infinite;}
+  @keyframes fadeUp{0%,100%{opacity:.6;transform:translateY(0);}50%{opacity:1;transform:translateY(-4px);}}
+
+  /* 顶部导航 */
+  .topnav{background:transparent;flex-shrink:0;position:absolute;top:0;left:0;right:0;z-index:100;padding:14px 16px;display:flex;justify-content:flex-end;}
+  .top-actions{position:relative;}
+  .help-mini{background:rgba(255,255,255,.72);backdrop-filter:blur(10px);border:1px solid rgba(217,116,63,.18);color:var(--gold);padding:9px 14px;border-radius:24px;cursor:pointer;font-size:13px;font-weight:600;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+  .help-mini:active{transform:scale(.95);}
+  .set-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;width:220px;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 44px rgba(0,0,0,.15);padding:8px;z-index:1000;}
+  .set-dropdown.show{display:block;animation:dropIn .2s ease;}
+  @keyframes dropIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
   .set-dropdown .setting-entry{margin-bottom:6px;padding:12px 14px;}
   .set-dropdown .setting-entry:last-child{margin-bottom:0;}
-  .setting-entry{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:14px 16px;border-radius:12px;cursor:pointer;font-size:15px;margin-bottom:10px;transition:.15s;}
+  .setting-entry{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:14px 16px;border-radius:14px;cursor:pointer;font-size:15px;margin-bottom:10px;transition:.15s;}
   .setting-entry small{display:block;font-size:12px;color:var(--sub);margin-top:3px;font-weight:400;}
   .setting-entry:hover{border-color:var(--gold);color:var(--gold-soft);}
-  .setting-entry.active{background:rgba(212,175,55,.14);border-color:var(--gold);color:var(--gold);font-weight:600;}
-  .main{flex:1;min-height:0;display:flex;flex-direction:column;}
-  .content{flex:1;min-height:0;overflow-y:auto;padding:26px 28px;}
-  .hint{color:var(--sub);font-size:13px;margin-bottom:18px;line-height:1.6;}
-  /* 陪跑流 */
-  .pp-hero{font-size:15px;color:var(--sub);line-height:1.7;margin-bottom:18px;}
+  .setting-entry.active{background:var(--gold-light);border-color:var(--gold);color:var(--gold);font-weight:600;}
+
+  /* 向导容器 */
+  .main{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;}
+  .content{flex:1;min-height:0;overflow-y:auto;position:relative;}
+  .wizard{display:none;flex-direction:column;height:100%;padding:0 28px;position:relative;}
+  .wizard.show{display:flex;animation:wizIn .5s ease;}
+  @keyframes wizIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  .wizard-top{flex-shrink:0;padding-top:78px;padding-bottom:22px;text-align:center;}
+  .wizard-top .mascot{font-size:42px;margin-bottom:8px;animation:mascotBounce 2s ease infinite;}
+  @keyframes mascotBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  .wizard-top .dots{display:flex;justify-content:center;gap:8px;margin-top:16px;}
+  .wizard-top .dot{width:8px;height:8px;border-radius:50%;background:var(--line);transition:.3s;}
+  .wizard-top .dot.active{background:var(--gold);transform:scale(1.3);}
+  .step-view{flex:1;display:none;flex-direction:column;justify-content:center;min-height:0;padding-bottom:30px;}
+  .step-view.active{display:flex;animation:stepIn .4s ease;}
+  @keyframes stepIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+  .step-q{font-size:26px;font-weight:800;color:var(--txt);line-height:1.4;margin-bottom:10px;text-align:center;}
+  .step-hint{font-size:14px;color:var(--sub);text-align:center;margin-bottom:28px;line-height:1.6;}
+  .step-input{width:100%;background:var(--panel);border:1.5px solid var(--line);border-radius:18px;padding:18px 20px;font-size:17px;color:var(--txt);outline:none;transition:.2s;box-shadow:var(--shadow);}
+  .step-input:focus{border-color:var(--gold);box-shadow:0 4px 24px rgba(217,116,63,.15);}
+  .step-input::placeholder{color:var(--sub);opacity:.6;}
+  .date-wrap{position:relative;}
+  .date-wrap .step-input{color:transparent;caret-color:transparent;background:var(--panel);}
+  .date-display{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-size:17px;color:var(--txt);font-weight:600;}
+  .step-actions{display:flex;gap:12px;margin-top:28px;}
+  .btn-primary{flex:1;background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#fff;border:none;padding:16px;border-radius:18px;font-weight:700;cursor:pointer;font-size:16px;box-shadow:0 6px 18px rgba(217,116,63,.25);transition:.15s;}
+  .btn-primary:active{transform:scale(.97);}
+  .btn-secondary{background:var(--panel2);color:var(--sub);border:1px solid var(--line);padding:14px 18px;border-radius:18px;font-weight:600;cursor:pointer;font-size:15px;}
+  .btn-secondary:active{transform:scale(.97);}
+  .skip-link{display:block;text-align:center;margin-top:18px;font-size:13px;color:var(--sub);cursor:pointer;}
+  .skip-link:hover{color:var(--gold);}
+
+  /* key 配置页 */
+  .key-card{background:var(--panel);border:1.5px solid var(--line);border-radius:20px;padding:22px;text-align:center;box-shadow:var(--shadow);}
+  .key-card .icon{font-size:44px;margin-bottom:12px;}
+  .key-card h3{font-size:18px;margin-bottom:8px;color:var(--txt);}
+  .key-card p{font-size:14px;color:var(--sub);line-height:1.7;margin-bottom:18px;}
+  .key-card .tag{display:inline-block;background:var(--gold-light);color:var(--gold);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:16px;}
+  .key-status{display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;color:var(--green);margin-bottom:18px;font-weight:600;}
+  .key-status.no{color:var(--sub);}
+  .key-status .dot{width:8px;height:8px;border-radius:50%;background:var(--green);}
+  .key-status.no .dot{background:var(--sub);}
+
+  /* 主流程 */
+  .flow{padding:16px 16px 30px;display:none;animation:flowIn .4s ease;}
+  .flow.show{display:block;}
+  @keyframes flowIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .pp-hero{font-size:14px;color:var(--sub);line-height:1.7;margin-bottom:14px;padding:0 4px;}
   .pp-hero b{color:var(--gold);}
-  .streak-bar{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#fff6ee,#fdeee2);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:18px;}
+  .streak-bar{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#fff6ee,#fdeee2);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow);}
   .streak-bar .num{font-size:34px;font-weight:800;color:var(--gold);line-height:1;}
   .streak-bar .lbl{font-size:12px;color:var(--sub);}
-  .streak-bar .goal{font-size:15px;font-weight:700;color:var(--txt);}
+  .streak-bar .goal{font-size:15px;font-weight:700;color:var(--txt);flex:1;}
   .streak-bar .goal small{display:block;font-size:12px;color:var(--sub);font-weight:400;margin-top:3px;}
-  .pp-today{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden;}
-  .pp-today::before{content:"";position:absolute;top:0;left:0;width:5px;height:100%;background:var(--gold);}
+  .pp-today{background:var(--panel);border:1.5px solid var(--line);border-radius:22px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+  .pp-today::before{content:"";position:absolute;top:0;left:0;width:6px;height:100%;background:linear-gradient(180deg,var(--gold),var(--gold-soft));}
   .pp-today .lead{font-size:13px;color:var(--gold);font-weight:700;margin-bottom:8px;}
-  .pp-today .step{font-size:19px;font-weight:700;line-height:1.5;color:var(--txt);}
-  .pp-actions{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap;}
-  .pp-done{background:var(--gold);color:#fff;border:none;padding:12px 26px;border-radius:10px;font-weight:700;cursor:pointer;font-size:15px;}
+  .pp-today .step{font-size:19px;font-weight:700;line-height:1.6;color:var(--txt);}
+  .pp-actions{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap;}
+  .pp-done{flex:1;background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#fff;border:none;padding:14px 26px;border-radius:16px;font-weight:700;cursor:pointer;font-size:15px;box-shadow:0 6px 18px rgba(217,116,63,.2);transition:.15s;}
   .pp-done:active{transform:scale(.97);}
-  .ai-vids{display:flex;gap:6px;}
-  .ai-vid{flex:1;min-width:88px;text-align:center;background:var(--panel);border:1px solid var(--line);color:var(--sub);padding:7px 4px;border-radius:8px;font-size:12px;text-decoration:none;}
-  .ai-vid:hover{border-color:var(--gold);color:var(--gold-soft);}
-  .pp-push{background:#fff3ec;border:1px dashed var(--gold);color:var(--txt);padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.6;margin-bottom:16px;}
-  .pp-cheer{font-size:14px;color:var(--green);margin:10px 0 4px;line-height:1.6;font-weight:600;}
-  .pp-foot{margin-top:22px;border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px;}
+  .ai-vids{display:flex;gap:6px;flex:1;min-width:200px;}
+  .ai-vid{flex:1;min-width:88px;text-align:center;background:var(--panel2);border:1px solid var(--line);color:var(--sub);padding:9px 4px;border-radius:12px;font-size:12px;text-decoration:none;transition:.15s;}
+  .ai-vid:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-light);}
+  .pp-push{background:linear-gradient(135deg,#fff8f3,#ffeee4);border:1px dashed var(--gold);color:var(--txt);padding:14px 16px;border-radius:16px;font-size:14px;line-height:1.6;margin-bottom:14px;}
+  .pp-cheer{font-size:15px;color:var(--green);margin:12px 0 4px;line-height:1.6;font-weight:600;}
+  .pp-foot{margin-top:18px;display:flex;flex-direction:column;gap:10px;padding:0 4px;}
   .pp-link{color:var(--blue);cursor:pointer;font-size:14px;font-weight:500;}
   .pp-link:hover{color:var(--gold);}
   .pp-full{margin-top:14px;display:none;}
   .pp-full.show{display:block;}
-  .ai-week{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+  .ai-week{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;}
   .ai-week h4{font-size:14px;color:var(--gold);margin-bottom:4px;}
   .ai-week .focus{font-size:12px;color:var(--sub);margin-bottom:10px;}
-  .ai-day{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+  .ai-day{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
   .ai-day.done{opacity:.55;}
   .ai-day.done .dt{text-decoration:line-through;}
   .ai-day .dl{font-size:12px;color:var(--blue);font-weight:600;margin-bottom:4px;}
   .ai-day .dt{font-size:13px;color:var(--txt);line-height:1.6;}
   .ai-day .ok{font-size:12px;color:var(--green);margin-top:4px;}
-  /* 引导表单 */
-  .ai-form{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;}
-  .ai-form .set-row{margin-bottom:10px;}
-  .ai-gen{background:var(--gold);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;}
-  .ai-gen:disabled{background:#3a3a3a;color:var(--sub);cursor:default;}
-  .ai-status{font-size:12px;color:var(--sub);margin-top:10px;}
-  .ai-needkey{background:var(--panel2);border:1px solid var(--red);color:var(--txt);padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;line-height:1.6;}
-  .empty{color:var(--sub);font-size:13px;text-align:center;padding:40px 0;}
+
   /* 履历 */
   .rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
-  .rec-card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;}
+  .rec-card{background:var(--panel);border:1.5px solid var(--line);border-radius:18px;padding:16px 10px;text-align:center;box-shadow:var(--shadow);}
   .rec-card .n{font-size:30px;font-weight:800;color:var(--gold);}
   .rec-card .t{font-size:12px;color:var(--sub);margin-top:4px;}
-  .rec-list .item{display:flex;justify-content:space-between;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:14px;}
+  .rec-list .item{display:flex;justify-content:space-between;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:14px;}
   .rec-list .item .d{color:var(--sub);font-size:12px;white-space:nowrap;}
-  /* 设置弹窗 + 安装 */
-  .set-mask{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
-  .set-mask.show{display:flex;}
-  .set-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.6);}
-  .set-box h3{font-size:17px;color:var(--gold);margin-bottom:4px;}
-  .set-box .sub{font-size:12px;color:var(--sub);margin-bottom:14px;line-height:1.5;}
-  .set-row{margin-bottom:12px;}
-  .set-row label{display:block;font-size:12px;color:var(--sub);margin-bottom:5px;}
-  .set-row input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:10px 12px;border-radius:8px;font-size:13px;outline:none;}
+  .empty{color:var(--sub);font-size:13px;text-align:center;padding:40px 0;}
+
+  /* 弹窗 */
+  .set-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+  .set-mask.show{display:flex;animation:maskIn .2s ease;}
+  @keyframes maskIn{from{opacity:0;}to{opacity:1;}}
+  .set-box{background:var(--panel);border:1px solid var(--line);border-radius:22px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.2);animation:boxIn .25s ease;}
+  @keyframes boxIn{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+  .set-box h3{font-size:18px;color:var(--gold);margin-bottom:6px;}
+  .set-box .sub{font-size:13px;color:var(--sub);margin-bottom:18px;line-height:1.6;}
+  .set-row{margin-bottom:14px;}
+  .set-row label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px;}
+  .set-row input{width:100%;background:var(--panel2);border:1.5px solid var(--line);color:var(--txt);padding:12px 14px;border-radius:14px;font-size:14px;outline:none;}
   .set-row input:focus{border-color:var(--gold);}
-  .set-save{margin-top:8px;width:100%;background:var(--gold);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;}
-  .set-ok{font-size:12px;color:var(--green);margin-top:8px;display:none;}
+  .set-save{margin-top:8px;width:100%;background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#fff;border:none;padding:14px;border-radius:14px;font-weight:700;cursor:pointer;font-size:15px;}
+  .set-save:active{transform:scale(.98);}
+  .set-ok{font-size:13px;color:var(--green);margin-top:10px;display:none;text-align:center;font-weight:600;}
   .set-ok.show{display:block;}
-  .set-note{font-size:11px;color:var(--sub);margin-top:10px;line-height:1.5;}
-  .mask{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+  .set-note{font-size:11px;color:var(--sub);margin-top:12px;line-height:1.6;}
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
   .mask.show{display:flex;}
-  .modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.6);}
-  .modal h3{font-size:17px;color:var(--gold);margin-bottom:6px;}
-  .modal .sub{font-size:12px;color:var(--sub);margin-bottom:16px;line-height:1.5;}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:22px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto;padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.2);animation:boxIn .25s ease;}
+  .modal h3{font-size:18px;color:var(--gold);margin-bottom:6px;}
+  .modal .sub{font-size:13px;color:var(--sub);margin-bottom:16px;line-height:1.6;}
   .modal h4{font-size:14px;margin:16px 0 8px;color:var(--txt);}
   .modal ol{margin:0 0 0 18px;color:var(--sub);font-size:13px;line-height:1.9;}
   .modal ol li b{color:var(--gold-soft);}
-  .modal .note{margin-top:12px;font-size:12px;color:var(--red);line-height:1.6;background:var(--panel2);border:1px solid var(--red);padding:10px 12px;border-radius:8px;}
-  .modal .close{margin-top:18px;width:100%;background:var(--gold);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;}
+  .modal .note{margin-top:12px;font-size:12px;color:var(--red);line-height:1.6;background:var(--panel2);border:1px solid var(--red);padding:10px 12px;border-radius:10px;}
+  .modal .close{margin-top:18px;width:100%;background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#fff;border:none;padding:14px;border-radius:14px;font-weight:700;cursor:pointer;font-size:15px;}
+  .key-guide ol{margin:0 0 0 18px;color:var(--sub);font-size:13px;line-height:1.9;}
+  .key-guide code{background:var(--panel2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--gold);}
+
   .install-bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--gold);color:var(--gold-soft);padding:12px 20px;border-radius:30px;font-size:13px;display:none;align-items:center;gap:14px;box-shadow:var(--shadow);z-index:99;}
   .install-bar.show{display:flex;}
   .install-bar button{background:var(--gold);color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:600;cursor:pointer;font-size:13px;}
@@ -122,37 +197,137 @@
   .wx-tip.show{display:block;}
   .wx-tip b{color:var(--gold);}
   @media(min-width:769px){ .wx-tip{display:none!important;} }
+
   @media(max-width:768px){
-    .brand-row{padding:11px 14px;gap:8px;}
-    .brand h1{font-size:20px;letter-spacing:.5px;}
-    .help-mini{padding:8px 11px;font-size:13px;}
-    .content{padding:16px;}
-    .rec-grid{grid-template-columns:repeat(3,1fr);gap:8px;}
+    .hero-bubble{width:240px;height:240px;padding:28px;}
+    .hero-bubble .txt{font-size:18px;}
+    .step-q{font-size:22px;}
+    .wizard{padding:0 22px;}
+    .wizard-top{padding-top:70px;}
+    .content{padding:0;}
     .pp-today .step{font-size:17px;}
+    .ai-vids{min-width:100%;}
     .install-bar{bottom:14px;padding:10px 16px;font-size:12px;}
   }
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="topnav">
-    <div class="brand-row">
-      <div class="brand"><h1>陪跑精灵</h1></div>
-      <div class="top-actions">
-        <button class="help-mini" id="setBtn">⚙ 设置</button>
-        <div class="set-dropdown" id="setDropdown">
-          <button class="setting-entry" id="entryAi">🤖 AI 设置<small>配置模型 Key</small></button>
-          <button class="setting-entry" id="entryData">📦 数据备份与迁移<small>导出 / 导入 JSON</small></button>
-          <button class="setting-entry" id="entryHelp">📲 安装帮助<small>添加到手机主屏</small></button>
-        </div>
+  <div class="topnav" id="topnav" style="display:none;">
+    <div class="top-actions">
+      <button class="help-mini" id="setBtn">⚙ 设置</button>
+      <div class="set-dropdown" id="setDropdown">
+        <button class="setting-entry" id="entryAi">🤖 AI 设置<small>配置模型 Key</small></button>
+        <button class="setting-entry" id="entryData">📦 数据备份与迁移<small>导出 / 导入 JSON</small></button>
+        <button class="setting-entry" id="entryHelp">📲 安装帮助<small>添加到手机主屏</small></button>
       </div>
     </div>
   </div>
+
+  <!-- 开屏 -->
+  <div id="splash">
+    <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+    <div class="hero-bubble" id="heroBubble">
+      <div class="txt">
+        你只管开始<br>剩下的交给我
+        <small>点我进入 🧚</small>
+      </div>
+    </div>
+    <div class="splash-hint">陪跑精灵 · 让想做的事真做成</div>
+  </div>
+
   <div class="main">
     <div class="wx-tip" id="wxTip">⚠ 检测到在微信内打开，无法直接安装到主屏。请点右上角「···」→「在浏览器中打开」（或「复制链接」后到 Safari / Chrome 打开），再安装。</div>
     <div class="content" id="content"></div>
   </div>
 </div>
+
+<div class="wizard" id="wizard">
+  <div class="wizard-top">
+    <div class="mascot">🧚</div>
+    <div class="dots" id="dots"></div>
+  </div>
+  <div class="step-view" data-step="1">
+    <div class="step-q">你想做成什么事？</div>
+    <div class="step-hint">大胆说，越具体越好。比如「三个月学会弹吉他」</div>
+    <input class="step-input" id="wGoal" placeholder="三个月学会钢琴" autocomplete="off">
+    <div class="step-actions">
+      <button class="btn-primary" onclick="nextStep(2)">下一步</button>
+    </div>
+  </div>
+  <div class="step-view" data-step="2">
+    <div class="step-q">你当前水平是？</div>
+    <div class="step-hint">诚实告诉我，我才能给你对味的步骤</div>
+    <input class="step-input" id="wLevel" placeholder="零基础 / 会点皮毛 / 已经练过一阵" autocomplete="off">
+    <div class="step-actions">
+      <button class="btn-secondary" onclick="prevStep()">返回</button>
+      <button class="btn-primary" onclick="nextStep(3)">下一步</button>
+    </div>
+  </div>
+  <div class="step-view" data-step="3">
+    <div class="step-q">你每周能投入多少时间？</div>
+    <div class="step-hint">小时数就行，不用精确到分钟</div>
+    <input class="step-input" id="wHours" type="number" min="1" max="168" placeholder="7" autocomplete="off">
+    <div class="step-actions">
+      <button class="btn-secondary" onclick="prevStep()">返回</button>
+      <button class="btn-primary" onclick="nextStep(4)">下一步</button>
+    </div>
+  </div>
+  <div class="step-view" data-step="4">
+    <div class="step-q">希望什么时候达成？</div>
+    <div class="step-hint">选一个你想要的完成日期</div>
+    <div class="date-wrap">
+      <input class="step-input" id="wDate" type="date" min="" style="text-align:center;">
+      <div class="date-display" id="wDateDisplay">请选择日期</div>
+    </div>
+    <div class="step-actions">
+      <button class="btn-secondary" onclick="prevStep()">返回</button>
+      <button class="btn-primary" onclick="nextStep(5)">下一步</button>
+    </div>
+  </div>
+  <div class="step-view" data-step="5">
+    <div class="step-q">一句话介绍自己</div>
+    <div class="step-hint">我用来陪你，比如「一个比较懒的人」「想变厉害但容易放弃」</div>
+    <input class="step-input" id="wWho" placeholder="可选" autocomplete="off">
+    <div class="step-actions">
+      <button class="btn-secondary" onclick="prevStep()">返回</button>
+      <button class="btn-primary" onclick="nextStep(6)">下一步</button>
+    </div>
+    <div class="skip-link" onclick="nextStep(6)">跳过这步</div>
+  </div>
+  <div class="step-view" data-step="6">
+    <div class="step-q">给精灵配置一个大脑</div>
+    <div class="step-hint">用你自己的 AI Key，数据只留在本机</div>
+    <div class="key-card">
+      <div class="icon">🧠</div>
+      <h3>配置 AI Key</h3>
+      <p>精灵拆解目标时需要调用 AI。<br>DeepSeek / 通义 / 智谱 / OpenAI 都可以。</p>
+      <div class="tag">Key 只存你本机</div>
+      <div class="key-status no" id="keyStatus"><span class="dot"></span>还没配置</div>
+      <button class="btn-primary" onclick="openKeyGuide()">获取 Key 指引</button>
+    </div>
+    <div class="step-actions">
+      <button class="btn-secondary" onclick="prevStep()">返回</button>
+      <button class="btn-primary" id="toPlanBtn" onclick="nextStep(7)">已经配好了</button>
+    </div>
+  </div>
+  <div class="step-view" data-step="7">
+    <div class="step-q">都准备好了</div>
+    <div class="step-hint">我会把你的目标拆成每天一小步，推着你做完</div>
+    <div class="key-card" style="padding:30px 22px;">
+      <div class="icon" style="font-size:52px;">🎯</div>
+      <h3 id="planGoal">—</h3>
+      <p id="planMeta" style="font-size:14px;">—</p>
+      <button class="btn-primary" style="margin-top:10px;" id="runPlanBtn" onclick="generatePlan()">🧚 替我拆解</button>
+      <div class="ai-status" id="genStatus" style="margin-top:14px;text-align:center;"></div>
+    </div>
+    <div class="step-actions">
+      <button class="btn-secondary" onclick="prevStep()">返回修改</button>
+    </div>
+  </div>
+</div>
+
+<div class="flow" id="flow"></div>
 
 <div class="set-mask" id="dataMask">
   <div class="set-box">
@@ -192,6 +367,22 @@
   </div>
 </div>
 
+<div class="mask" id="keyGuideMask">
+  <div class="modal key-guide">
+    <h3>🔑 如何获取 AI Key</h3>
+    <div class="sub">选一个你方便的国内或海外服务，注册后找到 API Key 即可。</div>
+    <h4>推荐方案</h4>
+    <ol>
+      <li><b>DeepSeek（国产，便宜）</b><br>访问 <code>platform.deepseek.com</code> → 注册 → 控制台 → API Keys → 创建 Key</li>
+      <li><b>通义千问（阿里）</b><br>访问 <code>dashscope.aliyun.com</code> → 获取 API Key → 创建</li>
+      <li><b>智谱 AI（GLM）</b><br>访问 <code>open.bigmodel.cn</code> → 个人中心 → API Keys</li>
+      <li><b>OpenAI（海外）</b><br>访问 <code>platform.openai.com/api-keys</code> → 创建 Key</li>
+    </ol>
+    <div class="note">Key 形如 <code>sk-xxxxxxxx</code>，复制后粘贴到下一步的「API Key」框里。本应用只在你的手机里存储，不上传。</div>
+    <button class="close" onclick="openAISettingsFromGuide()">我已获取，去配置</button>
+  </div>
+</div>
+
 <div class="set-mask" id="setMask">
   <div class="set-box">
     <h3>⚙ AI 设置</h3>
@@ -206,14 +397,14 @@
 </div>
 
 <script>
-// ====== 本地存储（用户自带 Key + 本地优先，零运营） ======
+// ====== 本地存储 ======
 const PREFIX='pp_';
 const load=(k,def)=>{ try{ const v=localStorage.getItem(PREFIX+k); return v==null?def:JSON.parse(v); }catch(e){ return def; } };
 const save=(k,v)=> localStorage.setItem(PREFIX+k, JSON.stringify(v));
 const today=()=> new Date().toISOString().slice(0,10);
 const escapeHtml=(s)=> String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
-// ====== AI 设置（OpenAI 兼容，本机存储） ======
+// ====== AI 设置 ======
 function getAISettings(){ try{ const raw=localStorage.getItem(PREFIX+'ai'); if(!raw) return null; return JSON.parse(decodeURIComponent(escape(atob(raw)))); }catch(e){ return null; } }
 function setAISettings(s){ localStorage.setItem(PREFIX+'ai', btoa(unescape(encodeURIComponent(JSON.stringify(s))))); }
 async function callAI(system, user){
@@ -221,15 +412,14 @@ async function callAI(system, user){
   if(!s||!s.key) throw new Error('未配置 AI Key');
   const base=(s.base||'https://api.openai.com/v1').replace(/\/+$/,'');
   const r=await fetch(base+'/chat/completions',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.key},
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.key},
     body:JSON.stringify({ model:s.model||'gpt-4o-mini', messages:[{role:'system',content:system},{role:'user',content:user}], temperature:0.7, stream:false })
   });
   if(!r.ok) throw new Error('API 错误 '+r.status);
   return (await r.json()).choices[0].message.content;
 }
 
-// ====== 视频一键进（搜索深链，零成本） ======
+// ====== 视频一键进 ======
 function videoLinks(kw){
   const q=encodeURIComponent(kw||'');
   return '<a class="ai-vid" href="https://search.bilibili.com/all?keyword='+q+'" target="_blank" rel="noopener">📺 B站</a>'+
@@ -237,7 +427,7 @@ function videoLinks(kw){
          '<a class="ai-vid" href="https://www.douyin.com/search/'+q+'" target="_blank" rel="noopener">🎵 抖音</a>';
 }
 
-// ====== 示例计划（未配置 AI 时也能体验） ======
+// ====== 示例计划 ======
 const DEMO_PLAN={goal:'3 个月用 AI 把重复工作砍掉一半',who:'一个把时间花在重要事上的人',weeks:[
   {week:1,focus:'摸清重复在哪',days:[
     {label:'Day1-2',task:'列一张「这周我重复做了什么」清单',kw:'如何发现重复性工作'},
@@ -251,26 +441,22 @@ const DEMO_PLAN={goal:'3 个月用 AI 把重复工作砍掉一半',who:'一个�
     {label:'Day19-21',task:'周末复盘：这月省下多少时间',kw:'工作效率 复盘 方法'}]}
 ]};
 
-// ====== 计划数据结构 ======
-// plan = { goal, who, weeks:[{week,focus,days:[{label,task,kw,done,doneDate}]}] }
+// ====== 计划工具 ======
 function allDays(plan){ return plan.weeks.flatMap(w=>w.days.map(d=>({w,d}))); }
 function nextDay(plan){ const r=allDays(plan).find(x=>!x.d.done); return r?r.d:null; }
 function isAllDone(plan){ return allDays(plan).every(x=>x.d.done); }
 function doneDates(plan){ return allDays(plan).filter(x=>x.d.done&&x.d.doneDate).map(x=>x.d.doneDate); }
 function calcStreak(plan){
-  const set=new Set(doneDates(plan));
-  let n=0; let d=new Date();
+  const set=new Set(doneDates(plan)); let n=0; let d=new Date();
   while(true){ const ds=d.toISOString().slice(0,10); if(set.has(ds)){ n++; d.setDate(d.getDate()-1); } else break; }
   return n;
 }
 function lastDone(plan){ const a=doneDates(plan).sort(); return a.length?a[a.length-1]:null; }
 
-// ====== 正反馈（本地模板，零 AI 成本） ======
+// ====== 正反馈 ======
 const CHEERS=[
-  '这一步你做到了 ✓ 今天这股劲头很猛。',
-  '漂亮，又啃下一块。明天继续推下一步。',
-  '做到了就好，行动永远比完美重要。',
-  '不错，目标就是这样一天天被做小的。'
+  '这一步你做到了 ✓ 今天这股劲头很猛。','漂亮，又啃下一块。明天继续推下一步。',
+  '做到了就好，行动永远比完美重要。','不错，目标就是这样一天天被做小的。'
 ];
 function cheer(plan){
   let s=CHEERS[Math.floor(Math.random()*CHEERS.length)];
@@ -286,97 +472,152 @@ const PUSHES=[
   '目标还在，只是歇了会儿。现在，只做今天这一步。'
 ];
 
-// ====== 渲染主内容 ======
-const contentEl=()=>document.getElementById('content');
-function render(){
-  const c=contentEl(); c.innerHTML='';
-  const plan=load('plan',null);
-  if(!plan) return renderOnboard(c);
-  renderFlow(c,plan);
+// ====== 开屏进入 ======
+let wizardData={goal:'',level:'',hours:'',date:'',who:''};
+let currentStep=1;
+const TOTAL_STEPS=7;
+
+function initDateInput(){
+  const d=document.getElementById('wDate');
+  const tomorrow=new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  d.min=tomorrow.toISOString().slice(0,10);
+  d.value='';
+  d.addEventListener('input',()=>{
+    const v=d.value;
+    document.getElementById('wDateDisplay').textContent=v?v.replace(/-/g,' / '):'请选择日期';
+    wizardData.date=v;
+  });
 }
 
-// 引导：没有目标时
-function renderOnboard(c){
-  const hero=document.createElement('div'); hero.className='pp-hero';
-  hero.innerHTML='你只管开始，剩下的交给我。<br>告诉我一件<b>你想做成的事</b>，我替你拆成每天一小步，推着你做完。';
-  c.appendChild(hero);
-  const set=getAISettings();
-  if(!set||!set.key){
-    const need=document.createElement('div'); need.className='ai-needkey';
-    need.innerHTML='⚠ 想让 AI 替你拆解，请先配置 Key：点右上角 <b>「⚙ 设置」</b> →「AI 设置」（DeepSeek / 通义 / 智谱 / OpenAI 均可，Key 只存你本机）。<br>不想配置也能先看示例。';
-    c.appendChild(need);
+function buildDots(){
+  const box=document.getElementById('dots'); box.innerHTML='';
+  for(let i=1;i<=TOTAL_STEPS;i++){ const s=document.createElement('div'); s.className='dot'+(i===1?' active':''); box.appendChild(s); }
+}
+
+function updateDots(){
+  document.querySelectorAll('.wizard-top .dot').forEach((d,i)=>{ d.classList.toggle('active',i+1===currentStep); });
+}
+
+function showStep(n){
+  document.querySelectorAll('.step-view').forEach(v=>v.classList.remove('active'));
+  document.querySelector('.step-view[data-step="'+n+'"]').classList.add('active');
+  currentStep=n; updateDots();
+  if(n===6) updateKeyStatus();
+  if(n===7) updatePlanSummary();
+}
+
+function nextStep(n){
+  if(currentStep===1){
+    const g=document.getElementById('wGoal').value.trim();
+    if(!g){ shakeInput(document.getElementById('wGoal')); return; }
+    wizardData.goal=g;
+  }else if(currentStep===2){ wizardData.level=document.getElementById('wLevel').value.trim()||'未说明'; }
+  else if(currentStep===3){
+    const h=document.getElementById('wHours').value.trim();
+    if(!h){ shakeInput(document.getElementById('wHours')); return; }
+    wizardData.hours=h;
+  }else if(currentStep===4){
+    const d=document.getElementById('wDate').value;
+    if(!d){ shakeInput(document.getElementById('wDate')); return; }
+    wizardData.date=d;
+  }else if(currentStep===5){ wizardData.who=document.getElementById('wWho').value.trim(); }
+  else if(currentStep===6){
+    if(!getAISettings()||!getAISettings().key){ openKeyGuide(); return; }
   }
-  const form=document.createElement('div'); form.className='ai-form';
-  form.innerHTML=
-    '<div class="set-row"><label>你想做成什么事？</label><input id="aiGoal" placeholder="例：3个月学会小提琴"></div>'+
-    '<div class="set-row"><label>当前水平</label><input id="aiLevel" placeholder="例：零基础"></div>'+
-    '<div class="set-row"><label>每周能投入多久</label><input id="aiHours" placeholder="例：5 小时/周"></div>'+
-    '<div class="set-row"><label>期望达成日期</label><input id="aiDate" placeholder="例：2026-11-01"></div>'+
-    '<div class="set-row"><label>一句话介绍自己（可选，我用来陪你）</label><input id="aiWho" placeholder="例：一个把爱好变专长的人"></div>';
-  c.appendChild(form);
-  const row=document.createElement('div'); row.className='pp-actions';
-  const gen=document.createElement('button'); gen.className='ai-gen'; gen.textContent='🤖 让 AI 替我拆解';
-  const demo=document.createElement('button'); demo.className='ai-gen'; demo.style.background='var(--panel2)'; demo.style.color='var(--txt)'; demo.textContent='先看示例';
-  const status=document.createElement('div'); status.className='ai-status';
-  gen.onclick=async()=>{
-    const goal=document.getElementById('aiGoal').value.trim();
-    if(!goal){ status.textContent='先说一件你想做成的事 👆'; return; }
-    if(!getAISettings()||!getAISettings().key){ status.textContent='请先配置 AI Key（右上角 ⚙）'; return; }
-    gen.disabled=true; status.textContent='AI 拆解中…（约 10-30 秒）';
-    const who=document.getElementById('aiWho').value.trim();
-    const sys='你是一个专业的成长教练与目标拆解专家。根据用户目标，只输出纯 JSON（不要任何解释、不要 markdown 代码块），格式：{"goal":"目标","who":"用户一句话介绍(若提供)","weeks":[{"week":1,"focus":"本周主题","days":[{"label":"Day1-2","task":"具体可执行任务","kw":"用于搜索教学视频的中文关键词"}]}]}，做 2-4 周、每周 3-5 天。kw 要具体利于搜视频。';
-    const usr='目标：'+goal+'\n当前水平：'+(document.getElementById('aiLevel').value.trim()||'未说明')+'\n每周投入：'+(document.getElementById('aiHours').value.trim()||'未说明')+'\n期望日期：'+(document.getElementById('aiDate').value.trim()||'未说明')+'\n'+(who?('身份介绍：'+who+'\n'):'')+'请拆成可执行的周/日计划。';
-    try{
-      const plan=parseJSON(await callAI(sys,usr));
-      if(!plan||!plan.weeks){ status.textContent='生成结果格式异常，请重试'; gen.disabled=false; return; }
-      plan.who=who; save('plan',plan); render();
-    }catch(e){ status.textContent='生成失败：'+e.message+'（检查 Key / 网络 / 模型名）'; gen.disabled=false; }
-  };
-  demo.onclick=()=>{ save('plan', JSON.parse(JSON.stringify(DEMO_PLAN))); render(); };
-  row.append(gen,demo); c.append(row,status);
+  showStep(n);
 }
 
-// 陪跑流：有目标时
-function renderFlow(c,plan){
+function prevStep(){ if(currentStep>1) showStep(currentStep-1); }
+
+function shakeInput(el){ el.style.transform='translateX(8px)'; setTimeout(()=>el.style.transform='translateX(-8px)',80); setTimeout(()=>el.style.transform='translateX(0)',160); }
+
+function updateKeyStatus(){
+  const ok=getAISettings()&&getAISettings().key;
+  const st=document.getElementById('keyStatus');
+  st.className='key-status'+(ok?'':' no');
+  st.innerHTML='<span class="dot"></span>'+(ok?'已配置，可以去拆解了':'还没配置');
+  document.getElementById('toPlanBtn').textContent=ok?'已经配好了':'先配置 Key';
+}
+
+function updatePlanSummary(){
+  document.getElementById('planGoal').textContent=wizardData.goal;
+  const meta=[];
+  if(wizardData.level) meta.push(wizardData.level);
+  if(wizardData.hours) meta.push('每周 '+wizardData.hours+' 小时');
+  if(wizardData.date) meta.push('目标 '+wizardData.date.replace(/-/g,' / '));
+  document.getElementById('planMeta').textContent=meta.join(' · ');
+}
+
+function openKeyGuide(){ document.getElementById('keyGuideMask').classList.add('show'); }
+function openAISettingsFromGuide(){
+  document.getElementById('keyGuideMask').classList.remove('show');
+  const s=getAISettings()||{};
+  document.getElementById('setBase').value=s.base||'';
+  document.getElementById('setKey').value=s.key||'';
+  document.getElementById('setModel').value=s.model||'';
+  document.getElementById('setOk').classList.remove('show');
+  document.getElementById('setMask').classList.add('show');
+}
+
+async function generatePlan(){
+  const btn=document.getElementById('runPlanBtn');
+  const status=document.getElementById('genStatus');
+  if(!getAISettings()||!getAISettings().key){ status.textContent='还没配置 Key，先返回上一步配置'; return; }
+  btn.disabled=true; status.textContent='精灵正在拆解…（约 10-30 秒）';
+  const sys='你是一个专业的成长教练与目标拆解专家。根据用户目标，只输出纯 JSON（不要任何解释、不要 markdown 代码块），格式：{"goal":"目标","who":"用户一句话介绍(若提供)","weeks":[{"week":1,"focus":"本周主题","days":[{"label":"Day1-2","task":"具体可执行任务","kw":"用于搜索教学视频的中文关键词"}]}]}，做 2-4 周、每周 3-5 天。kw 要具体利于搜视频。';
+  const usr='目标：'+wizardData.goal+'\n当前水平：'+(wizardData.level||'未说明')+'\n每周投入：'+(wizardData.hours||'未说明')+' 小时\n期望日期：'+(wizardData.date||'未说明')+'\n'+(wizardData.who?('身份介绍：'+wizardData.who+'\n'):'')+'请拆成可执行的周/日计划。';
+  try{
+    const plan=parseJSON(await callAI(sys,usr));
+    if(!plan||!plan.weeks){ status.textContent='生成结果格式异常，请重试'; btn.disabled=false; return; }
+    plan.who=wizardData.who; save('plan',plan); showFlow();
+  }catch(e){ status.textContent='生成失败：'+e.message+'（检查 Key / 网络 / 模型名）'; btn.disabled=false; }
+}
+
+// ====== 主渲染 ======
+function render(){
+  const plan=load('plan',null);
+  if(plan){ document.getElementById('wizard').classList.remove('show'); showFlow(); }
+  else{ document.getElementById('wizard').classList.add('show'); }
+}
+
+function showFlow(){
+  document.getElementById('splash').classList.add('hide');
+  document.getElementById('topnav').style.display='flex';
+  document.getElementById('wizard').classList.remove('show');
+  const f=document.getElementById('flow'); f.classList.add('show'); f.innerHTML='';
+  const plan=load('plan');
+  if(!plan){ render(); return; }
+
   // 放弃捞人
   const ld=lastDone(plan); const gap=ld?Math.round((new Date(today())-new Date(ld))/864e5):99;
-  if(gap>=3){
-    const push=document.createElement('div'); push.className='pp-push';
-    push.textContent=PUSHES[Math.floor(Math.random()*PUSHES.length)];
-    c.appendChild(push);
-  }
-  // 顶部 streak 条
+  if(gap>=3){ const push=document.createElement('div'); push.className='pp-push'; push.textContent=PUSHES[Math.floor(Math.random()*PUSHES.length)]; f.appendChild(push); }
+
+  // streak 条
   const bar=document.createElement('div'); bar.className='streak-bar';
   bar.innerHTML='<div><div class="num">'+calcStreak(plan)+'</div><div class="lbl">连续做成(天)</div></div>'+
     '<div class="goal">🎯 '+escapeHtml(plan.goal)+'<small>你每完成一步，我就帮你记着</small></div>';
-  c.appendChild(bar);
+  f.appendChild(bar);
 
   const nd=nextDay(plan);
   if(!nd){
-    // 全部完成
     const done=document.createElement('div'); done.className='pp-today';
     done.innerHTML='<div class="lead">🎉 这个目标，你做成了！</div><div class="step">连续 '+calcStreak(plan)+' 天、'+allDays(plan).length+' 步，全都踩完。</div>';
-    c.appendChild(done);
+    f.appendChild(done);
     const again=document.createElement('button'); again.className='pp-done'; again.style.marginTop='16px'; again.textContent='再定一个新目标';
-    again.onclick=()=>{ if(confirm('开启新目标会清空当前计划，确定？')){ save('plan',null); render(); } };
-    c.appendChild(again);
-    foot(c,plan); return;
+    again.onclick=()=>{ if(confirm('开启新目标会清空当前计划，确定？')){ save('plan',null); location.reload(); } };
+    f.appendChild(again);
+    foot(f,plan); return;
   }
-  // 今日一步
+
   const card=document.createElement('div'); card.className='pp-today';
   card.innerHTML='<div class="lead">今天只需做这一步 👇</div><div class="step">'+escapeHtml(nd.task)+'</div>';
   const acts=document.createElement('div'); acts.className='pp-actions';
   const btn=document.createElement('button'); btn.className='pp-done'; btn.textContent='✓ 我做完了';
-  const vids=document.createElement('div'); vids.className='ai-vids'; vids.style.flex='1'; vids.style.minWidth='200px'; vids.innerHTML=videoLinks(nd.kw||nd.task||plan.goal);
+  const vids=document.createElement('div'); vids.className='ai-vids'; vids.innerHTML=videoLinks(nd.kw||nd.task||plan.goal);
   const cheerBox=document.createElement('div'); cheerBox.className='pp-cheer';
-  btn.onclick=()=>{
-    nd.done=true; nd.doneDate=today(); save('plan',plan);
-    cheerBox.textContent=cheer(plan);
-    // 推到下一步
-    setTimeout(()=>render(), 900);
-  };
-  acts.append(btn,vids); card.append(acts,cheerBox); c.appendChild(card);
-  foot(c,plan);
+  btn.onclick=()=>{ nd.done=true; nd.doneDate=today(); save('plan',plan); cheerBox.textContent=cheer(plan); setTimeout(()=>showFlow(),900); };
+  acts.append(btn,vids); card.append(acts,cheerBox); f.appendChild(card);
+  foot(f,plan);
 }
 
 function foot(c,plan){
@@ -397,13 +638,12 @@ function foot(c,plan){
   const rec=document.createElement('div'); rec.className='pp-link'; rec.textContent='📜 我的履历';
   rec.onclick=()=>renderRecord();
   const reset=document.createElement('div'); reset.className='pp-link'; reset.textContent='🔄 重新定目标';
-  reset.onclick=()=>{ if(confirm('重新定目标会清空当前计划，确定？')){ save('plan',null); render(); } };
+  reset.onclick=()=>{ if(confirm('重新定目标会清空当前计划，确定？')){ save('plan',null); location.reload(); } };
   f.append(full,rec,reset); c.append(f,fullBox);
 }
 
-// 履历
 function renderRecord(){
-  const c=contentEl(); c.innerHTML='';
+  const c=document.getElementById('flow'); c.innerHTML='';
   const plan=load('plan',null);
   const hero=document.createElement('div'); hero.className='pp-hero';
   hero.innerHTML='你真做成的事，都记在这里。<br>换设备前记得在 <b>「⚙ 设置 → 数据备份」</b> 导出。';
@@ -423,13 +663,20 @@ function renderRecord(){
   if(!total){ const e=document.createElement('div'); e.className='empty'; e.textContent='还没有完成的步骤，去完成今天这一步吧'; list.appendChild(e); }
   c.appendChild(list);
   const back=document.createElement('div'); back.className='pp-link'; back.style.marginTop='16px'; back.textContent='← 返回陪跑';
-  back.onclick=()=>render(); c.appendChild(back);
+  back.onclick=()=>showFlow(); c.appendChild(back);
 }
 
 function parseJSON(s){ try{ return JSON.parse(s); }catch(e){} const m=s&&s.match(/\{[\s\S]*\}/); if(m){ try{ return JSON.parse(m[0]); }catch(e){} } return null; }
 
 // ====== 启动 ======
-render();
+buildDots(); initDateInput();
+document.getElementById('heroBubble').onclick=()=>{
+  document.getElementById('splash').classList.add('hide');
+  const plan=load('plan',null);
+  if(plan){ document.getElementById('topnav').style.display='flex'; showFlow(); }
+  else{ document.getElementById('wizard').classList.add('show'); }
+};
+
 if(/micromessenger/i.test(navigator.userAgent)) document.getElementById('wxTip').classList.add('show');
 
 // ====== 设置下拉 ======
@@ -451,6 +698,10 @@ document.getElementById('entryAi').onclick=()=>{
   document.getElementById('setDropdown').classList.remove('show');
   document.getElementById('setMask').classList.add('show');
 };
+
+// key guide mask close
+document.getElementById('keyGuideMask').onclick=(e)=>{ if(e.target.id==='keyGuideMask') e.target.classList.remove('show'); };
+
 // 数据导出/导入
 document.getElementById('dataMask').onclick=(e)=>{ if(e.target.id==='dataMask') e.target.classList.remove('show'); };
 document.getElementById('exportBtn').onclick=exportData;
@@ -470,7 +721,7 @@ function importData(file){
     const data=JSON.parse(r.result);
     if(!confirm('导入将覆盖当前设备的所有数据，确定继续？')) return;
     Object.keys(data).forEach(k=>{ if(k.startsWith(PREFIX)) localStorage.setItem(k,data[k]); });
-    document.getElementById('dataMask').classList.remove('show'); render();
+    document.getElementById('dataMask').classList.remove('show'); location.reload();
     alert('✓ 导入成功，数据已迁移');
   }catch(e){ alert('导入失败：文件格式不正确'); } };
   r.readAsText(file);
@@ -478,6 +729,7 @@ function importData(file){
 document.getElementById('setSave').onclick=()=>{
   setAISettings({base:document.getElementById('setBase').value.trim(),key:document.getElementById('setKey').value.trim(),model:document.getElementById('setModel').value.trim()});
   document.getElementById('setOk').classList.add('show');
+  updateKeyStatus();
   setTimeout(()=>document.getElementById('setMask').classList.remove('show'),800);
 };
 document.getElementById('setMask').onclick=(e)=>{ if(e.target.id==='setMask') e.target.classList.remove('show'); };
