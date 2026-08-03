@@ -3,92 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>龙虾AI工作台 · PWA</title>
+<title>陪跑精灵</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#d9743f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="龙虾工作台">
+<meta name="apple-mobile-web-app-title" content="陪跑精灵">
 <style>
   :root{
-    /* 默认主题 = 上班族 worker 暖色干练 */
     --bg:#faf6f1; --panel:#ffffff; --panel2:#f5efe9; --line:#e6ddd3;
     --gold:#d9743f; --gold-soft:#e08a4f; --txt:#2e2a26; --sub:#8a7f74;
     --green:#3a9d6e; --red:#d9534f; --blue:#4a7fb5;
-    --ip-gold:#d4af37; /* 龙虾IP统一色锚点，三套主题下不变 */
+    --ip-gold:#d4af37;
     --font:'微软雅黑','PingFang SC',sans-serif;
-    --font-serif:'宋体','SimSun','Georgia',serif;
     --radius:12px; --shadow:0 2px 10px rgba(0,0,0,.06);
     --bg-texture:none;
   }
   *{margin:0;padding:0;box-sizing:border-box;font-family:'Microsoft YaHei','PingFang SC',sans-serif;}
   body{background:var(--bg);background-image:var(--bg-texture);background-attachment:fixed;color:var(--txt);font-family:var(--font);height:100vh;overflow:hidden;transition:background .3s,color .3s;}
   .app{display:flex;flex-direction:column;height:100vh;}
-  /* 顶部导航：两级菜单 */
   .topnav{background:var(--panel);border-bottom:1px solid var(--line);flex-shrink:0;}
-  .brand-row{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line);}
-  .brand h1{font-size:22px;font-weight:800;color:var(--ip-gold);letter-spacing:1px;}
-  .brand p{font-size:11px;color:var(--sub);margin-top:2px;}
-  .help-mini{background:transparent;border:1px solid var(--line);color:var(--sub);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;white-space:nowrap;}
+  .brand-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);}
+  .brand h1{font-size:26px;font-weight:900;color:var(--ip-gold);letter-spacing:1.5px;line-height:1.2;}
+  .brand h1::after{content:"🧚";font-size:20px;display:inline-block;margin-left:6px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.08));}
+  .top-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;position:relative;}
+  .help-mini{background:transparent;border:1px solid var(--line);color:var(--sub);padding:9px 14px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;white-space:nowrap;}
   .help-mini:hover{border-color:var(--gold);color:var(--gold-soft);}
-  .groups{display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid var(--line);}
-  .grp-btn{flex:1;padding:11px 10px;border-radius:8px;background:transparent;color:var(--sub);border:1px solid transparent;cursor:pointer;text-align:center;font-size:16px;font-weight:600;transition:.15s;}
-  .grp-btn:hover{background:var(--panel2);color:var(--txt);}
-  .grp-btn.active{background:var(--panel2);color:var(--gold);border-color:var(--gold);font-weight:600;box-shadow:inset 0 -3px 0 var(--gold);}
-  .mods{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;flex-shrink:0;}
-  .mods-row{display:flex;align-items:center;gap:8px;flex-shrink:0;border-bottom:1px solid var(--line);}
-  .mod-btn{flex-shrink:0;padding:7px 16px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);color:var(--sub);cursor:pointer;font-size:15px;white-space:nowrap;transition:.15s;}
-  .mod-plus{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);color:var(--gold);font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-right:12px;transition:.15s;}
-  .mod-plus:hover{background:var(--gold);color:#fff;border-color:var(--gold);}
+  .set-dropdown{display:none;position:absolute;top:calc(100% + 6px);right:0;width:240px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.2);padding:8px;z-index:1000;}
+  .set-dropdown.show{display:block;}
+  .set-dropdown .setting-entry{margin-bottom:6px;padding:12px 14px;}
+  .set-dropdown .setting-entry:last-child{margin-bottom:0;}
   .setting-entry{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:14px 16px;border-radius:12px;cursor:pointer;font-size:15px;margin-bottom:10px;transition:.15s;}
   .setting-entry small{display:block;font-size:12px;color:var(--sub);margin-top:3px;font-weight:400;}
   .setting-entry:hover{border-color:var(--gold);color:var(--gold-soft);}
-  .mod-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line);font-size:15px;cursor:pointer;}
-  .mod-item:last-child{border-bottom:none;}
-  .mod-item input{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;}
-  .mod-item.basic{color:var(--sub);}
-  .mod-btn:hover{color:var(--txt);}
-  .mod-btn.active{background:var(--gold);color:#1a1a1a;border-color:var(--gold);font-weight:600;}
-  /* 主区 */
-  .topbar{padding:18px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
-  .topbar h2{font-size:22px;font-weight:800;}
-  .topbar .tag{font-size:12px;color:var(--gold);background:rgba(212,175,55,.12);padding:4px 12px;border-radius:20px;}
-  .content{flex:1;overflow-y:auto;padding:26px 28px;}
+  .setting-entry.active{background:rgba(212,175,55,.14);border-color:var(--gold);color:var(--gold);font-weight:600;}
+  .main{flex:1;min-height:0;display:flex;flex-direction:column;}
+  .content{flex:1;min-height:0;overflow-y:auto;padding:26px 28px;}
   .hint{color:var(--sub);font-size:13px;margin-bottom:18px;line-height:1.6;}
-  /* 列表型 */
-  .add-row{display:flex;gap:10px;margin-bottom:16px;}
-  .add-row input{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:11px 14px;border-radius:8px;font-size:14px;outline:none;}
-  .add-row input:focus{border-color:var(--gold);}
-  .add-row button{background:var(--gold);color:#1a1a1a;border:none;padding:0 20px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;}
-  .item{display:flex;align-items:center;gap:12px;background:var(--panel2);padding:12px 16px;border-radius:8px;margin-bottom:8px;border:1px solid var(--line);}
-  .item.done .txt{text-decoration:line-through;color:var(--sub);}
-  .item .txt{flex:1;font-size:14px;word-break:break-all;}
-  .chk{width:18px;height:18px;border-radius:5px;border:2px solid var(--sub);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#1a1a1a;}
-  .item.done .chk{background:var(--green);border-color:var(--green);}
-  .del{color:var(--sub);cursor:pointer;font-size:16px;padding:0 6px;}
-  .del:hover{color:var(--red);}
-  /* 看板 */
-  .kanban{display:flex;gap:16px;}
-  .col{flex:1;background:var(--panel);border-radius:10px;padding:14px;border:1px solid var(--line);}
-  .col h4{font-size:13px;color:var(--sub);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line);}
-  .col .card{background:var(--panel2);padding:10px 12px;border-radius:7px;margin-bottom:8px;font-size:13px;border:1px solid var(--line);}
-  .col .mv{font-size:11px;color:var(--blue);cursor:pointer;margin-top:4px;display:inline-block;}
-  /* 打卡 */
-  .checkin-box{display:flex;gap:20px;align-items:center;background:var(--panel2);padding:22px;border-radius:12px;margin-bottom:18px;border:1px solid var(--line);}
-  .streak{text-align:center;}
-  .streak .num{font-size:42px;color:var(--gold);font-weight:700;}
-  .streak .lbl{font-size:12px;color:var(--sub);}
-  .checkin-btn{background:var(--gold);color:#1a1a1a;border:none;padding:14px 28px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;}
-  .checkin-btn:disabled{background:#3a3a3a;color:var(--sub);cursor:default;}
-  .dots{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
-  .dot{width:22px;height:22px;border-radius:50%;background:var(--panel);border:1px solid var(--line);font-size:10px;color:var(--sub);display:flex;align-items:center;justify-content:center;}
-  .dot.on{background:var(--gold);color:#1a1a1a;border-color:var(--gold);}
-  /* 报告 */
-  .report-out{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:20px;white-space:pre-wrap;font-size:14px;line-height:1.8;color:var(--txt);min-height:160px;}
-  .copy-btn{margin-top:14px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;}
+  /* 陪跑流 */
+  .pp-hero{font-size:15px;color:var(--sub);line-height:1.7;margin-bottom:18px;}
+  .pp-hero b{color:var(--gold);}
+  .streak-bar{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#fff6ee,#fdeee2);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:18px;}
+  .streak-bar .num{font-size:34px;font-weight:800;color:var(--gold);line-height:1;}
+  .streak-bar .lbl{font-size:12px;color:var(--sub);}
+  .streak-bar .goal{font-size:15px;font-weight:700;color:var(--txt);}
+  .streak-bar .goal small{display:block;font-size:12px;color:var(--sub);font-weight:400;margin-top:3px;}
+  .pp-today{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden;}
+  .pp-today::before{content:"";position:absolute;top:0;left:0;width:5px;height:100%;background:var(--gold);}
+  .pp-today .lead{font-size:13px;color:var(--gold);font-weight:700;margin-bottom:8px;}
+  .pp-today .step{font-size:19px;font-weight:700;line-height:1.5;color:var(--txt);}
+  .pp-actions{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap;}
+  .pp-done{background:var(--gold);color:#fff;border:none;padding:12px 26px;border-radius:10px;font-weight:700;cursor:pointer;font-size:15px;}
+  .pp-done:active{transform:scale(.97);}
+  .ai-vids{display:flex;gap:6px;}
+  .ai-vid{flex:1;min-width:88px;text-align:center;background:var(--panel);border:1px solid var(--line);color:var(--sub);padding:7px 4px;border-radius:8px;font-size:12px;text-decoration:none;}
+  .ai-vid:hover{border-color:var(--gold);color:var(--gold-soft);}
+  .pp-push{background:#fff3ec;border:1px dashed var(--gold);color:var(--txt);padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.6;margin-bottom:16px;}
+  .pp-cheer{font-size:14px;color:var(--green);margin:10px 0 4px;line-height:1.6;font-weight:600;}
+  .pp-foot{margin-top:22px;border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px;}
+  .pp-link{color:var(--blue);cursor:pointer;font-size:14px;font-weight:500;}
+  .pp-link:hover{color:var(--gold);}
+  .pp-full{margin-top:14px;display:none;}
+  .pp-full.show{display:block;}
+  .ai-week{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+  .ai-week h4{font-size:14px;color:var(--gold);margin-bottom:4px;}
+  .ai-week .focus{font-size:12px;color:var(--sub);margin-bottom:10px;}
+  .ai-day{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+  .ai-day.done{opacity:.55;}
+  .ai-day.done .dt{text-decoration:line-through;}
+  .ai-day .dl{font-size:12px;color:var(--blue);font-weight:600;margin-bottom:4px;}
+  .ai-day .dt{font-size:13px;color:var(--txt);line-height:1.6;}
+  .ai-day .ok{font-size:12px;color:var(--green);margin-top:4px;}
+  /* 引导表单 */
+  .ai-form{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;}
+  .ai-form .set-row{margin-bottom:10px;}
+  .ai-gen{background:var(--gold);color:#fff;border:none;padding:11px 22px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;}
+  .ai-gen:disabled{background:#3a3a3a;color:var(--sub);cursor:default;}
+  .ai-status{font-size:12px;color:var(--sub);margin-top:10px;}
+  .ai-needkey{background:var(--panel2);border:1px solid var(--red);color:var(--txt);padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;line-height:1.6;}
   .empty{color:var(--sub);font-size:13px;text-align:center;padding:40px 0;}
-  /* AI设置弹窗 + Dashboard + AI规划 + 视频入口 */
+  /* 履历 */
+  .rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+  .rec-card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;}
+  .rec-card .n{font-size:30px;font-weight:800;color:var(--gold);}
+  .rec-card .t{font-size:12px;color:var(--sub);margin-top:4px;}
+  .rec-list .item{display:flex;justify-content:space-between;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:14px;}
+  .rec-list .item .d{color:var(--sub);font-size:12px;white-space:nowrap;}
+  /* 设置弹窗 + 安装 */
   .set-mask{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
   .set-mask.show{display:flex;}
   .set-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:460px;width:100%;max-height:88vh;overflow-y:auto;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.6);}
@@ -98,46 +100,10 @@
   .set-row label{display:block;font-size:12px;color:var(--sub);margin-bottom:5px;}
   .set-row input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:10px 12px;border-radius:8px;font-size:13px;outline:none;}
   .set-row input:focus{border-color:var(--gold);}
-  .set-save{margin-top:8px;width:100%;background:var(--gold);color:#1a1a1a;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;}
+  .set-save{margin-top:8px;width:100%;background:var(--gold);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;}
   .set-ok{font-size:12px;color:var(--green);margin-top:8px;display:none;}
   .set-ok.show{display:block;}
   .set-note{font-size:11px;color:var(--sub);margin-top:10px;line-height:1.5;}
-  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  .dash-card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
-  .dash-card h4{font-size:13px;color:var(--gold-soft);margin-bottom:10px;}
-  .dash-card .li{font-size:13px;color:var(--sub);margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;}
-  .dash-card .li b{color:var(--txt);font-weight:500;}
-  .dash-jump{color:var(--blue);cursor:pointer;font-size:12px;margin-top:6px;}
-  .dash-empty{font-size:12px;color:var(--sub);}
-  .ai-form{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;}
-  .ai-form .set-row{margin-bottom:10px;}
-  .ai-gen{background:var(--gold);color:#1a1a1a;border:none;padding:11px 22px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;}
-  .ai-gen:disabled{background:#3a3a3a;color:var(--sub);cursor:default;}
-  .ai-status{font-size:12px;color:var(--sub);margin-top:10px;}
-  .ai-needkey{background:var(--panel2);border:1px solid var(--red);color:var(--txt);padding:12px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;line-height:1.6;}
-  .ai-week{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px;}
-  .ai-week h4{font-size:14px;color:var(--gold);margin-bottom:4px;}
-  .ai-week .focus{font-size:12px;color:var(--sub);margin-bottom:10px;}
-  .ai-day{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
-  .ai-day .dl{font-size:12px;color:var(--blue);font-weight:600;margin-bottom:4px;}
-  .ai-day .dt{font-size:13px;color:var(--txt);line-height:1.6;}
-  .ai-vids{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
-  .ai-vid{flex:1;min-width:88px;text-align:center;background:var(--panel);border:1px solid var(--line);color:var(--sub);padding:6px 4px;border-radius:6px;font-size:12px;text-decoration:none;}
-  .ai-vid:hover{border-color:var(--gold);color:var(--gold-soft);}
-  @media(max-width:768px){ .dash-grid{grid-template-columns:1fr;} }
-  /* 安装提示条 */
-  .install-bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--gold);color:var(--gold-soft);padding:12px 20px;border-radius:30px;font-size:13px;display:none;align-items:center;gap:14px;box-shadow:var(--shadow);z-index:99;}
-  .install-bar.show{display:flex;}
-  .install-bar button{background:var(--gold);color:#1a1a1a;border:none;padding:8px 16px;border-radius:20px;font-weight:600;cursor:pointer;font-size:13px;}
-  .install-bar .x{color:var(--sub);cursor:pointer;padding:0 4px;}
-  /* 微信内提示（仅手机显示，放在 main 顶部文档流） */
-  .wx-tip{width:100%;background:var(--panel2);border-bottom:2px solid var(--gold);color:var(--txt);padding:11px 16px;font-size:13px;line-height:1.5;display:none;}
-  .wx-tip.show{display:block;}
-  .wx-tip b{color:var(--gold);}
-  @media(min-width:769px){ .wx-tip{display:none!important;} }
-  /* 安装帮助弹窗 */
-  .help-btn{margin-top:10px;width:100%;background:transparent;border:1px solid var(--line);color:var(--sub);padding:9px;border-radius:8px;cursor:pointer;font-size:12px;}
-  .help-btn:hover{border-color:var(--gold);color:var(--gold-soft);}
   .mask{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
   .mask.show{display:flex;}
   .modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:440px;width:100%;max-height:86vh;overflow-y:auto;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.6);}
@@ -147,209 +113,43 @@
   .modal ol{margin:0 0 0 18px;color:var(--sub);font-size:13px;line-height:1.9;}
   .modal ol li b{color:var(--gold-soft);}
   .modal .note{margin-top:12px;font-size:12px;color:var(--red);line-height:1.6;background:var(--panel2);border:1px solid var(--red);padding:10px 12px;border-radius:8px;}
-  .modal .close{margin-top:18px;width:100%;background:var(--gold);color:#1a1a1a;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;}
+  .modal .close{margin-top:18px;width:100%;background:var(--gold);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;}
+  .install-bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--gold);color:var(--gold-soft);padding:12px 20px;border-radius:30px;font-size:13px;display:none;align-items:center;gap:14px;box-shadow:var(--shadow);z-index:99;}
+  .install-bar.show{display:flex;}
+  .install-bar button{background:var(--gold);color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:600;cursor:pointer;font-size:13px;}
+  .install-bar .x{color:var(--sub);cursor:pointer;padding:0 4px;}
+  .wx-tip{width:100%;background:var(--panel2);border-bottom:2px solid var(--gold);color:var(--txt);padding:11px 16px;font-size:13px;line-height:1.5;display:none;}
+  .wx-tip.show{display:block;}
+  .wx-tip b{color:var(--gold);}
+  @media(min-width:769px){ .wx-tip{display:none!important;} }
   @media(max-width:768px){
-    .topbar{position:sticky;top:0;background:var(--bg);padding:13px 14px;z-index:90;}
-    .topbar h2{font-size:16px;}
-    .brand-row{padding:10px 14px;}
-    .brand h1{font-size:16px;}
-    .groups{padding:8px 12px;gap:6px;}
-    .grp-btn{font-size:13px;padding:8px 4px;}
-    .mods{padding:7px 12px;}
-    .mod-btn{font-size:12px;padding:5px 11px;}
+    .brand-row{padding:11px 14px;gap:8px;}
+    .brand h1{font-size:20px;letter-spacing:.5px;}
+    .help-mini{padding:8px 11px;font-size:13px;}
     .content{padding:16px;}
-    .kanban{flex-direction:column;}
-    .col{width:100%;margin-bottom:14px;}
+    .rec-grid{grid-template-columns:repeat(3,1fr);gap:8px;}
+    .pp-today .step{font-size:17px;}
     .install-bar{bottom:14px;padding:10px 16px;font-size:12px;}
   }
-  /* ===== 三套主题专属覆盖 ===== */
-  /* 学生 student：便签手账本风（奶油纸+格纹胶带+小花装饰） */
-  body[data-theme="student"]{
-    --bg:#fdf6e3; --panel:#fff9e6; --panel2:#eef7fb; --line:#e0d2b8;
-    --gold:#88b04b; --gold-soft:#9cc55d; --txt:#5d4e37; --sub:#9e8b78;
-    --green:#6ba86e; --red:#e07b5a; --blue:#7eb5d6;
-    --ip-gold:#e08a2a;
-    --font:"圆体-简","华文圆体","楷体","Microsoft YaHei",sans-serif;
-    --font-serif:"华文楷体","楷体",serif;
-    --radius:18px; --shadow:0 4px 14px rgba(140,120,80,.10);
-    --bg-texture:
-      repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(180,160,120,.06) 24px),
-      radial-gradient(circle at 12% 8%, rgba(139,195,74,.06), transparent 34%),
-      radial-gradient(circle at 88% 92%, rgba(126,181,214,.06), transparent 38%);
-  }
-  body[data-theme="student"] .topnav{background:var(--panel); position:relative;}
-  body[data-theme="student"] .topnav::after{
-    content:"🌼"; position:absolute; right:12px; bottom:-10px; font-size:22px;
-    filter:drop-shadow(0 2px 3px rgba(0,0,0,.08)); transform:rotate(12deg);
-  }
-  body[data-theme="student"] .brand h1{font-family:var(--font); font-size:19px;}
-  body[data-theme="student"] .brand p{font-family:var(--font); opacity:.85;}
-  /* 群体切换按钮：圆润胶囊 */
-  body[data-theme="student"] .groups{padding:12px 16px 10px;}
-  body[data-theme="student"] .grp-btn{border-radius:24px; border:1px solid var(--line); background:rgba(255,255,255,.55); font-family:var(--font); font-weight:500;}
-  body[data-theme="student"] .grp-btn:hover{background:rgba(255,255,255,.9);}
-  body[data-theme="student"] .grp-btn.active{background:linear-gradient(135deg,var(--gold-soft),var(--gold)); color:#fff; border-color:transparent; box-shadow:0 3px 10px rgba(136,176,75,.28);}
-  /* 模块胶囊：小标签风格 */
-  body[data-theme="student"] .mod-btn{border-radius:20px; background:#fff; border:1px dashed var(--line); font-family:var(--font); font-size:15px;}
-  body[data-theme="student"] .mod-btn.active{background:var(--panel2); color:var(--blue); border:1px solid var(--blue);}
-  /* 主内容区 */
-  body[data-theme="student"] .topbar h2{font-family:var(--font-serif); color:var(--txt);}
-  body[data-theme="student"] .topbar .tag{background:rgba(136,176,75,.12); color:var(--gold); font-family:var(--font);}
-  /* 便签纸卡片通用：奶油底+顶部胶带+横线内纹+撕边圆角 */
-  body[data-theme="student"] .item,
-  body[data-theme="student"] .col,
-  body[data-theme="student"] .dash-card,
-  body[data-theme="student"] .ai-form,
-  body[data-theme="student"] .ai-week,
-  body[data-theme="student"] .report-out{
-    background:#fffdf5;
-    border:1px dashed var(--line);
-    border-radius:18px 18px 16px 14px;
-    box-shadow:var(--shadow);
-    position:relative;
-    overflow:hidden;
-  }
-  body[data-theme="student"] .item::before,
-  body[data-theme="student"] .col::before,
-  body[data-theme="student"] .dash-card::before,
-  body[data-theme="student"] .ai-form::before,
-  body[data-theme="student"] .ai-week::before,
-  body[data-theme="student"] .report-out::before{
-    content:"";
-    position:absolute; top:0; left:16px; right:16px; height:14px;
-    background:
-      repeating-linear-gradient(45deg, rgba(180,210,160,.35) 0 6px, transparent 6px 12px),
-      repeating-linear-gradient(-45deg, rgba(200,230,180,.25) 0 6px, transparent 6px 12px);
-    opacity:.7;
-  }
-  body[data-theme="student"] .item::after,
-  body[data-theme="student"] .col::after,
-  body[data-theme="student"] .dash-card::after,
-  body[data-theme="student"] .ai-form::after,
-  body[data-theme="student"] .ai-week::after,
-  body[data-theme="student"] .report-out::after{
-    content:"🍀";
-    position:absolute; right:8px; bottom:6px;
-    font-size:16px; opacity:.35; transform:rotate(-10deg);
-  }
-  /* 列表项内部横线纹理 */
-  body[data-theme="student"] .item{
-    background-image:repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(200,180,140,.10) 24px);
-    background-size:100% 24px;
-    padding-top:18px;
-  }
-  body[data-theme="student"] .item .txt{font-family:var(--font); font-size:15px;}
-  body[data-theme="student"] .chk{border-radius:6px; border-color:var(--line); background:#fff;}
-  body[data-theme="student"] .item.done .chk{background:var(--green); border-color:var(--green); color:#fff;}
-  body[data-theme="student"] .del:hover{color:var(--red);}
-  /* 看板列 */
-  body[data-theme="student"] .col{background:#fffdf5;}
-  body[data-theme="student"] .col h4{font-family:var(--font-serif); color:var(--gold); border-bottom:1px dashed var(--line);}
-  body[data-theme="student"] .col .card{background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 1px 4px rgba(140,120,80,.06); font-family:var(--font); position:relative;}
-  body[data-theme="student"] .col .card::before{content:"🌿"; position:absolute; right:4px; top:4px; font-size:12px; opacity:.4;}
-  body[data-theme="student"] .col .mv{color:var(--blue); font-weight:500;}
-  /* 打卡区 */
-  body[data-theme="student"] .checkin-box{background:#fffdf5; border-style:dashed; border-radius:18px;}
-  body[data-theme="student"] .streak .num{color:var(--gold); font-family:var(--font-serif);}
-  body[data-theme="student"] .checkin-btn{border-radius:24px; background:linear-gradient(135deg,var(--gold-soft),var(--gold)); color:#fff; box-shadow:0 4px 12px rgba(136,176,75,.28); font-family:var(--font);}
-  body[data-theme="student"] .checkin-btn:disabled{background:#d0ccc4; color:#fff; box-shadow:none;}
-  body[data-theme="student"] .dot{border-radius:8px; background:#fff;}
-  body[data-theme="student"] .dot.on{background:var(--gold); border-radius:50%;}
-  /* Dashboard */
-  body[data-theme="student"] .dash-card h4{color:var(--gold); font-family:var(--font-serif);}
-  body[data-theme="student"] .dash-jump{color:var(--blue); font-weight:500;}
-  /* AI 规划 */
-  body[data-theme="student"] .ai-gen{border-radius:24px; background:linear-gradient(135deg,var(--gold-soft),var(--gold)); color:#fff; box-shadow:0 4px 12px rgba(136,176,75,.28); font-family:var(--font);}
-  body[data-theme="student"] .ai-gen:disabled{background:#d0ccc4; color:#fff; box-shadow:none;}
-  body[data-theme="student"] .ai-week h4{color:var(--gold); font-family:var(--font-serif);}
-  body[data-theme="student"] .ai-week .focus{font-family:var(--font);}
-  body[data-theme="student"] .ai-day{background:#fff; border-radius:14px; border:1px dashed var(--line);}
-  body[data-theme="student"] .ai-day .dl{color:var(--blue);}
-  body[data-theme="student"] .ai-vid{background:#fff; border-radius:12px; font-family:var(--font);}
-  body[data-theme="student"] .ai-vid:hover{border-color:var(--blue); color:var(--blue);}
-  /* 输入框 */
-  body[data-theme="student"] .add-row input,
-  body[data-theme="student"] .set-row input{background:#fff; border:1px solid var(--line); border-radius:12px; font-family:var(--font);}
-  body[data-theme="student"] .add-row input:focus,
-  body[data-theme="student"] .set-row input:focus{border-color:var(--gold);}
-  body[data-theme="student"] .add-row button{border-radius:12px; background:var(--gold); color:#fff; font-family:var(--font);}
-  /* 弹窗 */
-  body[data-theme="student"] .set-box,
-  body[data-theme="student"] .modal{background:#fffdf5; border:1px dashed var(--line); border-radius:20px;}
-  body[data-theme="student"] .set-box h3,
-  body[data-theme="student"] .modal h3{color:var(--gold); font-family:var(--font-serif);}
-  body[data-theme="student"] .set-save{border-radius:20px; background:linear-gradient(135deg,var(--gold-soft),var(--gold)); color:#fff; font-family:var(--font);}
-  body[data-theme="student"] .modal .note{background:#fff; border-style:dashed;}
-  body[data-theme="student"] .modal .close{border-radius:20px;}
-  body[data-theme="student"] .help-mini{border-radius:14px; background:rgba(255,255,255,.6); font-family:var(--font);}
-  body[data-theme="student"] .install-bar{background:#fffdf5; border-style:dashed; color:var(--gold); border-radius:30px; font-family:var(--font);}
-  body[data-theme="student"] .install-bar button{border-radius:20px; background:var(--gold); color:#fff;}
-  body[data-theme="student"] .wx-tip{background:#fffdf5; border-bottom:2px dashed var(--gold); color:var(--txt); font-family:var(--font);}
-  body[data-theme="student"] .wx-tip b{color:var(--gold);}
-  /* 报告输出 */
-  body[data-theme="student"] .report-out{font-family:var(--font); background-image:repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(200,180,140,.10) 24px); background-size:100% 24px;}
-  body[data-theme="student"] .copy-btn{background:#fff; border:1px dashed var(--gold); color:var(--gold); border-radius:20px; font-family:var(--font);}
-  body[data-theme="student"] .copy-btn:hover{background:var(--gold); color:#fff;}
-  /* 空态 */
-  body[data-theme="student"] .empty{color:var(--sub); font-family:var(--font);}
-  /* 商务 biz：精致奢华纹理（墨黑 + 香槟金） */
-  body[data-theme="biz"]{
-    --bg:#14110d; --panel:#1d1813; --panel2:#251e17; --line:#3a2f23;
-    --gold:#c9a24b; --gold-soft:#d9b866; --txt:#f3e9d8; --sub:#b09a7d;
-    --green:#5fae84; --red:#cf6b5a; --blue:#7ba3c9;
-    --ip-gold:#d4af37;
-    --font:'微软雅黑','PingFang SC',sans-serif;
-    --font-serif:'宋体','SimSun','Georgia',serif;
-    --radius:10px; --shadow:0 4px 18px rgba(0,0,0,.5);
-    --bg-texture: radial-gradient(circle at 18% 8%, rgba(201,162,75,.07), transparent 42%), radial-gradient(circle at 82% 92%, rgba(201,162,75,.06), transparent 46%);
-  }
-  /* 学生：手账虚线卡片、圆润活泼 */
-  body[data-theme="student"] .item,
-  body[data-theme="student"] .col,
-  body[data-theme="student"] .col .card,
-  body[data-theme="student"] .ai-week,
-  body[data-theme="student"] .dash-card,
-  body[data-theme="student"] .report-out,
-  body[data-theme="student"] .ai-form{border-style:dashed;}
-  body[data-theme="student"] .streak .num{font-family:var(--font-serif);}
-  /* 商务：金边描边、衬线标题、奢华感 */
-  body[data-theme="biz"] .col,
-  body[data-theme="biz"] .item,
-  body[data-theme="biz"] .ai-week,
-  body[data-theme="biz"] .dash-card,
-  body[data-theme="biz"] .report-out,
-  body[data-theme="biz"] .ai-form,
-  body[data-theme="biz"] .set-box,
-  body[data-theme="biz"] .modal{border-color:var(--gold);}
-  body[data-theme="biz"] .topbar h2,
-  body[data-theme="biz"] .brand h1,
-  body[data-theme="biz"] .ai-week h4,
-  body[data-theme="biz"] .streak .num{font-family:var(--font-serif);}
-  body[data-theme="biz"] .brand h1{text-shadow:0 0 1px rgba(212,175,55,.5);}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="topnav">
     <div class="brand-row">
-      <div class="brand">
-        <h1>🦞 龙虾AI工作台</h1>
-        <p>一套引擎 · 三类预设 · 本地运行</p>
+      <div class="brand"><h1>陪跑精灵</h1></div>
+      <div class="top-actions">
+        <button class="help-mini" id="setBtn">⚙ 设置</button>
+        <div class="set-dropdown" id="setDropdown">
+          <button class="setting-entry" id="entryAi">🤖 AI 设置<small>配置模型 Key</small></button>
+          <button class="setting-entry" id="entryData">📦 数据备份与迁移<small>导出 / 导入 JSON</small></button>
+          <button class="setting-entry" id="entryHelp">📲 安装帮助<small>添加到手机主屏</small></button>
+        </div>
       </div>
-      <button class="help-mini" id="setBtn">⚙ 设置</button>
-    </div>
-    <div class="groups" id="groups"></div>
-    <div class="mods-row">
-      <div class="mods" id="mods"></div>
-      <button class="mod-plus" id="modPlus" title="管理功能模块">＋</button>
     </div>
   </div>
   <div class="main">
     <div class="wx-tip" id="wxTip">⚠ 检测到在微信内打开，无法直接安装到主屏。请点右上角「···」→「在浏览器中打开」（或「复制链接」后到 Safari / Chrome 打开），再安装。</div>
-    <div class="topbar">
-      <h2 id="modTitle">—</h2>
-      <span class="tag" id="grpTag">—</span>
-    </div>
     <div class="content" id="content"></div>
   </div>
 </div>
@@ -357,10 +157,10 @@
 <div class="set-mask" id="dataMask">
   <div class="set-box">
     <h3>📦 数据备份与迁移</h3>
-    <div class="sub">A 阶段为纯本地存储，换设备请用此功能迁移。导出得到一个 JSON 文件，在另一台设备导入即可。</div>
+    <div class="sub">数据纯本地存储，换设备请用此功能迁移。导出得到一个 JSON 文件，在另一台设备导入即可。</div>
     <button class="set-save" id="exportBtn">⬇ 导出全部数据</button>
     <div style="margin-top:12px"><input type="file" id="importFile" accept="application/json" style="display:none"><button class="set-save" id="importBtn" style="background:var(--panel2);color:var(--txt);border:1px solid var(--line)">⬆ 导入数据</button></div>
-    <div class="set-note">导入会覆盖当前设备的所有工作台数据，请确认。</div>
+    <div class="set-note">导入会覆盖当前设备的所有数据，请确认。</div>
     <button class="set-save" id="dataClose" style="margin-top:10px;background:transparent;color:var(--sub);border:1px solid var(--line)">关闭</button>
   </div>
 </div>
@@ -392,26 +192,6 @@
   </div>
 </div>
 
-<div class="set-mask" id="settingMask">
-  <div class="set-box">
-    <h3>⚙ 设置</h3>
-    <div class="sub">管理你的 AI 密钥、数据备份与安装方式。</div>
-    <button class="setting-entry" id="entryAi">🤖 AI 设置<small>配置模型 Key</small></button>
-    <button class="setting-entry" id="entryData">📦 数据备份与迁移<small>导出 / 导入 JSON</small></button>
-    <button class="setting-entry" id="entryHelp">📲 安装帮助<small>添加到手机主屏</small></button>
-    <button class="set-save" id="settingClose" style="margin-top:14px;background:transparent;color:var(--sub);border:1px solid var(--line)">关闭</button>
-  </div>
-</div>
-
-<div class="set-mask" id="modMask">
-  <div class="set-box">
-    <h3>➕ 管理功能模块</h3>
-    <div class="sub">勾选要显示的功能，未勾选的将隐藏。随时回来调整。</div>
-    <div id="modList"></div>
-    <button class="set-save" id="modSave" style="margin-top:14px">完成</button>
-  </div>
-</div>
-
 <div class="set-mask" id="setMask">
   <div class="set-box">
     <h3>⚙ AI 设置</h3>
@@ -426,245 +206,27 @@
 </div>
 
 <script>
-// ====== 数据模型：三类群体，每类若干模块 ======
-const GROUPS = {
-  worker: {
-    name: '上班族', icon: '💼',
-    modules: [
-      { id:'dashboard',name:'总览',     type:'dashboard' },
-      { id:'task',    name:'每日任务', type:'list' },
-      { id:'aiplan',  name:'AI目标规划', type:'aiplan' },
-      { id:'board',   name:'项目看板', type:'kanban' },
-      { id:'report',  name:'周报助手', type:'report', source:'task' },
-      { id:'meeting', name:'会议纪要', type:'list' },
-      { id:'habit',   name:'习惯打卡', type:'checkin' },
-      { id:'goal',    name:'月度目标', type:'list' },
-      { id:'finance', name:'个人收支', type:'list' },
-      { id:'journal', name:'周复盘',   type:'list' },
-    ]
-  },
-  student: {
-    name: '大学生', icon: '🎓',
-    modules: [
-      { id:'dashboard',name:'总览',     type:'dashboard' },
-      { id:'course',  name:'课程表',   type:'list' },
-      { id:'aiplan',  name:'AI目标规划', type:'aiplan' },
-      { id:'exam',    name:'作业与考试', type:'list' },
-      { id:'kaoyan',  name:'考研打卡', type:'checkin' },
-      { id:'habit',   name:'习惯打卡', type:'checkin' },
-      { id:'notes',   name:'笔记资源库', type:'list' },
-      { id:'intern',  name:'实习日志', type:'list' },
-      { id:'career',  name:'求职追踪', type:'list' },
-      { id:'fit',     name:'减脂记录', type:'list' },
-    ]
-  },
-  biz: {
-    name: '商务人士', icon: '🤝',
-    modules: [
-      { id:'dashboard',name:'总览',     type:'dashboard' },
-      { id:'crm',     name:'客户管理', type:'list' },
-      { id:'aiplan',  name:'AI目标规划', type:'aiplan' },
-      { id:'pipeline',name:'商机管道', type:'kanban' },
-      { id:'board',   name:'项目看板', type:'kanban' },
-      { id:'schedule',name:'团队日程', type:'list' },
-      { id:'meeting', name:'会议纪要', type:'list' },
-      { id:'network', name:'人脉网络', type:'list' },
-      { id:'card',    name:'个人门面', type:'report', source:'crm' },
-      { id:'brief',   name:'工作简报', type:'report', source:'board' },
-    ]
-  }
-};
-
-const K = (g,m)=>`lobster_wb_${g}_${m}`;
-const load = (g,m,def)=>{ try{ return JSON.parse(localStorage.getItem(K(g,m))) ?? def; }catch(e){ return def; } };
-const save = (g,m,val)=> localStorage.setItem(K(g,m), JSON.stringify(val));
-const uid = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-const today = ()=> new Date().toISOString().slice(0,10);
-
-// 每个群体的「基础功能」（默认显示），其余默认隐藏，用户点「＋」放出
-const BASIC = {
-  worker:['dashboard','task','aiplan','report'],
-  student:['dashboard','course','aiplan','habit'],
-  biz:['dashboard','crm','aiplan','board']
-};
-// 当前群体显示的模块 id 列表（localStorage）
-function getShown(){
-  let s=load(curGroup,'_shown',null);
-  if(!s||!s.length) s=BASIC[curGroup].slice();
-  return s;
-}
-function setShown(arr){ save(curGroup,'_shown',arr); }
-
-let curGroup='worker', curMod='task';
-// 主题切换：切换群体即切换整套视觉皮肤（三套预设 = 三套皮肤）
-const THEME_GOLD={student:'#f2994a',worker:'#d9743f',biz:'#c9a24b'};
-function applyTheme(gid){
-  document.body.dataset.theme=gid;
-  const m=document.querySelector('meta[name=theme-color]');
-  if(m) m.setAttribute('content', THEME_GOLD[gid]||THEME_GOLD.worker);
-}
-
-// ====== 渲染侧栏 ======
-function renderGroups(){
-  const box=document.getElementById('groups');
-  box.innerHTML='';
-  Object.entries(GROUPS).forEach(([gid,g])=>{
-    const b=document.createElement('div');
-    b.className='grp-btn'+(gid===curGroup?' active':'');
-    b.textContent=`${g.icon} ${g.name}`;
-    b.onclick=()=>{ curGroup=gid; const sh=getShown(); curMod=sh[0]||g.modules[0].id; applyTheme(gid); renderGroups(); renderMods(); renderContent(); };
-    box.appendChild(b);
-  });
-}
-function renderMods(){
-  const box=document.getElementById('mods');
-  box.innerHTML='';
-  const shown=getShown();
-  GROUPS[curGroup].modules.filter(m=>shown.includes(m.id)).forEach(m=>{
-    const b=document.createElement('div');
-    b.className='mod-btn'+(m.id===curMod?' active':'');
-    b.textContent=m.name;
-    b.onclick=()=>{ curMod=m.id; renderMods(); renderContent(); };
-    box.appendChild(b);
-  });
-}
-
-// ====== 渲染主内容 ======
-function renderContent(){
-  const g=GROUPS[curGroup], m=g.modules.find(x=>x.id===curMod);
-  document.getElementById('modTitle').textContent=m.name;
-  document.getElementById('grpTag').textContent=`${g.icon} ${g.name}`;
-  const c=document.getElementById('content');
-  c.innerHTML='';
-  if(m.type==='dashboard')renderDashboard(c,g,m);
-  if(m.type==='list')   renderList(c,g,m);
-  if(m.type==='kanban') renderKanban(c,g,m);
-  if(m.type==='checkin')renderCheckin(c,g,m);
-  if(m.type==='report') renderReport(c,g,m);
-  if(m.type==='aiplan') renderAiPlan(c,g,m);
-}
-
-// ---- 列表 ----
-function renderList(c,g,m){
-  let items=load(curGroup,m.id,[]);
-  const hint=document.createElement('div'); hint.className='hint';
-  hint.textContent='添加条目，勾选表示完成。数据自动存本地。';
-  c.appendChild(hint);
-  const row=document.createElement('div'); row.className='add-row';
-  const inp=document.createElement('input'); inp.placeholder='输入内容后回车…';
-  const btn=document.createElement('button'); btn.textContent='添加';
-  const add=()=>{ if(!inp.value.trim())return; items.push({id:uid(),text:inp.value.trim(),done:false}); save(curGroup,m.id,items); inp.value=''; renderList(c,g,m); };
-  btn.onclick=add; inp.onkeydown=e=>{ if(e.key==='Enter')add(); };
-  row.append(inp,btn); c.appendChild(row);
-  items.forEach(it=>{
-    const d=document.createElement('div'); d.className='item'+(it.done?' done':'');
-    const chk=document.createElement('div'); chk.className='chk'; chk.textContent=it.done?'✓':'';
-    chk.onclick=()=>{ it.done=!it.done; save(curGroup,m.id,items); renderList(c,g,m); };
-    const tx=document.createElement('div'); tx.className='txt'; tx.textContent=it.text;
-    const del=document.createElement('div'); del.className='del'; del.textContent='✕';
-    del.onclick=()=>{ items=items.filter(x=>x.id!==it.id); save(curGroup,m.id,items); renderList(c,g,m); };
-    d.append(chk,tx,del); c.appendChild(d);
-  });
-  if(items.length===0){ const e=document.createElement('div'); e.className='empty'; e.textContent='还没有内容，添加第一条吧'; c.appendChild(e); }
-}
-
-// ---- 看板 ----
-function renderKanban(c,g,m){
-  let data=load(curGroup,m.id,{cols:[{name:'待办',items:[]},{name:'进行中',items:[]},{name:'已完成',items:[]}]});
-  const wrap=document.createElement('div'); wrap.className='kanban';
-  data.cols.forEach((col,ci)=>{
-    const colEl=document.createElement('div'); colEl.className='col';
-    const h=document.createElement('h4'); h.textContent=col.name; colEl.appendChild(h);
-    col.items.forEach(it=>{
-      const card=document.createElement('div'); card.className='card';
-      const t=document.createElement('div'); t.textContent=it.text; card.appendChild(t);
-      if(ci<data.cols.length-1){ const mv=document.createElement('span'); mv.className='mv'; mv.textContent='→ 移到下一组';
-        mv.onclick=()=>{ col.items=col.items.filter(x=>x.id!==it.id); data.cols[ci+1].items.push(it); save(curGroup,m.id,data); renderKanban(c,g,m); };
-        card.appendChild(mv); }
-      colEl.appendChild(card);
-    });
-    const row=document.createElement('div'); row.className='add-row'; row.style.margin='10px 0 0';
-    const inp=document.createElement('input'); inp.placeholder='加卡片…'; inp.style.padding='7px 10px'; inp.style.fontSize='13px';
-    const btn=document.createElement('button'); btn.textContent='+'; btn.style.padding='0 12px';
-    const add=()=>{ if(!inp.value.trim())return; col.items.push({id:uid(),text:inp.value.trim()}); save(curGroup,m.id,data); inp.value=''; renderKanban(c,g,m); };
-    btn.onclick=add; inp.onkeydown=e=>{ if(e.key==='Enter')add(); };
-    row.append(inp,btn); colEl.appendChild(row);
-    wrap.appendChild(colEl);
-  });
-  c.appendChild(wrap);
-}
-
-// ---- 打卡 ----
-function renderCheckin(c,g,m){
-  let rec=load(curGroup,m.id,[]); // 日期字符串数组
-  const t=today();
-  const doneToday=rec.includes(t);
-  const box=document.createElement('div'); box.className='checkin-box';
-  const st=document.createElement('div'); st.className='streak';
-  // 连续天数
-  let streak=0; let d=new Date();
-  while(true){ const ds=d.toISOString().slice(0,10); if(rec.includes(ds)){ streak++; d.setDate(d.getDate()-1); } else break; }
-  st.innerHTML=`<div class="num">${streak}</div><div class="lbl">连续打卡(天)</div>`;
-  const right=document.createElement('div');
-  const btn=document.createElement('button'); btn.className='checkin-btn'; btn.textContent=doneToday?'今日已打卡 ✓':'今日打卡'; btn.disabled=doneToday;
-  btn.onclick=()=>{ if(!rec.includes(t)){ rec.push(t); save(curGroup,m.id,rec); renderCheckin(c,g,m); } };
-  const total=document.createElement('div'); total.style.cssText='font-size:13px;color:var(--sub);margin-top:10px;'; total.textContent=`累计打卡 ${rec.length} 天`;
-  right.append(btn,total);
-  box.append(st,right); c.appendChild(box);
-  // 近30天点
-  const dots=document.createElement('div'); dots.className='dots';
-  for(let i=29;i>=0;i--){ const dd=new Date(); dd.setDate(dd.getDate()-i); const ds=dd.toISOString().slice(0,10);
-    const dot=document.createElement('div'); dot.className='dot'+(rec.includes(ds)?' on':''); dot.textContent=dd.getDate(); dots.appendChild(dot); }
-  c.appendChild(dots);
-}
-
-// ---- 报告 ----
-function renderReport(c,g,m){
-  const src=g.modules.find(x=>x.id===m.source);
-  const hint=document.createElement('div'); hint.className='hint';
-  hint.textContent=`自动汇总「${src?src.name:'源'}」的内容，一键复制。可改文案后发送。`;
-  c.appendChild(hint);
-  let text='';
-  if(m.id==='report'){
-    const items=src?load(curGroup,src.id,[]):[];
-    const dones=items.filter(i=>i.done).map(i=>'  ✓ '+i.text);
-    const todos=items.filter(i=>!i.done).map(i=>'  ○ '+i.text);
-    text=`【本周工作周报】\n\n已完成：\n${dones.join('\n')||'  （无）'}\n\n进行中：\n${todos.join('\n')||'  （无）'}\n\n下周计划：\n  （待补充）`;
-  } else if(m.id==='card'){
-    const items=src?load(curGroup,src.id,[]):[];
-    const names=items.map(i=>'  · '+i.text);
-    text=`【个人门面 / 业务名片】\n\n核心客户与资源：\n${names.join('\n')||'  （待补充）'}\n\n一句话定位：\n  （写一句你是谁、能提供什么价值）`;
-  } else if(m.id==='brief'){
-    const data=src?load(curGroup,src.id,{cols:[]}):{cols:[]};
-    const lines=(data.cols||[]).map(col=>`  ${col.name}：${(col.items||[]).map(i=>i.text).join('、')||'（空）'}`);
-    text=`【工作简报】\n\n${lines.join('\n')||'  （暂无项目数据）'}\n\n下一步重点：\n  （待补充）`;
-  }
-  const out=document.createElement('div'); out.className='report-out'; out.textContent=text;
-  c.appendChild(out);
-  const cp=document.createElement('button'); cp.className='copy-btn'; cp.textContent='复制文本';
-  cp.onclick=()=>{ navigator.clipboard.writeText(text).then(()=>{ cp.textContent='已复制 ✓'; setTimeout(()=>cp.textContent='复制文本',1500); }); };
-  c.appendChild(cp);
-}
+// ====== 本地存储（用户自带 Key + 本地优先，零运营） ======
+const PREFIX='pp_';
+const load=(k,def)=>{ try{ const v=localStorage.getItem(PREFIX+k); return v==null?def:JSON.parse(v); }catch(e){ return def; } };
+const save=(k,v)=> localStorage.setItem(PREFIX+k, JSON.stringify(v));
+const today=()=> new Date().toISOString().slice(0,10);
+const escapeHtml=(s)=> String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
 // ====== AI 设置（OpenAI 兼容，本机存储） ======
-function getAISettings(){ try{ const raw=localStorage.getItem('lobster_wb_ai_settings'); if(!raw) return null; return JSON.parse(decodeURIComponent(escape(atob(raw)))); }catch(e){ return null; } }
-function setAISettings(s){ localStorage.setItem('lobster_wb_ai_settings', btoa(unescape(encodeURIComponent(JSON.stringify(s))))); }
+function getAISettings(){ try{ const raw=localStorage.getItem(PREFIX+'ai'); if(!raw) return null; return JSON.parse(decodeURIComponent(escape(atob(raw)))); }catch(e){ return null; } }
+function setAISettings(s){ localStorage.setItem(PREFIX+'ai', btoa(unescape(encodeURIComponent(JSON.stringify(s))))); }
 async function callAI(system, user){
   const s=getAISettings();
   if(!s||!s.key) throw new Error('未配置 AI Key');
   const base=(s.base||'https://api.openai.com/v1').replace(/\/+$/,'');
-  const body={ model:s.model||'gpt-4o-mini', messages:[
-    {role:'system',content:system},
-    {role:'user',content:user}
-  ], temperature:0.7, stream:false };
   const r=await fetch(base+'/chat/completions',{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.key},
-    body:JSON.stringify(body)
+    body:JSON.stringify({ model:s.model||'gpt-4o-mini', messages:[{role:'system',content:system},{role:'user',content:user}], temperature:0.7, stream:false })
   });
   if(!r.ok) throw new Error('API 错误 '+r.status);
-  const j=await r.json();
-  return j.choices[0].message.content;
+  return (await r.json()).choices[0].message.content;
 }
 
 // ====== 视频一键进（搜索深链，零成本） ======
@@ -675,223 +237,257 @@ function videoLinks(kw){
          '<a class="ai-vid" href="https://www.douyin.com/search/'+q+'" target="_blank" rel="noopener">🎵 抖音</a>';
 }
 
-// ====== 示例计划（未配置 AI 时展示，让用户看到效果） ======
-const DEMO_PLANS={
-  worker:{goal:'3个月学会 Python 自动化办公',weeks:[
-    {week:1,focus:'环境 + 基础语法',days:[
-      {label:'Day1-2',task:'安装 Python 与 VS Code，跑通第一个 print 程序',kw:'Python 安装 环境配置'},
-      {label:'Day3-4',task:'变量/条件/循环，手写一个批量重命名脚本',kw:'Python 循环 批量重命名'},
-      {label:'Day5-7',task:'函数与文件读写，整理桌面杂乱文件',kw:'Python 文件读写'}]},
-    {week:2,focus:'办公自动化实战',days:[
-      {label:'Day8-10',task:'用 openpyxl 处理 Excel 报表',kw:'Python openpyxl Excel'},
-      {label:'Day11-14',task:'用 requests 自动抓取网页数据',kw:'Python requests 爬虫'}]}]},
-  student:{goal:'6个月考研英语冲 70+',weeks:[
-    {week:1,focus:'词汇 + 长难句',days:[
-      {label:'Day1-3',task:'背核心词汇 List 1-3，每天 50 词',kw:'考研英语 核心词汇'},
-      {label:'Day4-5',task:'长难句拆解训练',kw:'考研英语 长难句'},
-      {label:'Day6-7',task:'阅读真题一篇精读',kw:'考研英语 阅读 精读'}]},
-    {week:2,focus:'阅读 + 写作',days:[
-      {label:'Day8-10',task:'阅读理解技巧专项',kw:'考研英语 阅读技巧'},
-      {label:'Day11-14',task:'小作文模板背诵与仿写',kw:'考研英语 小作文 模板'}]}]},
-  biz:{goal:'3个月把商务英语口语练到能开会',weeks:[
-    {week:1,focus:'发音 + 常用句式',days:[
-      {label:'Day1-3',task:'音标纠正与连读训练',kw:'英语 发音 连读 训练'},
-      {label:'Day4-5',task:'会议常用 50 句开口练',kw:'商务英语 会议 常用句'},
-      {label:'Day6-7',task:'TED 演讲跟读 1 篇',kw:'TED 演讲 跟读'}]},
-    {week:2,focus:'场景实战',days:[
-      {label:'Day8-10',task:'模拟电话/视频会议',kw:'商务英语 电话会议 模拟'},
-      {label:'Day11-14',task:'用英语做 3 分钟产品介绍',kw:'英语 产品介绍 演讲'}]}]}
-};
+// ====== 示例计划（未配置 AI 时也能体验） ======
+const DEMO_PLAN={goal:'3 个月用 AI 把重复工作砍掉一半',who:'一个把时间花在重要事上的人',weeks:[
+  {week:1,focus:'摸清重复在哪',days:[
+    {label:'Day1-2',task:'列一张「这周我重复做了什么」清单',kw:'如何发现重复性工作'},
+    {label:'Day3-4',task:'挑一个最烦的重复动作，写成步骤',kw:'工作流程 标准化 步骤'},
+    {label:'Day5-7',task:'试用一个 AI 工具（如聊天机器人）跑通一次',kw:'AI 工具 入门 实操'}]},
+  {week:2,focus:'让 AI 替你做',days:[
+    {label:'Day8-10',task:'用 AI 写出第一份自动回复 / 自动草稿',kw:'AI 写邮件 自动回复 提示词'},
+    {label:'Day11-14',task:'把上一步固化成你的固定模板',kw:'prompt 模板 复用'}]},
+  {week:3,focus:'扩大战果',days:[
+    {label:'Day15-18',task:'再找两个重复动作交给 AI',kw:'AI 自动化 场景'},
+    {label:'Day19-21',task:'周末复盘：这月省下多少时间',kw:'工作效率 复盘 方法'}]}
+]};
 
-// ====== 总览 Dashboard ======
-function renderDashboard(c,g,m){
-  const grid=document.createElement('div'); grid.className='dash-grid';
-  const card=(title,jumpMod,items,emptyTxt)=>{
-    const d=document.createElement('div'); d.className='dash-card';
-    const h=document.createElement('h4'); h.textContent=title; d.appendChild(h);
-    if(!items||items.length===0){ const e=document.createElement('div'); e.className='dash-empty'; e.textContent=emptyTxt; d.appendChild(e); }
-    else items.slice(0,5).forEach(it=>{ const li=document.createElement('div'); li.className='li'; const b=document.createElement('b'); b.textContent=it.text||it; li.appendChild(b); d.appendChild(li); });
-    if(jumpMod){ const j=document.createElement('div'); j.className='dash-jump'; j.textContent='查看全部 →'; j.onclick=()=>{ curMod=jumpMod; renderMods(); renderContent(); }; d.appendChild(j); }
-    return d;
-  };
-  const taskMod=g.modules.find(x=>['task','course','crm'].includes(x.id));
-  const tasks=taskMod?load(curGroup,taskMod.id,[]).filter(i=>!i.done):[];
-  grid.appendChild(card('📋 今日待办', taskMod&&taskMod.id, tasks, '暂无待办，去添加吧'));
-  let goals=[];
-  const ap=load(curGroup,'aiplan',null); if(ap&&ap.goal) goals.push({text:ap.goal});
-  const goalMod=g.modules.find(x=>x.id==='goal'); if(goalMod) load(curGroup,'goal',[]).forEach(i=>goals.push(i));
-  grid.appendChild(card('🎯 活跃目标', 'aiplan', goals, '去「AI目标规划」定一个吧'));
-  const chkMod=g.modules.find(x=>x.type==='checkin');
-  let streak=0; if(chkMod){ const rec=load(curGroup,chkMod.id,[]); let dd=new Date(); while(true){ const ds=dd.toISOString().slice(0,10); if(rec.includes(ds)){streak++;dd.setDate(dd.getDate()-1);}else break; } }
-  const c2=document.createElement('div'); c2.className='dash-card';
-  c2.innerHTML='<h4>🔥 习惯打卡</h4><div class="dash-empty">连续打卡 <b style="color:var(--gold)">'+streak+'</b> 天'+(chkMod?'':'（无打卡模块）')+'</div>';
-  if(chkMod){ const j=document.createElement('div'); j.className='dash-jump'; j.textContent='去打卡 →'; j.onclick=()=>{ curMod=chkMod.id; renderMods(); renderContent(); }; c2.appendChild(j); }
-  grid.appendChild(c2);
-  const c3=document.createElement('div'); c3.className='dash-card';
-  c3.innerHTML='<h4>🤖 AI 规划</h4><div class="dash-empty">让 AI 把目标拆成每周/每天计划，并配好学习视频入口。</div>';
-  const j2=document.createElement('div'); j2.className='dash-jump'; j2.textContent='打开 AI目标规划 →'; j2.onclick=()=>{ curMod='aiplan'; renderMods(); renderContent(); }; c3.appendChild(j2);
-  grid.appendChild(c3);
-  c.appendChild(grid);
+// ====== 计划数据结构 ======
+// plan = { goal, who, weeks:[{week,focus,days:[{label,task,kw,done,doneDate}]}] }
+function allDays(plan){ return plan.weeks.flatMap(w=>w.days.map(d=>({w,d}))); }
+function nextDay(plan){ const r=allDays(plan).find(x=>!x.d.done); return r?r.d:null; }
+function isAllDone(plan){ return allDays(plan).every(x=>x.d.done); }
+function doneDates(plan){ return allDays(plan).filter(x=>x.d.done&&x.d.doneDate).map(x=>x.d.doneDate); }
+function calcStreak(plan){
+  const set=new Set(doneDates(plan));
+  let n=0; let d=new Date();
+  while(true){ const ds=d.toISOString().slice(0,10); if(set.has(ds)){ n++; d.setDate(d.getDate()-1); } else break; }
+  return n;
+}
+function lastDone(plan){ const a=doneDates(plan).sort(); return a.length?a[a.length-1]:null; }
+
+// ====== 正反馈（本地模板，零 AI 成本） ======
+const CHEERS=[
+  '这一步你做到了 ✓ 今天这股劲头很猛。',
+  '漂亮，又啃下一块。明天继续推下一步。',
+  '做到了就好，行动永远比完美重要。',
+  '不错，目标就是这样一天天被做小的。'
+];
+function cheer(plan){
+  let s=CHEERS[Math.floor(Math.random()*CHEERS.length)];
+  const st=calcStreak(plan);
+  if(st>=3) s+=' 已经连续 '+st+' 天没断，这种节奏就是做成事的秘密。';
+  const who=(plan.who||'').trim();
+  if(who) s+=' 你这位'+who+'，离目标又近了一步。';
+  return s;
+}
+const PUSHES=[
+  '好几天没动了？不用从头来，今天只做一步就够 👇',
+  '断了没关系，最怕的是不回来。今天这一步，交给我陪你。',
+  '目标还在，只是歇了会儿。现在，只做今天这一步。'
+];
+
+// ====== 渲染主内容 ======
+const contentEl=()=>document.getElementById('content');
+function render(){
+  const c=contentEl(); c.innerHTML='';
+  const plan=load('plan',null);
+  if(!plan) return renderOnboard(c);
+  renderFlow(c,plan);
 }
 
-// ====== AI 目标规划 ======
-function parseJSON(s){ try{ return JSON.parse(s); }catch(e){} const m=s&&s.match(/\{[\s\S]*\}/); if(m){ try{ return JSON.parse(m[0]); }catch(e){} } return null; }
-function renderAiPlan(c,g,m){
+// 引导：没有目标时
+function renderOnboard(c){
+  const hero=document.createElement('div'); hero.className='pp-hero';
+  hero.innerHTML='你只管开始，剩下的交给我。<br>告诉我一件<b>你想做成的事</b>，我替你拆成每天一小步，推着你做完。';
+  c.appendChild(hero);
   const set=getAISettings();
   if(!set||!set.key){
     const need=document.createElement('div'); need.className='ai-needkey';
-    need.innerHTML='⚠ 使用前请先配置 AI：点右上角 <b>「⚙ 设置」</b> →「AI 设置」，填入 OpenAI 兼容的 API（DeepSeek / 通义 / 智谱 / OpenAI 均可）。Key 只存在你本机浏览器，不外传。';
+    need.innerHTML='⚠ 想让 AI 替你拆解，请先配置 Key：点右上角 <b>「⚙ 设置」</b> →「AI 设置」（DeepSeek / 通义 / 智谱 / OpenAI 均可，Key 只存你本机）。<br>不想配置也能先看示例。';
     c.appendChild(need);
   }
   const form=document.createElement('div'); form.className='ai-form';
   form.innerHTML=
-    '<div class="set-row"><label>目标（想达成什么）</label><input id="aiGoal" placeholder="例：3个月学会小提琴"></div>'+
+    '<div class="set-row"><label>你想做成什么事？</label><input id="aiGoal" placeholder="例：3个月学会小提琴"></div>'+
     '<div class="set-row"><label>当前水平</label><input id="aiLevel" placeholder="例：零基础"></div>'+
-    '<div class="set-row"><label>每周可投入时长</label><input id="aiHours" placeholder="例：5 小时/周"></div>'+
+    '<div class="set-row"><label>每周能投入多久</label><input id="aiHours" placeholder="例：5 小时/周"></div>'+
     '<div class="set-row"><label>期望达成日期</label><input id="aiDate" placeholder="例：2026-11-01"></div>'+
-    '<div class="set-row"><label>身份宣言（可选，提升坚持率）</label><input id="aiWho" placeholder="例：我是一个把爱好变成专长的人"></div>';
+    '<div class="set-row"><label>一句话介绍自己（可选，我用来陪你）</label><input id="aiWho" placeholder="例：一个把爱好变专长的人"></div>';
   c.appendChild(form);
-  const gen=document.createElement('button'); gen.className='ai-gen'; gen.textContent='🤖 生成计划';
+  const row=document.createElement('div'); row.className='pp-actions';
+  const gen=document.createElement('button'); gen.className='ai-gen'; gen.textContent='🤖 让 AI 替我拆解';
+  const demo=document.createElement('button'); demo.className='ai-gen'; demo.style.background='var(--panel2)'; demo.style.color='var(--txt)'; demo.textContent='先看示例';
   const status=document.createElement('div'); status.className='ai-status';
   gen.onclick=async()=>{
     const goal=document.getElementById('aiGoal').value.trim();
-    if(!goal){ status.textContent='请先填写目标'; return; }
+    if(!goal){ status.textContent='先说一件你想做成的事 👆'; return; }
     if(!getAISettings()||!getAISettings().key){ status.textContent='请先配置 AI Key（右上角 ⚙）'; return; }
-    gen.disabled=true; status.textContent='AI 规划中…（约 10-30 秒）';
-    const level=document.getElementById('aiLevel').value.trim()||'未说明';
-    const hours=document.getElementById('aiHours').value.trim()||'未说明';
-    const date=document.getElementById('aiDate').value.trim()||'未说明';
+    gen.disabled=true; status.textContent='AI 拆解中…（约 10-30 秒）';
     const who=document.getElementById('aiWho').value.trim();
-    const sys='你是一个专业的成长教练与目标拆解专家。根据用户目标，只输出纯 JSON（不要任何解释、不要 markdown 代码块），格式：{"goal":"目标","weeks":[{"week":1,"focus":"本周主题","days":[{"label":"Day1-2","task":"具体可执行任务","kw":"用于搜索教学视频的中文关键词"}]}]}，做 2-3 周、每周 3-5 天。kw 要具体利于搜视频。';
-    const usr='目标：'+goal+'\n当前水平：'+level+'\n每周投入：'+hours+'\n期望日期：'+date+'\n'+(who?('身份宣言：'+who+'\n'):'')+'请拆成可执行的周/日计划。';
+    const sys='你是一个专业的成长教练与目标拆解专家。根据用户目标，只输出纯 JSON（不要任何解释、不要 markdown 代码块），格式：{"goal":"目标","who":"用户一句话介绍(若提供)","weeks":[{"week":1,"focus":"本周主题","days":[{"label":"Day1-2","task":"具体可执行任务","kw":"用于搜索教学视频的中文关键词"}]}]}，做 2-4 周、每周 3-5 天。kw 要具体利于搜视频。';
+    const usr='目标：'+goal+'\n当前水平：'+(document.getElementById('aiLevel').value.trim()||'未说明')+'\n每周投入：'+(document.getElementById('aiHours').value.trim()||'未说明')+'\n期望日期：'+(document.getElementById('aiDate').value.trim()||'未说明')+'\n'+(who?('身份介绍：'+who+'\n'):'')+'请拆成可执行的周/日计划。';
     try{
-      const raw=await callAI(sys,usr);
-      const plan=parseJSON(raw);
+      const plan=parseJSON(await callAI(sys,usr));
       if(!plan||!plan.weeks){ status.textContent='生成结果格式异常，请重试'; gen.disabled=false; return; }
-      save(curGroup,'aiplan',plan);
-      status.textContent='✓ 计划已生成并保存';
-      renderAiPlan(c,g,m);
+      plan.who=who; save('plan',plan); render();
     }catch(e){ status.textContent='生成失败：'+e.message+'（检查 Key / 网络 / 模型名）'; gen.disabled=false; }
   };
-  c.appendChild(gen); c.appendChild(status);
-  let plan=load(curGroup,'aiplan',null) || (DEMO_PLANS[curGroup]?Object.assign({demo:true},DEMO_PLANS[curGroup]):null);
-  if(plan){
-    if(plan.demo){ const tip=document.createElement('div'); tip.className='ai-status'; tip.textContent='👇 以下是示例计划，配置 AI 并点「生成计划」可生成你自己的：'; c.appendChild(tip); }
-    const title=document.createElement('div'); title.style.cssText='font-size:16px;color:var(--gold);margin:18px 0 10px;'; title.textContent='🎯 '+plan.goal; c.appendChild(title);
-    plan.weeks.forEach(w=>{
-      const wk=document.createElement('div'); wk.className='ai-week';
-      const fh=document.createElement('h4'); fh.textContent='第 '+w.week+' 周 · '+(w.focus||''); wk.appendChild(fh);
-      (w.days||[]).forEach(dy=>{
-        const d=document.createElement('div'); d.className='ai-day';
-        const dl=document.createElement('div'); dl.className='dl'; dl.textContent=dy.label||'';
-        const dt=document.createElement('div'); dt.className='dt'; dt.textContent=dy.task||'';
-        const vids=document.createElement('div'); vids.className='ai-vids'; vids.innerHTML=videoLinks(dy.kw||dy.task||plan.goal);
-        d.append(dl,dt,vids); wk.appendChild(d);
-      });
-      c.appendChild(wk);
-    });
-  } else {
-    const e=document.createElement('div'); e.className='empty'; e.textContent='填写上方信息，让 AI 为你拆解目标'; c.appendChild(e);
-  }
+  demo.onclick=()=>{ save('plan', JSON.parse(JSON.stringify(DEMO_PLAN))); render(); };
+  row.append(gen,demo); c.append(row,status);
 }
+
+// 陪跑流：有目标时
+function renderFlow(c,plan){
+  // 放弃捞人
+  const ld=lastDone(plan); const gap=ld?Math.round((new Date(today())-new Date(ld))/864e5):99;
+  if(gap>=3){
+    const push=document.createElement('div'); push.className='pp-push';
+    push.textContent=PUSHES[Math.floor(Math.random()*PUSHES.length)];
+    c.appendChild(push);
+  }
+  // 顶部 streak 条
+  const bar=document.createElement('div'); bar.className='streak-bar';
+  bar.innerHTML='<div><div class="num">'+calcStreak(plan)+'</div><div class="lbl">连续做成(天)</div></div>'+
+    '<div class="goal">🎯 '+escapeHtml(plan.goal)+'<small>你每完成一步，我就帮你记着</small></div>';
+  c.appendChild(bar);
+
+  const nd=nextDay(plan);
+  if(!nd){
+    // 全部完成
+    const done=document.createElement('div'); done.className='pp-today';
+    done.innerHTML='<div class="lead">🎉 这个目标，你做成了！</div><div class="step">连续 '+calcStreak(plan)+' 天、'+allDays(plan).length+' 步，全都踩完。</div>';
+    c.appendChild(done);
+    const again=document.createElement('button'); again.className='pp-done'; again.style.marginTop='16px'; again.textContent='再定一个新目标';
+    again.onclick=()=>{ if(confirm('开启新目标会清空当前计划，确定？')){ save('plan',null); render(); } };
+    c.appendChild(again);
+    foot(c,plan); return;
+  }
+  // 今日一步
+  const card=document.createElement('div'); card.className='pp-today';
+  card.innerHTML='<div class="lead">今天只需做这一步 👇</div><div class="step">'+escapeHtml(nd.task)+'</div>';
+  const acts=document.createElement('div'); acts.className='pp-actions';
+  const btn=document.createElement('button'); btn.className='pp-done'; btn.textContent='✓ 我做完了';
+  const vids=document.createElement('div'); vids.className='ai-vids'; vids.style.flex='1'; vids.style.minWidth='200px'; vids.innerHTML=videoLinks(nd.kw||nd.task||plan.goal);
+  const cheerBox=document.createElement('div'); cheerBox.className='pp-cheer';
+  btn.onclick=()=>{
+    nd.done=true; nd.doneDate=today(); save('plan',plan);
+    cheerBox.textContent=cheer(plan);
+    // 推到下一步
+    setTimeout(()=>render(), 900);
+  };
+  acts.append(btn,vids); card.append(acts,cheerBox); c.appendChild(card);
+  foot(c,plan);
+}
+
+function foot(c,plan){
+  const f=document.createElement('div'); f.className='pp-foot';
+  const full=document.createElement('div'); full.className='pp-link'; full.textContent='📋 查看完整计划';
+  const fullBox=document.createElement('div'); fullBox.className='pp-full';
+  plan.weeks.forEach(w=>{
+    const wk=document.createElement('div'); wk.className='ai-week';
+    wk.innerHTML='<h4>第 '+w.week+' 周 · '+(w.focus||'')+'</h4>';
+    (w.days||[]).forEach(dy=>{
+      const d=document.createElement('div'); d.className='ai-day'+(dy.done?' done':'');
+      d.innerHTML='<div class="dl">'+(dy.label||'')+'</div><div class="dt">'+escapeHtml(dy.task||'')+'</div>'+(dy.done?'<div class="ok">✓ '+dy.doneDate+'</div>':'');
+      wk.appendChild(d);
+    });
+    fullBox.appendChild(wk);
+  });
+  full.onclick=()=>fullBox.classList.toggle('show');
+  const rec=document.createElement('div'); rec.className='pp-link'; rec.textContent='📜 我的履历';
+  rec.onclick=()=>renderRecord();
+  const reset=document.createElement('div'); reset.className='pp-link'; reset.textContent='🔄 重新定目标';
+  reset.onclick=()=>{ if(confirm('重新定目标会清空当前计划，确定？')){ save('plan',null); render(); } };
+  f.append(full,rec,reset); c.append(f,fullBox);
+}
+
+// 履历
+function renderRecord(){
+  const c=contentEl(); c.innerHTML='';
+  const plan=load('plan',null);
+  const hero=document.createElement('div'); hero.className='pp-hero';
+  hero.innerHTML='你真做成的事，都记在这里。<br>换设备前记得在 <b>「⚙ 设置 → 数据备份」</b> 导出。';
+  c.appendChild(hero);
+  const total=plan?allDays(plan).filter(x=>x.d.done).length:0;
+  const goals=plan&&isAllDone(plan)?1:0;
+  const grid=document.createElement('div'); grid.className='rec-grid';
+  grid.innerHTML='<div class="rec-card"><div class="n">'+calcStreak(plan||{weeks:[]})+'</div><div class="t">连续做成(天)</div></div>'+
+    '<div class="rec-card"><div class="n">'+total+'</div><div class="t">累计完成步骤</div></div>'+
+    '<div class="rec-card"><div class="n">'+goals+'</div><div class="t">达成目标数</div></div>';
+  c.appendChild(grid);
+  const list=document.createElement('div'); list.className='rec-list';
+  if(plan){
+    const items=allDays(plan).filter(x=>x.d.done).map(x=>({t:x.d.task,d:x.d.doneDate})).reverse();
+    items.forEach(it=>{ const r=document.createElement('div'); r.className='item'; r.innerHTML='<span>'+escapeHtml(it.t)+'</span><span class="d">'+it.d+'</span>'; list.appendChild(r); });
+  }
+  if(!total){ const e=document.createElement('div'); e.className='empty'; e.textContent='还没有完成的步骤，去完成今天这一步吧'; list.appendChild(e); }
+  c.appendChild(list);
+  const back=document.createElement('div'); back.className='pp-link'; back.style.marginTop='16px'; back.textContent='← 返回陪跑';
+  back.onclick=()=>render(); c.appendChild(back);
+}
+
+function parseJSON(s){ try{ return JSON.parse(s); }catch(e){} const m=s&&s.match(/\{[\s\S]*\}/); if(m){ try{ return JSON.parse(m[0]); }catch(e){} } return null; }
 
 // ====== 启动 ======
-applyTheme(curGroup);
-const _sh0=getShown(); if(!_sh0.includes(curMod)) curMod=_sh0[0];
-renderGroups(); renderMods(); renderContent();
+render();
+if(/micromessenger/i.test(navigator.userAgent)) document.getElementById('wxTip').classList.add('show');
 
-// ====== 微信内打开提示 + 安装帮助弹窗 ======
-if(/micromessenger/i.test(navigator.userAgent)){
-  document.getElementById('wxTip').classList.add('show');
-}
+// ====== 设置下拉 ======
 document.getElementById('helpClose').onclick=()=>document.getElementById('mask').classList.remove('show');
 document.getElementById('mask').onclick=(e)=>{ if(e.target.id==='mask') e.target.classList.remove('show'); };
-// 顶部「设置」总入口
-document.getElementById('setBtn').onclick=()=>document.getElementById('settingMask').classList.add('show');
-document.getElementById('settingClose').onclick=()=>document.getElementById('settingMask').classList.remove('show');
-document.getElementById('settingMask').onclick=(e)=>{ if(e.target.id==='settingMask') e.target.classList.remove('show'); };
-document.getElementById('entryHelp').onclick=()=>{ document.getElementById('settingMask').classList.remove('show'); document.getElementById('mask').classList.add('show'); };
-document.getElementById('entryData').onclick=()=>{ document.getElementById('settingMask').classList.remove('show'); document.getElementById('dataMask').classList.add('show'); };
+document.getElementById('setBtn').onclick=(e)=>{ e.stopPropagation(); document.getElementById('setDropdown').classList.toggle('show'); };
+document.addEventListener('click',(e)=>{
+  const sd=document.getElementById('setDropdown');
+  if(sd.classList.contains('show') && !sd.contains(e.target)) sd.classList.remove('show');
+});
+document.getElementById('entryHelp').onclick=()=>{ document.getElementById('setDropdown').classList.remove('show'); document.getElementById('mask').classList.add('show'); };
+document.getElementById('entryData').onclick=()=>{ document.getElementById('setDropdown').classList.remove('show'); document.getElementById('dataMask').classList.add('show'); };
 document.getElementById('entryAi').onclick=()=>{
   const s=getAISettings()||{};
   document.getElementById('setBase').value=s.base||'';
   document.getElementById('setKey').value=s.key||'';
   document.getElementById('setModel').value=s.model||'';
   document.getElementById('setOk').classList.remove('show');
-  document.getElementById('settingMask').classList.remove('show');
+  document.getElementById('setDropdown').classList.remove('show');
   document.getElementById('setMask').classList.add('show');
 };
-// 模块管理（显示/隐藏功能）
-function renderModList(){
-  const wrap=document.getElementById('modList'); wrap.innerHTML='';
-  const shown=getShown();
-  GROUPS[curGroup].modules.forEach(m=>{
-    const lab=document.createElement('label'); lab.className='mod-item'+(BASIC[curGroup].includes(m.id)?' basic':'');
-    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=shown.includes(m.id); cb.dataset.id=m.id;
-    const span=document.createElement('span'); span.textContent=m.name+(BASIC[curGroup].includes(m.id)?'（基础）':'');
-    lab.append(cb,span); wrap.appendChild(lab);
-  });
-}
-document.getElementById('modPlus').onclick=()=>{ renderModList(); document.getElementById('modMask').classList.add('show'); };
-document.getElementById('modMask').onclick=(e)=>{ if(e.target.id==='modMask') e.target.classList.remove('show'); };
-document.getElementById('modSave').onclick=()=>{
-  const cbs=document.querySelectorAll('#modList input[type=checkbox]');
-  const sel=[]; cbs.forEach(c=>{ if(c.checked) sel.push(c.dataset.id); });
-  if(sel.length===0){ alert('至少保留一个功能'); return; }
-  setShown(sel);
-  if(!sel.includes(curMod)){ curMod=sel[0]; }
-  document.getElementById('modMask').classList.remove('show');
-  renderMods(); renderContent();
-};
-document.getElementById('setSave').onclick=()=>{
-  setAISettings({base:document.getElementById('setBase').value.trim(),key:document.getElementById('setKey').value.trim(),model:document.getElementById('setModel').value.trim()});
-  document.getElementById('setOk').classList.add('show');
-  setTimeout(()=>document.getElementById('setMask').classList.remove('show'),800);
-};
-document.getElementById('setMask').onclick=(e)=>{ if(e.target.id==='setMask') e.target.classList.remove('show'); };
-// 数据导出/导入（A 阶段多端迁移）
+// 数据导出/导入
 document.getElementById('dataMask').onclick=(e)=>{ if(e.target.id==='dataMask') e.target.classList.remove('show'); };
-document.getElementById('dataBtn').onclick=()=>document.getElementById('dataMask').classList.add('show');
 document.getElementById('exportBtn').onclick=exportData;
 document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
 document.getElementById('importFile').onchange=(e)=>{ if(e.target.files[0]) importData(e.target.files[0]); e.target.value=''; };
 document.getElementById('dataClose').onclick=()=>document.getElementById('dataMask').classList.remove('show');
 function exportData(){
   const data={};
-  for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith('lobster_wb_')) data[k]=localStorage.getItem(k); }
+  for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith(PREFIX)) data[k]=localStorage.getItem(k); }
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='lobster-workbench-'+new Date().toISOString().slice(0,10)+'.json'; a.click(); URL.revokeObjectURL(a.href);
+  a.download='peipao-jingling-'+today()+'.json'; a.click(); URL.revokeObjectURL(a.href);
 }
 function importData(file){
   const r=new FileReader();
   r.onload=()=>{ try{
     const data=JSON.parse(r.result);
-    if(!confirm('导入将覆盖当前设备的所有工作台数据，确定继续？')) return;
-    Object.keys(data).forEach(k=>{ if(k.startsWith('lobster_wb_')) localStorage.setItem(k,data[k]); });
-    renderGroups(); renderMods(); renderContent();
-    document.getElementById('dataMask').classList.remove('show');
+    if(!confirm('导入将覆盖当前设备的所有数据，确定继续？')) return;
+    Object.keys(data).forEach(k=>{ if(k.startsWith(PREFIX)) localStorage.setItem(k,data[k]); });
+    document.getElementById('dataMask').classList.remove('show'); render();
     alert('✓ 导入成功，数据已迁移');
   }catch(e){ alert('导入失败：文件格式不正确'); } };
   r.readAsText(file);
 }
-
-// ====== PWA：Service Worker 注册 + 安装提示 ======
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js').catch(err=>console.log('SW 注册失败：',err));
-  });
-}
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',(e)=>{
-  e.preventDefault();
-  deferredPrompt=e;
-  document.getElementById('installBar').classList.add('show');
-});
-document.getElementById('installBtn').onclick=()=>{
-  if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; document.getElementById('installBar').classList.remove('show'); }); }
+document.getElementById('setSave').onclick=()=>{
+  setAISettings({base:document.getElementById('setBase').value.trim(),key:document.getElementById('setKey').value.trim(),model:document.getElementById('setModel').value.trim()});
+  document.getElementById('setOk').classList.add('show');
+  setTimeout(()=>document.getElementById('setMask').classList.remove('show'),800);
 };
-document.getElementById('installX').onclick=()=>{ document.getElementById('installBar').classList.remove('show'); };
+document.getElementById('setMask').onclick=(e)=>{ if(e.target.id==='setMask') e.target.classList.remove('show'); };
+
+// ====== PWA ======
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(err=>console.log('SW 注册失败：',err)); }); }
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{ e.preventDefault(); deferredPrompt=e; document.getElementById('installBar').classList.add('show'); });
+document.getElementById('installBtn').onclick=()=>{ if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; document.getElementById('installBar').classList.remove('show'); }); } };
+document.getElementById('installX').onclick=()=>document.getElementById('installBar').classList.remove('show');
 </script>
 </body>
 </html>
