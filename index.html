@@ -28,21 +28,31 @@
   /* 顶部导航：两级菜单 */
   .topnav{background:var(--panel);border-bottom:1px solid var(--line);flex-shrink:0;}
   .brand-row{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line);}
-  .brand h1{font-size:18px;color:var(--ip-gold);letter-spacing:1px;}
+  .brand h1{font-size:22px;font-weight:800;color:var(--ip-gold);letter-spacing:1px;}
   .brand p{font-size:11px;color:var(--sub);margin-top:2px;}
   .help-mini{background:transparent;border:1px solid var(--line);color:var(--sub);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;white-space:nowrap;}
   .help-mini:hover{border-color:var(--gold);color:var(--gold-soft);}
   .groups{display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid var(--line);}
-  .grp-btn{flex:1;padding:9px 10px;border-radius:8px;background:transparent;color:var(--sub);border:1px solid transparent;cursor:pointer;text-align:center;font-size:14px;transition:.15s;}
+  .grp-btn{flex:1;padding:11px 10px;border-radius:8px;background:transparent;color:var(--sub);border:1px solid transparent;cursor:pointer;text-align:center;font-size:16px;font-weight:600;transition:.15s;}
   .grp-btn:hover{background:var(--panel2);color:var(--txt);}
   .grp-btn.active{background:var(--panel2);color:var(--gold);border-color:var(--gold);font-weight:600;box-shadow:inset 0 -3px 0 var(--gold);}
-  .mods{display:flex;gap:6px;padding:8px 16px;overflow-x:auto;flex-shrink:0;}
-  .mod-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);color:var(--sub);cursor:pointer;font-size:13px;white-space:nowrap;transition:.15s;}
+  .mods{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;flex-shrink:0;}
+  .mods-row{display:flex;align-items:center;gap:8px;flex-shrink:0;border-bottom:1px solid var(--line);}
+  .mod-btn{flex-shrink:0;padding:7px 16px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);color:var(--sub);cursor:pointer;font-size:15px;white-space:nowrap;transition:.15s;}
+  .mod-plus{flex-shrink:0;width:36px;height:36px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);color:var(--gold);font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-right:12px;transition:.15s;}
+  .mod-plus:hover{background:var(--gold);color:#fff;border-color:var(--gold);}
+  .setting-entry{display:block;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:14px 16px;border-radius:12px;cursor:pointer;font-size:15px;margin-bottom:10px;transition:.15s;}
+  .setting-entry small{display:block;font-size:12px;color:var(--sub);margin-top:3px;font-weight:400;}
+  .setting-entry:hover{border-color:var(--gold);color:var(--gold-soft);}
+  .mod-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line);font-size:15px;cursor:pointer;}
+  .mod-item:last-child{border-bottom:none;}
+  .mod-item input{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;}
+  .mod-item.basic{color:var(--sub);}
   .mod-btn:hover{color:var(--txt);}
   .mod-btn.active{background:var(--gold);color:#1a1a1a;border-color:var(--gold);font-weight:600;}
   /* 主区 */
   .topbar{padding:18px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
-  .topbar h2{font-size:18px;}
+  .topbar h2{font-size:22px;font-weight:800;}
   .topbar .tag{font-size:12px;color:var(--gold);background:rgba(212,175,55,.12);padding:4px 12px;border-radius:20px;}
   .content{flex:1;overflow-y:auto;padding:26px 28px;}
   .hint{color:var(--sub);font-size:13px;margin-bottom:18px;line-height:1.6;}
@@ -180,7 +190,7 @@
   body[data-theme="student"] .grp-btn:hover{background:rgba(255,255,255,.9);}
   body[data-theme="student"] .grp-btn.active{background:linear-gradient(135deg,var(--gold-soft),var(--gold)); color:#fff; border-color:transparent; box-shadow:0 3px 10px rgba(136,176,75,.28);}
   /* 模块胶囊：小标签风格 */
-  body[data-theme="student"] .mod-btn{border-radius:20px; background:#fff; border:1px dashed var(--line); font-family:var(--font);}
+  body[data-theme="student"] .mod-btn{border-radius:20px; background:#fff; border:1px dashed var(--line); font-family:var(--font); font-size:15px;}
   body[data-theme="student"] .mod-btn.active{background:var(--panel2); color:var(--blue); border:1px solid var(--blue);}
   /* 主内容区 */
   body[data-theme="student"] .topbar h2{font-family:var(--font-serif); color:var(--txt);}
@@ -326,12 +336,13 @@
         <h1>🦞 龙虾AI工作台</h1>
         <p>一套引擎 · 三类预设 · 本地运行</p>
       </div>
-      <button class="help-mini" id="setBtn">⚙ AI设置</button>
-      <button class="help-mini" id="dataBtn">📦 数据</button>
-      <button class="help-mini" id="helpBtn">📲 安装帮助</button>
+      <button class="help-mini" id="setBtn">⚙ 设置</button>
     </div>
     <div class="groups" id="groups"></div>
-    <div class="mods" id="mods"></div>
+    <div class="mods-row">
+      <div class="mods" id="mods"></div>
+      <button class="mod-plus" id="modPlus" title="管理功能模块">＋</button>
+    </div>
   </div>
   <div class="main">
     <div class="wx-tip" id="wxTip">⚠ 检测到在微信内打开，无法直接安装到主屏。请点右上角「···」→「在浏览器中打开」（或「复制链接」后到 Safari / Chrome 打开），再安装。</div>
@@ -378,6 +389,26 @@
     </ol>
     <div class="note">⚠ 微信、QQ 浏览器、OPPO/Vivo 自带浏览器均不支持 PWA 安装，请务必用 Safari / Chrome / Edge。</div>
     <button class="close" id="helpClose">知道了</button>
+  </div>
+</div>
+
+<div class="set-mask" id="settingMask">
+  <div class="set-box">
+    <h3>⚙ 设置</h3>
+    <div class="sub">管理你的 AI 密钥、数据备份与安装方式。</div>
+    <button class="setting-entry" id="entryAi">🤖 AI 设置<small>配置模型 Key</small></button>
+    <button class="setting-entry" id="entryData">📦 数据备份与迁移<small>导出 / 导入 JSON</small></button>
+    <button class="setting-entry" id="entryHelp">📲 安装帮助<small>添加到手机主屏</small></button>
+    <button class="set-save" id="settingClose" style="margin-top:14px;background:transparent;color:var(--sub);border:1px solid var(--line)">关闭</button>
+  </div>
+</div>
+
+<div class="set-mask" id="modMask">
+  <div class="set-box">
+    <h3>➕ 管理功能模块</h3>
+    <div class="sub">勾选要显示的功能，未勾选的将隐藏。随时回来调整。</div>
+    <div id="modList"></div>
+    <button class="set-save" id="modSave" style="margin-top:14px">完成</button>
   </div>
 </div>
 
@@ -450,6 +481,20 @@ const save = (g,m,val)=> localStorage.setItem(K(g,m), JSON.stringify(val));
 const uid = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const today = ()=> new Date().toISOString().slice(0,10);
 
+// 每个群体的「基础功能」（默认显示），其余默认隐藏，用户点「＋」放出
+const BASIC = {
+  worker:['dashboard','task','aiplan','report'],
+  student:['dashboard','course','aiplan','habit'],
+  biz:['dashboard','crm','aiplan','board']
+};
+// 当前群体显示的模块 id 列表（localStorage）
+function getShown(){
+  let s=load(curGroup,'_shown',null);
+  if(!s||!s.length) s=BASIC[curGroup].slice();
+  return s;
+}
+function setShown(arr){ save(curGroup,'_shown',arr); }
+
 let curGroup='worker', curMod='task';
 // 主题切换：切换群体即切换整套视觉皮肤（三套预设 = 三套皮肤）
 const THEME_GOLD={student:'#f2994a',worker:'#d9743f',biz:'#c9a24b'};
@@ -467,14 +512,15 @@ function renderGroups(){
     const b=document.createElement('div');
     b.className='grp-btn'+(gid===curGroup?' active':'');
     b.textContent=`${g.icon} ${g.name}`;
-    b.onclick=()=>{ curGroup=gid; curMod=g.modules[0].id; applyTheme(gid); renderGroups(); renderMods(); renderContent(); };
+    b.onclick=()=>{ curGroup=gid; const sh=getShown(); curMod=sh[0]||g.modules[0].id; applyTheme(gid); renderGroups(); renderMods(); renderContent(); };
     box.appendChild(b);
   });
 }
 function renderMods(){
   const box=document.getElementById('mods');
   box.innerHTML='';
-  GROUPS[curGroup].modules.forEach(m=>{
+  const shown=getShown();
+  GROUPS[curGroup].modules.filter(m=>shown.includes(m.id)).forEach(m=>{
     const b=document.createElement('div');
     b.className='mod-btn'+(m.id===curMod?' active':'');
     b.textContent=m.name;
@@ -694,7 +740,7 @@ function renderAiPlan(c,g,m){
   const set=getAISettings();
   if(!set||!set.key){
     const need=document.createElement('div'); need.className='ai-needkey';
-    need.innerHTML='⚠ 使用前请先配置 AI：点右上角 <b>「⚙ AI设置」</b>，填入 OpenAI 兼容的 API（DeepSeek / 通义 / 智谱 / OpenAI 均可）。Key 只存在你本机浏览器，不外传。';
+    need.innerHTML='⚠ 使用前请先配置 AI：点右上角 <b>「⚙ 设置」</b> →「AI 设置」，填入 OpenAI 兼容的 API（DeepSeek / 通义 / 智谱 / OpenAI 均可）。Key 只存在你本机浏览器，不外传。';
     c.appendChild(need);
   }
   const form=document.createElement('div'); form.className='ai-form';
@@ -750,23 +796,52 @@ function renderAiPlan(c,g,m){
 }
 
 // ====== 启动 ======
-applyTheme(curGroup); renderGroups(); renderMods(); renderContent();
+applyTheme(curGroup);
+const _sh0=getShown(); if(!_sh0.includes(curMod)) curMod=_sh0[0];
+renderGroups(); renderMods(); renderContent();
 
 // ====== 微信内打开提示 + 安装帮助弹窗 ======
 if(/micromessenger/i.test(navigator.userAgent)){
   document.getElementById('wxTip').classList.add('show');
 }
-document.getElementById('helpBtn').onclick=()=>document.getElementById('mask').classList.add('show');
 document.getElementById('helpClose').onclick=()=>document.getElementById('mask').classList.remove('show');
 document.getElementById('mask').onclick=(e)=>{ if(e.target.id==='mask') e.target.classList.remove('show'); };
-// AI 设置弹窗
-document.getElementById('setBtn').onclick=()=>{
+// 顶部「设置」总入口
+document.getElementById('setBtn').onclick=()=>document.getElementById('settingMask').classList.add('show');
+document.getElementById('settingClose').onclick=()=>document.getElementById('settingMask').classList.remove('show');
+document.getElementById('settingMask').onclick=(e)=>{ if(e.target.id==='settingMask') e.target.classList.remove('show'); };
+document.getElementById('entryHelp').onclick=()=>{ document.getElementById('settingMask').classList.remove('show'); document.getElementById('mask').classList.add('show'); };
+document.getElementById('entryData').onclick=()=>{ document.getElementById('settingMask').classList.remove('show'); document.getElementById('dataMask').classList.add('show'); };
+document.getElementById('entryAi').onclick=()=>{
   const s=getAISettings()||{};
   document.getElementById('setBase').value=s.base||'';
   document.getElementById('setKey').value=s.key||'';
   document.getElementById('setModel').value=s.model||'';
   document.getElementById('setOk').classList.remove('show');
+  document.getElementById('settingMask').classList.remove('show');
   document.getElementById('setMask').classList.add('show');
+};
+// 模块管理（显示/隐藏功能）
+function renderModList(){
+  const wrap=document.getElementById('modList'); wrap.innerHTML='';
+  const shown=getShown();
+  GROUPS[curGroup].modules.forEach(m=>{
+    const lab=document.createElement('label'); lab.className='mod-item'+(BASIC[curGroup].includes(m.id)?' basic':'');
+    const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=shown.includes(m.id); cb.dataset.id=m.id;
+    const span=document.createElement('span'); span.textContent=m.name+(BASIC[curGroup].includes(m.id)?'（基础）':'');
+    lab.append(cb,span); wrap.appendChild(lab);
+  });
+}
+document.getElementById('modPlus').onclick=()=>{ renderModList(); document.getElementById('modMask').classList.add('show'); };
+document.getElementById('modMask').onclick=(e)=>{ if(e.target.id==='modMask') e.target.classList.remove('show'); };
+document.getElementById('modSave').onclick=()=>{
+  const cbs=document.querySelectorAll('#modList input[type=checkbox]');
+  const sel=[]; cbs.forEach(c=>{ if(c.checked) sel.push(c.dataset.id); });
+  if(sel.length===0){ alert('至少保留一个功能'); return; }
+  setShown(sel);
+  if(!sel.includes(curMod)){ curMod=sel[0]; }
+  document.getElementById('modMask').classList.remove('show');
+  renderMods(); renderContent();
 };
 document.getElementById('setSave').onclick=()=>{
   setAISettings({base:document.getElementById('setBase').value.trim(),key:document.getElementById('setKey').value.trim(),model:document.getElementById('setModel').value.trim()});
