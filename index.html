@@ -247,7 +247,7 @@
     <div class="mascot">🧚</div>
     <div class="dots" id="dots"></div>
   </div>
-  <div class="step-view" data-step="1">
+  <div class="step-view active" data-step="1">
     <div class="step-q">你想做成什么事？</div>
     <div class="step-hint">大胆说，越具体越好。比如「三个月学会弹吉他」</div>
     <input class="step-input" id="wGoal" placeholder="三个月学会钢琴" autocomplete="off">
@@ -577,7 +577,7 @@ async function generatePlan(){
 function render(){
   const plan=load('plan',null);
   if(plan){ document.getElementById('wizard').classList.remove('show'); showFlow(); }
-  else{ document.getElementById('wizard').classList.add('show'); }
+  else{ showStep(1); document.getElementById('wizard').classList.add('show'); }
 }
 
 function showFlow(){
@@ -674,7 +674,7 @@ document.getElementById('heroBubble').onclick=()=>{
   document.getElementById('splash').classList.add('hide');
   const plan=load('plan',null);
   if(plan){ document.getElementById('topnav').style.display='flex'; showFlow(); }
-  else{ document.getElementById('wizard').classList.add('show'); }
+  else{ showStep(1); document.getElementById('wizard').classList.add('show'); }
 };
 
 if(/micromessenger/i.test(navigator.userAgent)) document.getElementById('wxTip').classList.add('show');
