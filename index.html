@@ -169,8 +169,8 @@
   .set-box .sub{font-size:13px;color:var(--sub);margin-bottom:18px;line-height:1.6;}
   .set-row{margin-bottom:14px;}
   .set-row label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px;}
-  .set-row input{width:100%;background:var(--panel2);border:1.5px solid var(--line);color:var(--txt);padding:12px 14px;border-radius:14px;font-size:14px;outline:none;}
-  .set-row input:focus{border-color:var(--gold);}
+.set-row input,.set-row select{width:100%;background:var(--panel2);border:1.5px solid var(--line);color:var(--txt);padding:12px 14px;border-radius:14px;font-size:14px;outline:none;}
+.set-row input:focus,.set-row select:focus{border-color:var(--gold);}
   .set-save{margin-top:8px;width:100%;background:linear-gradient(135deg,var(--gold),var(--gold-soft));color:#fff;border:none;padding:14px;border-radius:14px;font-weight:700;cursor:pointer;font-size:15px;}
   .set-save:active{transform:scale(.98);}
   .set-ok{font-size:13px;color:var(--green);margin-top:10px;display:none;text-align:center;font-weight:600;}
@@ -301,7 +301,7 @@
     <div class="key-card">
       <div class="icon">🧠</div>
       <h3>配置 AI Key</h3>
-      <p>精灵拆解目标时需要调用 AI。<br>DeepSeek / 通义 / 智谱 / OpenAI 都可以。</p>
+      <p>精灵拆解目标时需要调用 AI。<br>推荐 OpenRouter，DeepSeek / 通义 / 智谱 / OpenAI 也可。</p>
       <div class="tag">Key 只存你本机</div>
       <div class="key-status no" id="keyStatus"><span class="dot"></span>还没配置</div>
       <button class="btn-primary" onclick="openKeyGuide()">获取 Key 指引</button>
@@ -373,12 +373,13 @@
     <div class="sub">选一个你方便的国内或海外服务，注册后找到 API Key 即可。</div>
     <h4>推荐方案</h4>
     <ol>
+      <li><b>OpenRouter（最推荐，浏览器可直连）</b><br>访问 <code>openrouter.ai/keys</code> → 注册 → 创建 Key（形如 sk-or-...）。一个 Key 即可调用 DeepSeek、GPT 等模型，无 CORS 限制。</li>
       <li><b>DeepSeek（国产，便宜）</b><br>访问 <code>platform.deepseek.com</code> → 注册 → 控制台 → API Keys → 创建 Key</li>
       <li><b>通义千问（阿里）</b><br>访问 <code>dashscope.aliyun.com</code> → 获取 API Key → 创建</li>
       <li><b>智谱 AI（GLM）</b><br>访问 <code>open.bigmodel.cn</code> → 个人中心 → API Keys</li>
       <li><b>OpenAI（海外）</b><br>访问 <code>platform.openai.com/api-keys</code> → 创建 Key</li>
     </ol>
-    <div class="note">Key 形如 <code>sk-xxxxxxxx</code>，复制后粘贴到下一步的「API Key」框里。本应用只在你的手机里存储，不上传。</div>
+    <div class="note">注意：DeepSeek/OpenAI 官方接口在浏览器里可能被 CORS 拦截导致「Load failed」。若报错，请改用 OpenRouter。Key 只存在你本机，不上传。</div>
     <button class="close" onclick="openAISettingsFromGuide()">我已获取，去配置</button>
   </div>
 </div>
@@ -387,12 +388,21 @@
   <div class="set-box">
     <h3>⚙ AI 设置</h3>
     <div class="sub">填入 OpenAI 兼容接口的 API（DeepSeek / 通义 / 智谱 / OpenAI / 本地 Ollama 均可）。<b style="color:var(--gold-soft)">Key 只存在你本机浏览器，绝不外传。</b></div>
-    <div class="set-row"><label>API Base URL</label><input id="setBase" placeholder="https://api.openai.com/v1"></div>
+    <div class="set-row"><label>服务商（推荐 OpenRouter，浏览器可直连不报 CORS）</label><select id="setProvider">
+      <option value="openrouter">OpenRouter（推荐 · 支持 DeepSeek/GPT 等）</option>
+      <option value="deepseek">DeepSeek</option>
+      <option value="qwen">通义千问</option>
+      <option value="zhipu">智谱 GLM</option>
+      <option value="openai">OpenAI</option>
+      <option value="ollama">本地 Ollama</option>
+      <option value="custom">自定义</option>
+    </select></div>
+    <div class="set-row"><label>API Base URL</label><input id="setBase" placeholder="https://openrouter.ai/api/v1"></div>
     <div class="set-row"><label>API Key</label><input id="setKey" type="password" placeholder="sk-..."></div>
-    <div class="set-row"><label>模型名</label><input id="setModel" placeholder="gpt-4o-mini / deepseek-chat"></div>
+    <div class="set-row"><label>模型名</label><input id="setModel" placeholder="deepseek/deepseek-chat"></div>
     <button class="set-save" id="setSave">保存</button>
     <div class="set-ok" id="setOk">✓ 已保存</div>
-    <div class="set-note">示例：DeepSeek → Base: https://api.deepseek.com/v1，Key: sk-...，模型: deepseek-chat。本地 Ollama → Base: http://localhost:11434/v1，Key: ollama，模型: llama3。</div>
+    <div class="set-note">推荐用 OpenRouter：一个 Key 即可调用 DeepSeek、GPT 等模型，且允许浏览器直连。注册：<code>openrouter.ai/keys</code>。若用 DeepSeek/OpenAI 官方接口，浏览器可能因 CORS 拦截请求。</div>
   </div>
 </div>
 
@@ -410,16 +420,41 @@ function setAISettings(s){ localStorage.setItem(PREFIX+'ai', btoa(unescape(encod
 async function callAI(system, user){
   const s=getAISettings();
   if(!s||!s.key) throw new Error('未配置 AI Key');
-  const base=(s.base||'https://api.openai.com/v1').replace(/\/+$/,'');
-  const r=await fetch(base+'/chat/completions',{
-    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.key},
-    body:JSON.stringify({ model:s.model||'gpt-4o-mini', messages:[{role:'system',content:system},{role:'user',content:user}], temperature:0.7, stream:false })
-  });
-  if(!r.ok) throw new Error('API 错误 '+r.status);
+  const base=(s.base||'https://openrouter.ai/api/v1').replace(/\/+$/,'');
+  let r;
+  try{
+    r=await fetch(base+'/chat/completions',{
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.key},
+      body:JSON.stringify({ model:s.model||'deepseek/deepseek-chat', messages:[{role:'system',content:system},{role:'user',content:user}], temperature:0.7, stream:false })
+    });
+  }catch(e){
+    if(e.name==='TypeError'||/Load failed|Failed to fetch/i.test(e.message)){
+      throw new Error('浏览器拦截了请求（通常是 CORS 跨域限制）。建议在「⚙ 设置 → AI 设置」把服务商改成 OpenRouter，或换网络/VPN 重试。');
+    }
+    throw e;
+  }
+  if(!r.ok){
+    let t=''; try{ t=(await r.text()).slice(0,180); }catch(e){}
+    throw new Error('API 返回 '+r.status+(t?'：'+t:''));
+  }
   return (await r.json()).choices[0].message.content;
 }
 
-// ====== 视频一键进 ======
+// ====== 服务商预设 ======
+const AI_PRESETS={
+  openrouter:{base:'https://openrouter.ai/api/v1',model:'deepseek/deepseek-chat',keyHint:'sk-or-...'},
+  deepseek:{base:'https://api.deepseek.com/v1',model:'deepseek-chat',keyHint:'sk-...'},
+  qwen:{base:'https://dashscope.aliyuncs.com/compatible-mode/v1',model:'qwen-turbo',keyHint:'sk-...'},
+  zhipu:{base:'https://open.bigmodel.cn/api/paas/v4',model:'glm-4-flash',keyHint:'...'},
+  openai:{base:'https://api.openai.com/v1',model:'gpt-4o-mini',keyHint:'sk-...'},
+  ollama:{base:'http://localhost:11434/v1',model:'llama3',keyHint:'ollama'}
+};
+function applyProvider(val){
+  const p=AI_PRESETS[val]; if(!p) return;
+  document.getElementById('setBase').value=p.base;
+  document.getElementById('setModel').value=p.model;
+  document.getElementById('setKey').placeholder=p.keyHint;
+}
 function videoLinks(kw){
   const q=encodeURIComponent(kw||'');
   return '<a class="ai-vid" href="https://search.bilibili.com/all?keyword='+q+'" target="_blank" rel="noopener">📺 B站</a>'+
@@ -552,9 +587,11 @@ function openKeyGuide(){ document.getElementById('keyGuideMask').classList.add('
 function openAISettingsFromGuide(){
   document.getElementById('keyGuideMask').classList.remove('show');
   const s=getAISettings()||{};
+  document.getElementById('setProvider').value=s.provider||'openrouter';
   document.getElementById('setBase').value=s.base||'';
   document.getElementById('setKey').value=s.key||'';
   document.getElementById('setModel').value=s.model||'';
+  document.getElementById('setKey').placeholder=(AI_PRESETS[s.provider]||AI_PRESETS.openrouter).keyHint;
   document.getElementById('setOk').classList.remove('show');
   document.getElementById('setMask').classList.add('show');
 }
@@ -568,10 +605,39 @@ async function generatePlan(){
   const usr='目标：'+wizardData.goal+'\n当前水平：'+(wizardData.level||'未说明')+'\n每周投入：'+(wizardData.hours||'未说明')+' 小时\n期望日期：'+(wizardData.date||'未说明')+'\n'+(wizardData.who?('身份介绍：'+wizardData.who+'\n'):'')+'请拆成可执行的周/日计划。';
   try{
     const plan=parseJSON(await callAI(sys,usr));
-    if(!plan||!plan.weeks){ status.textContent='生成结果格式异常，请重试'; btn.disabled=false; return; }
+    if(!plan||!plan.weeks){ status.innerHTML='生成结果格式异常，请重试。<br><button class="btn-secondary" style="margin-top:10px;" onclick="useFallback()">先用精灵模板继续</button>'; btn.disabled=false; return; }
     plan.who=wizardData.who; save('plan',plan); showFlow();
-  }catch(e){ status.textContent='生成失败：'+e.message+'（检查 Key / 网络 / 模型名）'; btn.disabled=false; }
+  }catch(e){ status.innerHTML='生成失败：'+e.message+'<br><button class="btn-secondary" style="margin-top:10px;" onclick="useFallback()">先用精灵模板继续</button><div style="font-size:12px;color:var(--sub);margin-top:8px;">先用模板开始陪跑，之后可在「⚙ 设置 → AI 设置」修正 Key 再重新拆解。</div>'; btn.disabled=false; }
 }
+
+function fallbackPlan(){
+  const goal=wizardData.goal||'我的目标';
+  const level=wizardData.level||'零基础';
+  const hours=parseInt(wizardData.hours)||7;
+  const target=wizardData.date?new Date(wizardData.date):new Date(Date.now()+30*864e5);
+  const totalDays=Math.max(14,Math.min(120,Math.round((target-new Date())/864e5)));
+  const weeksCount=Math.max(2,Math.min(8,Math.ceil(totalDays/7)));
+  const dpw=Math.max(2,Math.min(5,Math.round(hours/1.5)));
+  const mins=Math.max(20,Math.round(hours*60/dpw));
+  const weeks=[];
+  for(let w=1;w<=weeksCount;w++){
+    const focus= w===1?'摸清「'+goal+'」的门道' : w===weeksCount?'冲刺完成「'+goal+'」' : '持续推进「'+goal+'」';
+    const days=[];
+    for(let d=1;d<=dpw;d++){
+      const idx=(w-1)*dpw+d;
+      let task;
+      if(w===1&&d===1) task='花 '+mins+' 分钟搜索「'+goal+'」，列出 3 个必须搞懂的要点';
+      else if(w===1&&d===2) task='找一份适合「'+level+'」的入门资料（文章/视频/课程）';
+      else if(w===1&&d===3) task='跟着资料完成第一次动手练习，写下卡点';
+      else if(w===weeksCount&&d===dpw) task='做一次完整自测/成果展示，庆祝自己把目标做成了';
+      else task='围绕「'+goal+'」专注投入 '+mins+' 分钟，完成一个具体小任务';
+      days.push({label:'第 '+idx+' 天',task:task,kw:goal});
+    }
+    weeks.push({week:w,focus:focus,days:days});
+  }
+  return {goal:goal,who:wizardData.who,weeks:weeks,_fallback:true};
+}
+function useFallback(){ const plan=fallbackPlan(); save('plan',plan); showFlow(); }
 
 // ====== 主渲染 ======
 function render(){
@@ -691,13 +757,16 @@ document.getElementById('entryHelp').onclick=()=>{ document.getElementById('setD
 document.getElementById('entryData').onclick=()=>{ document.getElementById('setDropdown').classList.remove('show'); document.getElementById('dataMask').classList.add('show'); };
 document.getElementById('entryAi').onclick=()=>{
   const s=getAISettings()||{};
+  document.getElementById('setProvider').value=s.provider||'openrouter';
   document.getElementById('setBase').value=s.base||'';
   document.getElementById('setKey').value=s.key||'';
   document.getElementById('setModel').value=s.model||'';
+  document.getElementById('setKey').placeholder=(AI_PRESETS[s.provider]||AI_PRESETS.openrouter).keyHint;
   document.getElementById('setOk').classList.remove('show');
   document.getElementById('setDropdown').classList.remove('show');
   document.getElementById('setMask').classList.add('show');
 };
+document.getElementById('setProvider').onchange=(e)=>{ applyProvider(e.target.value); document.getElementById('setKey').value=''; };
 
 // key guide mask close
 document.getElementById('keyGuideMask').onclick=(e)=>{ if(e.target.id==='keyGuideMask') e.target.classList.remove('show'); };
@@ -727,7 +796,7 @@ function importData(file){
   r.readAsText(file);
 }
 document.getElementById('setSave').onclick=()=>{
-  setAISettings({base:document.getElementById('setBase').value.trim(),key:document.getElementById('setKey').value.trim(),model:document.getElementById('setModel').value.trim()});
+  setAISettings({provider:document.getElementById('setProvider').value,base:document.getElementById('setBase').value.trim(),key:document.getElementById('setKey').value.trim(),model:document.getElementById('setModel').value.trim()});
   document.getElementById('setOk').classList.add('show');
   updateKeyStatus();
   setTimeout(()=>document.getElementById('setMask').classList.remove('show'),800);
