@@ -29,15 +29,17 @@
   #splash{position:fixed;inset:0;z-index:2000;overflow:hidden;transition:opacity .6s ease,visibility .6s;background:transparent;}
   #splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
   #bubbleField{position:absolute;inset:0;z-index:2;}
-  .bub{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;will-change:transform;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.5),rgba(255,255,255,.12) 62%,rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.55);box-shadow:0 8px 30px rgba(217,116,63,.12),inset 0 -6px 16px rgba(255,255,255,.3);overflow:hidden;backdrop-filter:blur(2px);transform:translate(-50%,-50%);}
+  .bub{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;will-change:transform;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.34),rgba(255,255,255,.08) 60%,rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.4);box-shadow:0 6px 22px rgba(217,116,63,.08),inset 0 -6px 16px rgba(255,255,255,.18);overflow:hidden;transform:translate(-50%,-50%);}
   .bub .label{position:relative;z-index:3;font-size:15px;font-weight:700;color:#5a4632;padding:0 8px;line-height:1.35;text-shadow:0 1px 2px rgba(255,255,255,.7);pointer-events:none;max-width:90%;overflow:hidden;}
   .bub .label small{font-size:11px;font-weight:600;opacity:.82;}
   .bub .water{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,rgba(90,160,200,.5),rgba(58,157,110,.62));transition:height .9s ease;z-index:1;}
   .bub .water::before{content:"";position:absolute;top:-7px;left:0;right:0;height:14px;background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.55),transparent 70%);}
-  .bub.hero{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.72),rgba(255,210,175,.42));border-color:rgba(217,116,63,.45);box-shadow:0 16px 50px rgba(217,116,63,.2),inset 0 -8px 22px rgba(255,255,255,.4);}
+  .bub.hero{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.5),rgba(255,210,175,.26));border-color:rgba(217,116,63,.32);box-shadow:0 14px 44px rgba(217,116,63,.14),inset 0 -8px 22px rgba(255,255,255,.22);}
   .bub.hero .label{font-size:17px;color:var(--gold);}
-  .bub.pop{animation:pop .35s ease forwards;}
-  @keyframes pop{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}40%{transform:translate(-50%,-50%) scale(1.28);opacity:.85;}100%{transform:translate(-50%,-50%) scale(.15);opacity:0;}}
+  .bub.pop{animation:pop .42s cubic-bezier(.3,.8,.4,1) forwards;z-index:5;pointer-events:none;}
+  @keyframes pop{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}22%{transform:translate(-50%,-50%) scale(1.32);opacity:.92;}100%{transform:translate(-50%,-50%) scale(.08);opacity:0;}}
+  .pop-ring{position:absolute;z-index:4;border-radius:50%;border:2px solid rgba(255,255,255,.75);box-shadow:0 0 14px rgba(255,255,255,.45);transform:translate(-50%,-50%);pointer-events:none;animation:ring .45s ease-out forwards;}
+  @keyframes ring{0%{transform:translate(-50%,-50%) scale(1);opacity:.9;}100%{transform:translate(-50%,-50%) scale(2.4);opacity:0;}}
   .bub.grow{animation:grow .6s cubic-bezier(.2,.8,.3,1.2) forwards;}
   @keyframes grow{from{transform:translate(-50%,-50%) scale(0);opacity:0;}to{transform:translate(-50%,-50%) scale(1);opacity:1;}}
   .splash-tools{position:absolute;top:14px;right:16px;z-index:6;display:flex;gap:10px;}
@@ -776,10 +778,15 @@ function makeBubble(opts){
 function popBubble(el){
   if(el._popped) return; el._popped=true;
   ensureAudio(); popSound();
+  const sz=parseFloat(el.style.width)||60;
+  const ring=document.createElement('div'); ring.className='pop-ring';
+  ring.style.width=sz+'px'; ring.style.height=sz+'px'; ring.style.left=el.style.left; ring.style.top=el.style.top;
+  document.getElementById('bubbleField').appendChild(ring);
+  setTimeout(()=>{ if(ring.parentNode) ring.parentNode.removeChild(ring); },460);
   el.classList.add('pop');
   poppedCount++;
   const idx=fieldPlaced.findIndex(p=>p.el===el); if(idx>=0) fieldPlaced.splice(idx,1);
-  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); bubbles=bubbles.filter(b=>b!==el); },350);
+  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); bubbles=bubbles.filter(b=>b!==el); },420);
   if(totalBubbles>0 && poppedCount/totalBubbles>=0.9){ placeExtra(6); }
 }
 function fieldFits(x,y,r){
@@ -870,7 +877,7 @@ function startLoop(){
   const loop=(ts)=>{
     const time=ts/1000;
     const tgx=tiltX*K, tgy=tiltY*K;
-    bubbles.forEach(b=>{ const o=b._b; if(!o) return;
+    bubbles.forEach(b=>{ const o=b._b; if(!o || b._popped) return;
       const tx=tgx + Math.sin(time*o.speed+o.phase)*o.amp;
       const ty=tgy + Math.cos(time*o.speed*0.73+o.phase*1.27)*o.amp*0.85;
       b.style.transform='translate(-50%,-50%) translate('+tx.toFixed(1)+'px,'+ty.toFixed(1)+'px)';
