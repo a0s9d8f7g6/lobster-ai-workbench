@@ -25,35 +25,25 @@
   body{background:var(--bg);color:var(--txt);height:100vh;overflow:hidden;}
   .app{display:flex;flex-direction:column;height:100vh;}
 
-  /* 开屏气泡 */
-  #splash{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#fff7f0 0%,#ffece0 50%,#fff1e6 100%);overflow:hidden;transition:opacity .6s ease,visibility .6s;}
+  /* 开屏 / 气泡墙 */
+  #splash{position:fixed;inset:0;z-index:2000;overflow:hidden;transition:opacity .6s ease,visibility .6s;background:transparent;}
   #splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
-  .bubble{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.95),rgba(255,200,160,.45));box-shadow:0 8px 30px rgba(217,116,63,.12),inset 0 -4px 12px rgba(217,116,63,.08);animation:float 8s ease-in-out infinite;}
-  .bubble:nth-child(1){width:120px;height:120px;left:10%;top:18%;animation-duration:9s;animation-delay:-2s;}
-  .bubble:nth-child(2){width:60px;height:60px;right:14%;top:24%;animation-duration:7s;animation-delay:-1s;}
-  .bubble:nth-child(3){width:90px;height:90px;left:18%;bottom:20%;animation-duration:10s;animation-delay:-3s;}
-  .bubble:nth-child(4){width:45px;height:45px;right:22%;bottom:28%;animation-duration:6s;animation-delay:-4s;}
-  .bubble:nth-child(5){width:70px;height:70px;left:50%;top:10%;animation-duration:8s;animation-delay:-5s;}
-  @keyframes float{
-    0%,100%{transform:translateY(0) translateX(0);}
-    33%{transform:translateY(-18px) translateX(8px);}
-    66%{transform:translateY(10px) translateX(-6px);}
-  }
-  .hero-bubble{position:relative;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.98),rgba(255,210,175,.55));box-shadow:0 20px 60px rgba(217,116,63,.18),inset 0 -8px 24px rgba(217,116,63,.1);display:flex;align-items:center;justify-content:center;text-align:center;padding:36px;cursor:pointer;animation:breathe 4s ease-in-out infinite,shine 6s linear infinite;}
-  .hero-bubble:active{transform:scale(.96);}
-  @keyframes breathe{
-    0%,100%{transform:scale(1);}
-    50%{transform:scale(1.04);}
-  }
-  @keyframes shine{
-    0%{box-shadow:0 20px 60px rgba(217,116,63,.18),inset 0 -8px 24px rgba(217,116,63,.1);}
-    50%{box-shadow:0 28px 70px rgba(217,116,63,.28),inset 0 -8px 24px rgba(217,116,63,.14);}
-    100%{box-shadow:0 20px 60px rgba(217,116,63,.18),inset 0 -8px 24px rgba(217,116,63,.1);}
-  }
-  .hero-bubble .txt{font-size:20px;font-weight:700;color:var(--gold);line-height:1.7;}
-  .hero-bubble .txt small{display:block;font-size:13px;color:var(--sub);margin-top:10px;font-weight:500;}
-  .splash-hint{position:absolute;bottom:42px;font-size:13px;color:var(--sub);animation:fadeUp 2s ease infinite;}
-  @keyframes fadeUp{0%,100%{opacity:.6;transform:translateY(0);}50%{opacity:1;transform:translateY(-4px);}}
+  #bubbleField{position:absolute;inset:0;z-index:2;}
+  .bub{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;will-change:transform;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.5),rgba(255,255,255,.12) 62%,rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.55);box-shadow:0 8px 30px rgba(217,116,63,.12),inset 0 -6px 16px rgba(255,255,255,.3);overflow:hidden;backdrop-filter:blur(2px);transform:translate(-50%,-50%);}
+  .bub .label{position:relative;z-index:3;font-size:13px;font-weight:700;color:#5a4632;padding:0 8px;line-height:1.35;text-shadow:0 1px 2px rgba(255,255,255,.7);pointer-events:none;max-width:90%;}
+  .bub .water{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,rgba(90,160,200,.5),rgba(58,157,110,.62));transition:height .9s ease;z-index:1;}
+  .bub .water::before{content:"";position:absolute;top:-7px;left:0;right:0;height:14px;background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.55),transparent 70%);}
+  .bub.hero{width:184px;height:184px;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.72),rgba(255,210,175,.42));border-color:rgba(217,116,63,.45);box-shadow:0 16px 50px rgba(217,116,63,.2),inset 0 -8px 22px rgba(255,255,255,.4);}
+  .bub.hero .label{font-size:14px;color:var(--gold);}
+  .bub.pop{animation:pop .35s ease forwards;}
+  @keyframes pop{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}40%{transform:translate(-50%,-50%) scale(1.28);opacity:.85;}100%{transform:translate(-50%,-50%) scale(.15);opacity:0;}}
+  .bub.grow{animation:grow .6s cubic-bezier(.2,.8,.3,1.2) forwards;}
+  @keyframes grow{from{transform:translate(-50%,-50%) scale(0);opacity:0;}to{transform:translate(-50%,-50%) scale(1);opacity:1;}}
+  .splash-hint{position:absolute;bottom:34px;left:0;right:0;text-align:center;font-size:12.5px;color:rgba(90,70,50,.72);z-index:3;animation:fadeUp 2.4s ease infinite;pointer-events:none;padding:0 20px;}
+  @keyframes fadeUp{0%,100%{opacity:.55;transform:translateY(0);}50%{opacity:1;transform:translateY(-4px);}}
+  .splash-tools{position:absolute;top:14px;right:16px;z-index:6;display:flex;gap:10px;}
+  .splash-tools button{width:42px;height:42px;border-radius:50%;border:1px solid rgba(217,116,63,.32);background:rgba(255,255,255,.72);backdrop-filter:blur(8px);font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;}
+  .splash-tools button:active{transform:scale(.92);}
 
   /* 顶部导航 */
   .topnav{background:transparent;flex-shrink:0;position:absolute;top:0;left:0;right:0;z-index:1600;padding:14px 16px;display:flex;justify-content:flex-end;}
@@ -199,8 +189,8 @@
   @media(min-width:769px){ .wx-tip{display:none!important;} }
 
   @media(max-width:768px){
-    .hero-bubble{width:240px;height:240px;padding:28px;}
-    .hero-bubble .txt{font-size:18px;}
+    .bub.hero{width:160px;height:160px;}
+    .bub.hero .label{font-size:13px;}
     .step-q{font-size:22px;}
     .wizard{padding:0 22px;}
     .wizard-top{padding-top:70px;}
@@ -209,6 +199,16 @@
     .ai-vids{min-width:100%;}
     .install-bar{bottom:14px;padding:10px 16px;font-size:12px;}
   }
+
+  /* 向导返回 / 背景选择 */
+  .wizard-back{position:absolute;top:14px;left:16px;z-index:1700;width:40px;height:40px;border-radius:50%;border:1px solid rgba(217,116,63,.25);background:rgba(255,255,255,.78);backdrop-filter:blur(8px);font-size:20px;color:var(--gold);cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.08);}
+  .wizard-back.show{display:flex;}
+  .wizard-back:active{transform:scale(.92);}
+  .wizard,.flow{background:transparent;}
+  .bg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0;}
+  .bg-opt{height:56px;border-radius:12px;border:2px solid transparent;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .bg-opt.active{border-color:var(--gold);}
+  .bg-opt .name{position:absolute;left:0;right:0;bottom:0;font-size:10px;text-align:center;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);padding:2px;background:rgba(0,0,0,.18);}
 </style>
 </head>
 <body>
@@ -226,14 +226,12 @@
 
   <!-- 开屏 -->
   <div id="splash">
-    <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-    <div class="hero-bubble" id="heroBubble">
-      <div class="txt">
-        你只管开始<br>剩下的交给我
-        <small>点我进入 🧚</small>
-      </div>
+    <div id="bubbleField"></div>
+    <div class="splash-tools">
+      <button id="bgBtn" title="换背景">🎨</button>
+      <button id="addBtn" title="新建目标">➕</button>
     </div>
-    <div class="splash-hint">陪跑精灵 · 让想做的事真做成</div>
+    <div class="splash-hint">点带字气泡进入目标 · 戳破空白气泡解压 · 晃动手机让气泡漂起来</div>
   </div>
 
   <div class="main">
@@ -243,6 +241,7 @@
 </div>
 
 <div class="wizard" id="wizard">
+  <button class="wizard-back" id="wizardBack" onclick="backToSplash()">←</button>
   <div class="wizard-top">
     <div class="mascot">🧚</div>
     <div class="dots" id="dots"></div>
@@ -406,6 +405,16 @@
   </div>
 </div>
 
+<div class="set-mask" id="bgMask">
+  <div class="set-box">
+    <h3>🎨 选择背景</h3>
+    <div class="sub">预设几款布，也可以用你手机相册里的照片。</div>
+    <div class="bg-grid" id="bgGrid"></div>
+    <div style="margin-top:6px"><input type="file" id="bgFile" accept="image/*" style="display:none"><button class="set-save" id="bgCustomBtn" style="background:var(--panel2);color:var(--txt);border:1px solid var(--line)">📷 用我的照片</button></div>
+    <button class="set-save" id="bgClose" style="margin-top:10px;background:transparent;color:var(--sub);border:1px solid var(--line)">关闭</button>
+  </div>
+</div>
+
 <script>
 // ====== 本地存储 ======
 const PREFIX='pp_';
@@ -413,6 +422,15 @@ const load=(k,def)=>{ try{ const v=localStorage.getItem(PREFIX+k); return v==nul
 const save=(k,v)=> localStorage.setItem(PREFIX+k, JSON.stringify(v));
 const today=()=> new Date().toISOString().slice(0,10);
 const escapeHtml=(s)=> String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+// ====== 多目标存储 ======
+let goals = load('goals', []);
+if(!Array.isArray(goals)) goals=[];
+if(goals.length===0){ const p=load('plan',null); if(p){ goals=[makeGoal(p)]; save('goals',goals); save('plan',null); } }
+function makeGoal(plan){ return { id:'g'+Date.now()+Math.floor(Math.random()*999), plan:plan, createdAt:Date.now() }; }
+function getGoal(id){ return goals.find(g=>g.id===id)||null; }
+function saveGoals(){ save('goals',goals); }
+function goalCompletion(g){ const plan=g.plan; if(!plan||!plan.weeks) return 0; const all=allDays(plan); if(!all.length) return 0; return Math.round(all.filter(x=>x.d.done).length/all.length*100); }
 
 // ====== AI 设置 ======
 function getAISettings(){ try{ const raw=localStorage.getItem(PREFIX+'ai'); if(!raw) return null; return JSON.parse(decodeURIComponent(escape(atob(raw)))); }catch(e){ return null; } }
@@ -537,6 +555,7 @@ function showStep(n){
   document.querySelectorAll('.step-view').forEach(v=>v.classList.remove('active'));
   document.querySelector('.step-view[data-step="'+n+'"]').classList.add('active');
   currentStep=n; updateDots();
+  document.getElementById('wizardBack').classList.toggle('show', n===1);
   if(n===6) updateKeyStatus();
   if(n===7) updatePlanSummary();
 }
@@ -606,7 +625,7 @@ async function generatePlan(){
   try{
     const plan=parseJSON(await callAI(sys,usr));
     if(!plan||!plan.weeks){ status.innerHTML='生成结果格式异常，请重试。<br><button class="btn-secondary" style="margin-top:10px;" onclick="useFallback()">先用精灵模板继续</button>'; btn.disabled=false; return; }
-    plan.who=wizardData.who; save('plan',plan); showFlow();
+    plan.who=wizardData.who; commitGoal(plan); backToSplash();
   }catch(e){ status.innerHTML='生成失败：'+e.message+'<br><button class="btn-secondary" style="margin-top:10px;" onclick="useFallback()">先用精灵模板继续</button><div style="font-size:12px;color:var(--sub);margin-top:8px;">先用模板开始陪跑，之后可在「⚙ 设置 → AI 设置」修正 Key 再重新拆解。</div>'; btn.disabled=false; }
 }
 
@@ -637,22 +656,20 @@ function fallbackPlan(){
   }
   return {goal:goal,who:wizardData.who,weeks:weeks,_fallback:true};
 }
-function useFallback(){ const plan=fallbackPlan(); save('plan',plan); showFlow(); }
+function useFallback(){ const plan=fallbackPlan(); commitGoal(plan); backToSplash(); }
 
 // ====== 主渲染 ======
-function render(){
-  const plan=load('plan',null);
-  if(plan){ document.getElementById('wizard').classList.remove('show'); showFlow(); }
-  else{ showStep(1); document.getElementById('wizard').classList.add('show'); }
-}
+function render(){ bootSplash(); }
 
-function showFlow(){
+function showFlow(goalId){
+  const g = goalId?getGoal(goalId):(goals[0]||null);
+  if(!g){ openWizard(); return; }
+  currentGoalId=g.id;
   document.getElementById('splash').classList.add('hide');
   document.getElementById('topnav').style.display='flex';
   document.getElementById('wizard').classList.remove('show');
   const f=document.getElementById('flow'); f.classList.add('show'); f.innerHTML='';
-  const plan=load('plan');
-  if(!plan){ render(); return; }
+  const plan=g.plan;
 
   // 放弃捞人
   const ld=lastDone(plan); const gap=ld?Math.round((new Date(today())-new Date(ld))/864e5):99;
@@ -661,7 +678,7 @@ function showFlow(){
   // streak 条
   const bar=document.createElement('div'); bar.className='streak-bar';
   bar.innerHTML='<div><div class="num">'+calcStreak(plan)+'</div><div class="lbl">连续做成(天)</div></div>'+
-    '<div class="goal">🎯 '+escapeHtml(plan.goal)+'<small>你每完成一步，我就帮你记着</small></div>';
+    '<div class="goal">🎯 '+escapeHtml(plan.goal)+'<small>进度 '+goalCompletion(g)+'% · 你每完成一步，我就帮你记着</small></div>';
   f.appendChild(bar);
 
   const nd=nextDay(plan);
@@ -669,10 +686,10 @@ function showFlow(){
     const done=document.createElement('div'); done.className='pp-today';
     done.innerHTML='<div class="lead">🎉 这个目标，你做成了！</div><div class="step">连续 '+calcStreak(plan)+' 天、'+allDays(plan).length+' 步，全都踩完。</div>';
     f.appendChild(done);
-    const again=document.createElement('button'); again.className='pp-done'; again.style.marginTop='16px'; again.textContent='再定一个新目标';
-    again.onclick=()=>{ if(confirm('开启新目标会清空当前计划，确定？')){ save('plan',null); location.reload(); } };
+    const again=document.createElement('button'); again.className='pp-done'; again.style.marginTop='16px'; again.textContent='➕ 再定一个新目标';
+    again.onclick=()=>openWizard();
     f.appendChild(again);
-    foot(f,plan); return;
+    foot(f,g); return;
   }
 
   const card=document.createElement('div'); card.className='pp-today';
@@ -681,16 +698,16 @@ function showFlow(){
   const btn=document.createElement('button'); btn.className='pp-done'; btn.textContent='✓ 我做完了';
   const vids=document.createElement('div'); vids.className='ai-vids'; vids.innerHTML=videoLinks(nd.kw||nd.task||plan.goal);
   const cheerBox=document.createElement('div'); cheerBox.className='pp-cheer';
-  btn.onclick=()=>{ nd.done=true; nd.doneDate=today(); save('plan',plan); cheerBox.textContent=cheer(plan); setTimeout(()=>showFlow(),900); };
+  btn.onclick=()=>{ nd.done=true; nd.doneDate=today(); saveGoals(); cheerBox.textContent=cheer(plan); setTimeout(()=>showFlow(g.id),900); };
   acts.append(btn,vids); card.append(acts,cheerBox); f.appendChild(card);
-  foot(f,plan);
+  foot(f,g);
 }
 
-function foot(c,plan){
+function foot(c,g){
   const f=document.createElement('div'); f.className='pp-foot';
   const full=document.createElement('div'); full.className='pp-link'; full.textContent='📋 查看完整计划';
   const fullBox=document.createElement('div'); fullBox.className='pp-full';
-  plan.weeks.forEach(w=>{
+  (g.plan.weeks||[]).forEach(w=>{
     const wk=document.createElement('div'); wk.className='ai-week';
     wk.innerHTML='<h4>第 '+w.week+' 周 · '+(w.focus||'')+'</h4>';
     (w.days||[]).forEach(dy=>{
@@ -701,47 +718,145 @@ function foot(c,plan){
     fullBox.appendChild(wk);
   });
   full.onclick=()=>fullBox.classList.toggle('show');
+  const wall=document.createElement('div'); wall.className='pp-link'; wall.textContent='← 返回目标墙';
+  wall.onclick=()=>backToSplash();
+  const add=document.createElement('div'); add.className='pp-link'; add.textContent='➕ 添加新目标';
+  add.onclick=()=>openWizard();
+  const del=document.createElement('div'); del.className='pp-link'; del.textContent='🗑 删除此目标';
+  del.onclick=()=>{ if(confirm('删除此目标会清空它的所有进度，确定？')){ goals=goals.filter(x=>x.id!==g.id); saveGoals(); backToSplash(); } };
   const rec=document.createElement('div'); rec.className='pp-link'; rec.textContent='📜 我的履历';
   rec.onclick=()=>renderRecord();
-  const reset=document.createElement('div'); reset.className='pp-link'; reset.textContent='🔄 重新定目标';
-  reset.onclick=()=>{ if(confirm('重新定目标会清空当前计划，确定？')){ save('plan',null); location.reload(); } };
-  f.append(full,rec,reset); c.append(f,fullBox);
+  f.append(full,wall,add,del,rec); c.append(f,fullBox);
 }
 
 function renderRecord(){
   const c=document.getElementById('flow'); c.innerHTML='';
-  const plan=load('plan',null);
   const hero=document.createElement('div'); hero.className='pp-hero';
   hero.innerHTML='你真做成的事，都记在这里。<br>换设备前记得在 <b>「⚙ 设置 → 数据备份」</b> 导出。';
   c.appendChild(hero);
-  const total=plan?allDays(plan).filter(x=>x.d.done).length:0;
-  const goals=plan&&isAllDone(plan)?1:0;
+  let total=0, doneGoals=0, bestStreak=0; const items=[];
+  goals.forEach(g=>{ const p=g.plan; if(!p||!p.weeks) return; const all=allDays(p); const done=all.filter(x=>x.d.done); total+=done.length; if(isAllDone(p)) doneGoals++; bestStreak=Math.max(bestStreak,calcStreak(p)); done.forEach(x=>items.push({t:x.d.task,d:x.d.doneDate})); });
   const grid=document.createElement('div'); grid.className='rec-grid';
-  grid.innerHTML='<div class="rec-card"><div class="n">'+calcStreak(plan||{weeks:[]})+'</div><div class="t">连续做成(天)</div></div>'+
+  grid.innerHTML='<div class="rec-card"><div class="n">'+bestStreak+'</div><div class="t">最长连续(天)</div></div>'+
     '<div class="rec-card"><div class="n">'+total+'</div><div class="t">累计完成步骤</div></div>'+
-    '<div class="rec-card"><div class="n">'+goals+'</div><div class="t">达成目标数</div></div>';
+    '<div class="rec-card"><div class="n">'+doneGoals+'</div><div class="t">达成目标数</div></div>';
   c.appendChild(grid);
   const list=document.createElement('div'); list.className='rec-list';
-  if(plan){
-    const items=allDays(plan).filter(x=>x.d.done).map(x=>({t:x.d.task,d:x.d.doneDate})).reverse();
-    items.forEach(it=>{ const r=document.createElement('div'); r.className='item'; r.innerHTML='<span>'+escapeHtml(it.t)+'</span><span class="d">'+it.d+'</span>'; list.appendChild(r); });
-  }
+  items.sort((a,b)=>b.d.localeCompare(a.d)).forEach(it=>{ const r=document.createElement('div'); r.className='item'; r.innerHTML='<span>'+escapeHtml(it.t)+'</span><span class="d">'+it.d+'</span>'; list.appendChild(r); });
   if(!total){ const e=document.createElement('div'); e.className='empty'; e.textContent='还没有完成的步骤，去完成今天这一步吧'; list.appendChild(e); }
   c.appendChild(list);
   const back=document.createElement('div'); back.className='pp-link'; back.style.marginTop='16px'; back.textContent='← 返回陪跑';
-  back.onclick=()=>showFlow(); c.appendChild(back);
+  back.onclick=()=>{ const g=getGoal(currentGoalId)||goals[0]; if(g) showFlow(g.id); else backToSplash(); }; c.appendChild(back);
 }
+
+// ====== 气泡墙引擎 ======
+let bubbles=[]; let poppedCount=0; let totalBubbles=0; let tiltX=0, tiltY=0; let audioCtx=null; let rafId=null;
+const BG_PRESETS=[
+  {name:'抹茶绿', bg:'linear-gradient(135deg,#dff0e2,#bfe3c8)', size:''},
+  {name:'爱马仕橙', bg:'linear-gradient(135deg,#f3b07a,#e8822e)', size:''},
+  {name:'粉兰', bg:'linear-gradient(135deg,#ffd9e8,#cfe0ff)', size:''},
+  {name:'象牙白', bg:'linear-gradient(135deg,#fffdf8,#f3ecdf)', size:''},
+  {name:'旧纸张', bg:'linear-gradient(135deg,#efe6d2,#e3d6ba)', size:''},
+  {name:'田园碎花', bg:'repeating-linear-gradient(45deg,rgba(150,180,110,.22) 0 14px,transparent 14px 28px),repeating-linear-gradient(-45deg,rgba(150,180,110,.22) 0 14px,transparent 14px 28px),#f3ead2', size:'56px 56px,56px 56px,auto'}
+];
+function ensureAudio(){ if(audioCtx) return; try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+function popSound(){ if(!audioCtx) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(620+Math.random()*380,t); o.frequency.exponentialRampToValueAtTime(170,t+0.12); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.28,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.18); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.2); }
+function rand(a,b){ return a+Math.random()*(b-a); }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+function makeBubble(opts){
+  const el=document.createElement('div'); el.className='bub'+(opts.hero?' hero':'');
+  if(!opts.hero){ const r=opts.r; el.style.width=r+'px'; el.style.height=r+'px'; }
+  el.style.left=(opts.fx*100)+'%'; el.style.top=(opts.fy*100)+'%';
+  const label=document.createElement('div'); label.className='label'; label.innerHTML=opts.label||''; el.appendChild(label);
+  if(opts.water!=null){ const w=document.createElement('div'); w.className='water'; w.style.height=opts.water+'%'; el.appendChild(w); }
+  el._b=opts;
+  if(opts.type==='goal'){ el.onclick=()=>{ ensureAudio(); showFlow(opts.goalId); }; }
+  else if(opts.type==='hero'){ el.onclick=()=>{ ensureAudio(); openWizard(); }; }
+  else { el.onclick=()=>popBubble(el); }
+  bubbles.push(el); document.getElementById('bubbleField').appendChild(el);
+  return el;
+}
+function popBubble(el){
+  if(el._popped) return; el._popped=true;
+  ensureAudio(); popSound();
+  el.classList.add('pop');
+  poppedCount++;
+  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); bubbles=bubbles.filter(b=>b!==el); },350);
+  if(totalBubbles>0 && poppedCount/totalBubbles>=0.9){ spawnBubbles(6,true); }
+}
+function spawnBubbles(n,grow){
+  for(let i=0;i<n;i++){
+    const r=rand(38,78);
+    const el=makeBubble({r:r, fx:rand(0.08,0.92), fy:rand(0.1,0.9), type:'empty', label:''});
+    el._b.depth=rand(0.3,1); el._b.phase=Math.random()*6.28; el._b.amp=rand(4,14); el._b.speed=rand(0.4,1.1);
+    if(grow){ el.classList.add('grow'); }
+    totalBubbles++;
+  }
+}
+function buildSplash(){
+  const field=document.getElementById('bubbleField'); field.innerHTML=''; bubbles=[]; poppedCount=0; totalBubbles=0;
+  const goalBubbles=goals.slice(0,8);
+  goalBubbles.forEach((g,i)=>{
+    const r=rand(92,128);
+    let fx=0.18+0.64*((i+0.5)/Math.max(1,goalBubbles.length))+rand(-0.05,0.05);
+    const fy=rand(0.28,0.72);
+    const el=makeBubble({r:r, fx:clamp(fx,0.12,0.88), fy:fy, type:'goal', goalId:g.id, label:'🎯 '+(g.plan.goal||'目标')+'<br><small>'+goalCompletion(g)+'%</small>'});
+    el.querySelector('.water').style.height=goalCompletion(g)+'%';
+    el._b.depth=rand(0.5,1); el._b.phase=Math.random()*6.28; el._b.amp=rand(4,12); el._b.speed=rand(0.4,1);
+    totalBubbles++;
+  });
+  const hero=makeBubble({fx:0.5, fy:0.46, type:'hero', hero:true, label:'你只管开始<br>剩下的交给我<br><small>点我新建目标 🧚</small>'});
+  hero._b.depth=rand(0.6,1); hero._b.phase=Math.random()*6.28; hero._b.amp=rand(5,14); hero._b.speed=rand(0.4,0.9);
+  totalBubbles++;
+  const emptyCount=Math.max(12, 22-goalBubbles.length);
+  spawnBubbles(emptyCount,false);
+  startTilt(); startLoop();
+}
+function startLoop(){
+  if(rafId) return;
+  const loop=(ts)=>{ const time=ts/1000;
+    bubbles.forEach(b=>{ const o=b._b; if(!o) return; const tx=tiltX*o.depth*46+Math.sin(time*o.speed+o.phase)*o.amp; const ty=tiltY*o.depth*46+Math.cos(time*o.speed*0.8+o.phase)*o.amp; b.style.transform='translate(-50%,-50%) translate('+tx.toFixed(1)+'px,'+ty.toFixed(1)+'px)'; });
+    rafId=requestAnimationFrame(loop);
+  };
+  rafId=requestAnimationFrame(loop);
+}
+function startTilt(){
+  if(window._tiltReady) return; window._tiltReady=true;
+  function setTilt(gx,gy){ tiltX=clamp(gx/30,-1,1); tiltY=clamp(gy/30,-1,1); }
+  window.addEventListener('deviceorientation',(e)=>{ if(e.gamma!=null) setTilt(e.gamma, e.beta); }, true);
+  window.addEventListener('mousemove',(e)=>{ setTilt((e.clientX/innerWidth*2-1)*20, (e.clientY/innerHeight*2-1)*20); });
+  const req=()=>{ if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){ try{ DeviceOrientationEvent.requestPermission().catch(()=>{}); }catch(e){} } ensureAudio(); };
+  document.getElementById('splash').addEventListener('click', req, {once:true});
+}
+
+// ====== 背景 ======
+function applySavedBg(){ const s=load('bg',null); if(s){ document.body.style.background=s.bg; if(s.size) document.body.style.backgroundSize=s.size; } }
+function openBgPicker(){
+  const grid=document.getElementById('bgGrid'); grid.innerHTML='';
+  BG_PRESETS.forEach(p=>{ const d=document.createElement('div'); d.className='bg-opt'; d.style.background=p.bg; if(p.size) d.style.backgroundSize=p.size; const n=document.createElement('div'); n.className='name'; n.textContent=p.name; d.appendChild(n); d.onclick=()=>{ document.body.style.background=p.bg; if(p.size) document.body.style.backgroundSize=p.size; save('bg',{bg:p.bg,size:p.size}); document.getElementById('bgMask').classList.remove('show'); }; grid.appendChild(d); });
+  document.getElementById('bgMask').classList.add('show');
+}
+document.getElementById('bgClose').onclick=()=>document.getElementById('bgMask').classList.remove('show');
+document.getElementById('bgCustomBtn').onclick=()=>document.getElementById('bgFile').click();
+document.getElementById('bgFile').onchange=(e)=>{ const file=e.target.files[0]; if(!file) return; const rd=new FileReader(); rd.onload=()=>{ const url=rd.result; document.body.style.background='url('+url+') center/cover no-repeat'; save('bg',{bg:'url('+url+')',size:'cover'}); document.getElementById('bgMask').classList.remove('show'); }; rd.readAsDataURL(file); e.target.value=''; };
+document.getElementById('bgMask').onclick=(e)=>{ if(e.target.id==='bgMask') e.target.classList.remove('show'); };
+
+// ====== 导航 ======
+let currentGoalId=null;
+function bootSplash(){ document.getElementById('flow').classList.remove('show'); document.getElementById('topnav').style.display='none'; document.getElementById('wizard').classList.remove('show'); document.getElementById('splash').classList.remove('hide'); currentGoalId=null; buildSplash(); }
+function openWizard(){ document.getElementById('splash').classList.add('hide'); document.getElementById('wizard').classList.add('show'); showStep(1); }
+function backToSplash(){ bootSplash(); }
+function commitGoal(plan){ const g=makeGoal(plan); goals.push(g); saveGoals(); currentGoalId=g.id; return g; }
 
 function parseJSON(s){ try{ return JSON.parse(s); }catch(e){} const m=s&&s.match(/\{[\s\S]*\}/); if(m){ try{ return JSON.parse(m[0]); }catch(e){} } return null; }
 
 // ====== 启动 ======
 buildDots(); initDateInput();
-document.getElementById('heroBubble').onclick=()=>{
-  document.getElementById('splash').classList.add('hide');
-  const plan=load('plan',null);
-  if(plan){ document.getElementById('topnav').style.display='flex'; showFlow(); }
-  else{ showStep(1); document.getElementById('wizard').classList.add('show'); }
-};
+applySavedBg();
+bootSplash();
+document.getElementById('bgBtn').onclick=()=>openBgPicker();
+document.getElementById('addBtn').onclick=()=>openWizard();
 
 if(/micromessenger/i.test(navigator.userAgent)) document.getElementById('wxTip').classList.add('show');
 
