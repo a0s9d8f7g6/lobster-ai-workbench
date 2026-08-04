@@ -30,17 +30,16 @@
   #splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
   #bubbleField{position:absolute;inset:0;z-index:2;}
   .bub{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;will-change:transform;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.5),rgba(255,255,255,.12) 62%,rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.55);box-shadow:0 8px 30px rgba(217,116,63,.12),inset 0 -6px 16px rgba(255,255,255,.3);overflow:hidden;backdrop-filter:blur(2px);transform:translate(-50%,-50%);}
-  .bub .label{position:relative;z-index:3;font-size:13px;font-weight:700;color:#5a4632;padding:0 8px;line-height:1.35;text-shadow:0 1px 2px rgba(255,255,255,.7);pointer-events:none;max-width:90%;}
+  .bub .label{position:relative;z-index:3;font-size:15px;font-weight:700;color:#5a4632;padding:0 8px;line-height:1.35;text-shadow:0 1px 2px rgba(255,255,255,.7);pointer-events:none;max-width:90%;overflow:hidden;}
+  .bub .label small{font-size:11px;font-weight:600;opacity:.82;}
   .bub .water{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,rgba(90,160,200,.5),rgba(58,157,110,.62));transition:height .9s ease;z-index:1;}
   .bub .water::before{content:"";position:absolute;top:-7px;left:0;right:0;height:14px;background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.55),transparent 70%);}
-  .bub.hero{width:184px;height:184px;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.72),rgba(255,210,175,.42));border-color:rgba(217,116,63,.45);box-shadow:0 16px 50px rgba(217,116,63,.2),inset 0 -8px 22px rgba(255,255,255,.4);}
-  .bub.hero .label{font-size:14px;color:var(--gold);}
+  .bub.hero{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.72),rgba(255,210,175,.42));border-color:rgba(217,116,63,.45);box-shadow:0 16px 50px rgba(217,116,63,.2),inset 0 -8px 22px rgba(255,255,255,.4);}
+  .bub.hero .label{font-size:17px;color:var(--gold);}
   .bub.pop{animation:pop .35s ease forwards;}
   @keyframes pop{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}40%{transform:translate(-50%,-50%) scale(1.28);opacity:.85;}100%{transform:translate(-50%,-50%) scale(.15);opacity:0;}}
   .bub.grow{animation:grow .6s cubic-bezier(.2,.8,.3,1.2) forwards;}
   @keyframes grow{from{transform:translate(-50%,-50%) scale(0);opacity:0;}to{transform:translate(-50%,-50%) scale(1);opacity:1;}}
-  .splash-hint{position:absolute;bottom:34px;left:0;right:0;text-align:center;font-size:12.5px;color:rgba(90,70,50,.72);z-index:3;animation:fadeUp 2.4s ease infinite;pointer-events:none;padding:0 20px;}
-  @keyframes fadeUp{0%,100%{opacity:.55;transform:translateY(0);}50%{opacity:1;transform:translateY(-4px);}}
   .splash-tools{position:absolute;top:14px;right:16px;z-index:6;display:flex;gap:10px;}
   .splash-tools button{width:42px;height:42px;border-radius:50%;border:1px solid rgba(217,116,63,.32);background:rgba(255,255,255,.72);backdrop-filter:blur(8px);font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;}
   .splash-tools button:active{transform:scale(.92);}
@@ -189,8 +188,6 @@
   @media(min-width:769px){ .wx-tip{display:none!important;} }
 
   @media(max-width:768px){
-    .bub.hero{width:160px;height:160px;}
-    .bub.hero .label{font-size:13px;}
     .step-q{font-size:22px;}
     .wizard{padding:0 22px;}
     .wizard-top{padding-top:70px;}
@@ -229,9 +226,7 @@
     <div id="bubbleField"></div>
     <div class="splash-tools">
       <button id="bgBtn" title="换背景">🎨</button>
-      <button id="addBtn" title="新建目标">➕</button>
     </div>
-    <div class="splash-hint">点带字气泡进入目标 · 戳破空白气泡解压 · 晃动手机让气泡漂起来</div>
   </div>
 
   <div class="main">
@@ -750,7 +745,7 @@ function renderRecord(){
 }
 
 // ====== 气泡墙引擎 ======
-let bubbles=[]; let poppedCount=0; let totalBubbles=0; let tiltX=0, tiltY=0; let audioCtx=null; let rafId=null;
+let bubbles=[]; let poppedCount=0; let totalBubbles=0; let tiltX=0, tiltY=0; let audioCtx=null; let rafId=null; let heroR=64; let fieldPlaced=[]; let _lastW=0, _lastH=0;
 const BG_PRESETS=[
   {name:'抹茶绿', bg:'linear-gradient(135deg,#dff0e2,#bfe3c8)', size:''},
   {name:'爱马仕橙', bg:'linear-gradient(135deg,#f3b07a,#e8822e)', size:''},
@@ -766,10 +761,11 @@ function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
 
 function makeBubble(opts){
   const el=document.createElement('div'); el.className='bub'+(opts.hero?' hero':'');
-  if(!opts.hero){ const r=opts.r; el.style.width=r+'px'; el.style.height=r+'px'; }
-  el.style.left=(opts.fx*100)+'%'; el.style.top=(opts.fy*100)+'%';
+  const r=opts.r||(opts.hero?heroR:60);
+  el.style.width=(r*2)+'px'; el.style.height=(r*2)+'px';
+  el.style.left=opts.x+'px'; el.style.top=opts.y+'px';
   const label=document.createElement('div'); label.className='label'; label.innerHTML=opts.label||''; el.appendChild(label);
-  if(opts.water!=null){ const w=document.createElement('div'); w.className='water'; w.style.height=opts.water+'%'; el.appendChild(w); }
+  if(opts.water!=null){ const w=document.createElement('div'); w.className='water'; el.appendChild(w); el._water=w; }
   el._b=opts;
   if(opts.type==='goal'){ el.onclick=()=>{ ensureAudio(); showFlow(opts.goalId); }; }
   else if(opts.type==='hero'){ el.onclick=()=>{ ensureAudio(); openWizard(); }; }
@@ -782,41 +778,103 @@ function popBubble(el){
   ensureAudio(); popSound();
   el.classList.add('pop');
   poppedCount++;
+  const idx=fieldPlaced.findIndex(p=>p.el===el); if(idx>=0) fieldPlaced.splice(idx,1);
   setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); bubbles=bubbles.filter(b=>b!==el); },350);
-  if(totalBubbles>0 && poppedCount/totalBubbles>=0.9){ spawnBubbles(6,true); }
+  if(totalBubbles>0 && poppedCount/totalBubbles>=0.9){ placeExtra(6); }
 }
-function spawnBubbles(n,grow){
+function fieldFits(x,y,r){
+  const margin=12, gap=12;
+  if(x-r<margin||x+r>innerWidth-margin||y-r<margin||y+r>innerHeight-margin) return false;
+  for(const p of fieldPlaced){ const dx=x-p.x, dy=y-p.y, min=r+p.r+gap; if(dx*dx+dy*dy<min*min) return false; }
+  return true;
+}
+function placeExtra(n){
   for(let i=0;i<n;i++){
-    const r=rand(38,78);
-    const el=makeBubble({r:r, fx:rand(0.08,0.92), fy:rand(0.1,0.9), type:'empty', label:''});
-    el._b.depth=rand(0.3,1); el._b.phase=Math.random()*6.28; el._b.amp=rand(4,14); el._b.speed=rand(0.4,1.1);
-    if(grow){ el.classList.add('grow'); }
-    totalBubbles++;
+    let done=false;
+    for(let a=0;a<260;a++){
+      const rr=rand(24,40);
+      const x=rand(12+rr, innerWidth-12-rr), y=rand(12+rr, innerHeight-12-rr);
+      if(fieldFits(x,y,rr)){ const el=makeBubble({x:x,y:y,r:rr,type:'empty',label:''}); el._b.phase=Math.random()*6.28; el._b.amp=rand(3,6); el._b.speed=rand(0.3,0.7); el.classList.add('grow'); fieldPlaced.push({x:x,y:y,r:rr,el:el}); totalBubbles++; done=true; break; }
+    }
+    if(!done) break;
   }
 }
+function packField(W,H){
+  const margin=12, gap=12;
+  const cx=W/2, cy=H/2;
+  heroR=Math.min(72, Math.min(W,H)*0.18);
+  const placed=[{x:cx,y:cy,r:heroR}];
+  const fits=(x,y,r)=>{
+    if(x-r<margin||x+r>W-margin||y-r<margin||y+r>H-margin) return false;
+    for(const p of placed){ const dx=x-p.x, dy=y-p.y, min=r+p.r+gap; if(dx*dx+dy*dy<min*min) return false; }
+    return true;
+  };
+  const target=0.8*W*H;
+  let area=Math.PI*heroR*heroR, r=54, passes=0;
+  outer: while(r>=24 && passes<90){
+    passes++; let any=false;
+    for(let i=0;i<240;i++){
+      const rr=r*(0.74+0.26*Math.random());
+      const x=rand(margin+rr, W-margin-rr), y=rand(margin+rr, H-margin-rr);
+      if(fits(x,y,rr)){ placed.push({x:x,y:y,r:rr}); area+=Math.PI*rr*rr; any=true; if(area>=target) break outer; }
+    }
+    if(!any) r-=4;
+  }
+  return {heroR:heroR, fields:placed.slice(1)};
+}
+function pickGoalSpots(fields,g,W,H){
+  if(g<=0) return [];
+  const cx=W/2, cy=H/2;
+  const ang=fields.map(f=>Math.atan2(f.y-cy, f.x-cx));
+  const chosen=[];
+  for(let i=0;i<g;i++){
+    const target=(i/g)*Math.PI*2 - Math.PI/2;
+    let best=-1, bestScore=-1;
+    fields.forEach((f,idx)=>{
+      if(chosen.indexOf(idx)>=0) return;
+      let d=Math.abs(ang[idx]-target); if(d>Math.PI) d=Math.PI*2-d;
+      const score=(Math.PI-d)+f.r*0.03;
+      if(score>bestScore){ bestScore=score; best=idx; }
+    });
+    if(best>=0) chosen.push(best);
+  }
+  return chosen;
+}
 function buildSplash(){
-  const field=document.getElementById('bubbleField'); field.innerHTML=''; bubbles=[]; poppedCount=0; totalBubbles=0;
-  const goalBubbles=goals.slice(0,8);
-  goalBubbles.forEach((g,i)=>{
-    const r=rand(92,128);
-    let fx=0.18+0.64*((i+0.5)/Math.max(1,goalBubbles.length))+rand(-0.05,0.05);
-    const fy=rand(0.28,0.72);
-    const el=makeBubble({r:r, fx:clamp(fx,0.12,0.88), fy:fy, type:'goal', goalId:g.id, label:'🎯 '+(g.plan.goal||'目标')+'<br><small>'+goalCompletion(g)+'%</small>'});
-    el.querySelector('.water').style.height=goalCompletion(g)+'%';
-    el._b.depth=rand(0.5,1); el._b.phase=Math.random()*6.28; el._b.amp=rand(4,12); el._b.speed=rand(0.4,1);
-    totalBubbles++;
+  const field=document.getElementById('bubbleField'); field.innerHTML=''; bubbles=[]; poppedCount=0; totalBubbles=0; fieldPlaced=[];
+  const W=innerWidth, H=innerHeight; _lastW=W; _lastH=H;
+  const pack=packField(W,H);
+  const hero=makeBubble({x:W/2, y:H/2, r:pack.heroR, type:'hero', hero:true, label:'你只管开始<br>剩下的交给我'});
+  hero._b.phase=Math.random()*6.28; hero._b.amp=rand(3,6); hero._b.speed=rand(0.3,0.7);
+  fieldPlaced.push({x:W/2, y:H/2, r:pack.heroR, el:hero}); totalBubbles++;
+  const g=Math.min(goals.length, 8);
+  const spots=pickGoalSpots(pack.fields, g, W, H);
+  spots.forEach((idx,i)=>{
+    const f=pack.fields[idx]; const gg=goals[i]; const comp=goalCompletion(gg);
+    const el=makeBubble({x:f.x, y:f.y, r:f.r, type:'goal', goalId:gg.id, water:comp, label:'🎯 '+(gg.plan.goal||'目标')+'<br><small>'+comp+'%</small>'});
+    if(el._water) el._water.style.height=comp+'%';
+    el._b.phase=Math.random()*6.28; el._b.amp=rand(3,6); el._b.speed=rand(0.3,0.7);
+    fieldPlaced.push({x:f.x, y:f.y, r:f.r, el:el}); totalBubbles++; f._used=true;
   });
-  const hero=makeBubble({fx:0.5, fy:0.46, type:'hero', hero:true, label:'你只管开始<br>剩下的交给我<br><small>点我新建目标 🧚</small>'});
-  hero._b.depth=rand(0.6,1); hero._b.phase=Math.random()*6.28; hero._b.amp=rand(5,14); hero._b.speed=rand(0.4,0.9);
-  totalBubbles++;
-  const emptyCount=Math.max(12, 22-goalBubbles.length);
-  spawnBubbles(emptyCount,false);
+  pack.fields.forEach(f=>{
+    if(f._used) return;
+    const el=makeBubble({x:f.x, y:f.y, r:f.r, type:'empty', label:''});
+    el._b.phase=Math.random()*6.28; el._b.amp=rand(3,6); el._b.speed=rand(0.3,0.7);
+    fieldPlaced.push({x:f.x, y:f.y, r:f.r, el:el}); totalBubbles++;
+  });
   startTilt(); startLoop();
 }
 function startLoop(){
   if(rafId) return;
-  const loop=(ts)=>{ const time=ts/1000;
-    bubbles.forEach(b=>{ const o=b._b; if(!o) return; const tx=tiltX*o.depth*46+Math.sin(time*o.speed+o.phase)*o.amp; const ty=tiltY*o.depth*46+Math.cos(time*o.speed*0.8+o.phase)*o.amp; b.style.transform='translate(-50%,-50%) translate('+tx.toFixed(1)+'px,'+ty.toFixed(1)+'px)'; });
+  const K=14;
+  const loop=(ts)=>{
+    const time=ts/1000;
+    const tgx=tiltX*K, tgy=tiltY*K;
+    bubbles.forEach(b=>{ const o=b._b; if(!o) return;
+      const tx=tgx + Math.sin(time*o.speed+o.phase)*o.amp;
+      const ty=tgy + Math.cos(time*o.speed*0.73+o.phase*1.27)*o.amp*0.85;
+      b.style.transform='translate(-50%,-50%) translate('+tx.toFixed(1)+'px,'+ty.toFixed(1)+'px)';
+    });
     rafId=requestAnimationFrame(loop);
   };
   rafId=requestAnimationFrame(loop);
@@ -826,6 +884,12 @@ function startTilt(){
   function setTilt(gx,gy){ tiltX=clamp(gx/30,-1,1); tiltY=clamp(gy/30,-1,1); }
   window.addEventListener('deviceorientation',(e)=>{ if(e.gamma!=null) setTilt(e.gamma, e.beta); }, true);
   window.addEventListener('mousemove',(e)=>{ setTilt((e.clientX/innerWidth*2-1)*20, (e.clientY/innerHeight*2-1)*20); });
+  window.addEventListener('resize',()=>{
+    if(document.getElementById('splash') && !document.getElementById('splash').classList.contains('hide')){
+      const w=innerWidth, h=innerHeight;
+      if(Math.abs(w-_lastW)>60 || Math.abs(h-_lastH)>60){ if(rafId){ cancelAnimationFrame(rafId); rafId=null; } buildSplash(); }
+    }
+  });
   const req=()=>{ if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){ try{ DeviceOrientationEvent.requestPermission().catch(()=>{}); }catch(e){} } ensureAudio(); };
   document.getElementById('splash').addEventListener('click', req, {once:true});
 }
