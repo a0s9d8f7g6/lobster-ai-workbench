@@ -1,4 +1,4 @@
-const CACHE = 'peipao-v29';
+const CACHE = 'peipao-v30';
 const ASSETS = [
   './',
   './index.html',
