@@ -76,6 +76,26 @@
   .bub.hero .label{font-size:17px;color:var(--gold);}
   body.theme-dark .bub .label{color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.8),0 0 3px rgba(0,0,0,.6);}
   body.theme-dark .bub.hero .label{color:#fff;}
+
+  /* ── 首屏轻引导：泡内明示提示（低对比 / 小字号 / 延迟淡入，不改动气泡运动） ── */
+  .bub.has-hint{flex-direction:column;gap:4px;}
+  .bub.has-hint .label{font-size:13px;line-height:1.28;}
+  .bub.has-hint .label small{font-size:10px;}
+  .bub.hero.has-hint .label{font-size:16px;line-height:1.3;}
+  .bub-hint{position:relative;z-index:3;max-width:86%;padding:2px 7px;border-radius:11px;
+    font-size:10px;line-height:1.3;font-weight:600;letter-spacing:.2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    color:var(--gold);background:rgba(255,255,255,.66);border:1px solid rgba(217,116,63,.20);
+    box-shadow:0 1px 4px rgba(46,42,38,.06);text-shadow:none;pointer-events:none;opacity:0;
+    animation:hintIn 620ms var(--ease-soft) 900ms forwards;}
+  .bub.hero .bub-hint{font-size:11px;padding:3px 9px;border-radius:12px;}
+  .bub-hint.out{animation:hintOut 360ms var(--ease-soft) forwards;}
+  @keyframes hintIn{from{opacity:0;transform:translateY(5px);}to{opacity:.94;transform:none;}}
+  @keyframes hintOut{from{opacity:.94;transform:none;}to{opacity:0;transform:translateY(-4px);}}
+  body.theme-dark .bub-hint{color:#fff;background:rgba(20,18,16,.44);border-color:rgba(255,255,255,.26);box-shadow:none;}
+  @media (max-width:340px){ .bub-hint{font-size:9px;padding:2px 6px;} .bub.hero .bub-hint{font-size:10px;} }
+  @media (prefers-reduced-motion:reduce){ .bub-hint{animation:none!important;opacity:.94!important;} .bub-hint.out{opacity:0!important;} }
+
   .bub.pop{animation:pop .42s cubic-bezier(.3,.8,.4,1) forwards;z-index:5;pointer-events:none;}
   @keyframes pop{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}22%{transform:translate(-50%,-50%) scale(1.32);opacity:.92;}100%{transform:translate(-50%,-50%) scale(.08);opacity:0;}}
   .pop-ring{position:absolute;z-index:4;border-radius:50%;border:2px solid rgba(255,255,255,.75);box-shadow:0 0 14px rgba(255,255,255,.45);transform:translate(-50%,-50%);pointer-events:none;animation:ring .45s ease-out forwards;}
@@ -251,6 +271,9 @@
 
   /* ====== 门禁（激活码） ====== */
   #gate{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;
+    /* 门禁作用域内的可读性令牌：不污染全局 --sub / --warn */
+    --gate-txt-sub:#6f6459;   /* 对白底 5.77:1、对 --panel2 5.05:1，过 WCAG AA */
+    --warn:#a34e33;           /* 仅 gate 内覆盖：对 --warn-soft 5.00:1 */
     padding:24px;overflow-y:auto;background:var(--bg);
     background-image:radial-gradient(circle at 18% 12%, rgba(224,138,79,.10), transparent 42%),
                      radial-gradient(circle at 86% 84%, rgba(150,190,255,.13), transparent 46%);}
@@ -283,7 +306,7 @@
   @keyframes gateFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
 
   .gate-title{font-size:22px;font-weight:800;line-height:1.4;color:var(--txt);text-align:center;margin-bottom:10px;}
-  .gate-lead{font-size:14px;line-height:1.7;color:var(--sub);text-align:center;margin-bottom:22px;}
+  .gate-lead{font-size:14px;line-height:1.7;color:var(--gate-txt-sub);text-align:center;margin-bottom:22px;}
 
   .gate-field{width:100%;min-height:var(--gate-field-h);background:var(--gate-field-bg);
     border:1.5px solid var(--gate-field-line);border-radius:var(--gate-field-r);
@@ -291,7 +314,7 @@
     overflow-y:auto;word-break:break-all;
     letter-spacing:.4px;font-variant-numeric:tabular-nums;
     transition:border-color var(--dur-fast) ease,box-shadow var(--dur-fast) ease;}
-  .gate-field::placeholder{color:var(--sub);opacity:.55;letter-spacing:.6px;}
+  .gate-field::placeholder{color:var(--sub);opacity:.8;letter-spacing:.6px;}
   .gate-field:focus{border-color:var(--gold);box-shadow:var(--gate-field-ring);}
   .gate-field:disabled{opacity:.6;}
 
@@ -300,7 +323,7 @@
     animation:gateSwap var(--dur) var(--ease-soft);}
   .gate-msg[hidden]{display:none;}
   .gate-msg.warn{background:var(--warn-soft);color:var(--warn);}
-  .gate-msg.calm{background:var(--panel2);color:var(--sub);}
+  .gate-msg.calm{background:var(--panel2);color:var(--gate-txt-sub);}
   .gate-msg a{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px;}
 
   .gate-btn{width:100%;height:var(--gate-btn-h);margin-top:18px;position:relative;overflow:hidden;
@@ -311,7 +334,8 @@
   .gate-btn:disabled{background:var(--gate-btn-off-bg);color:var(--gate-btn-off-txt);
     box-shadow:none;cursor:default;}
   .gate-btn.loading{cursor:progress;}
-  .gate-btn .gate-btn-bubbles{position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:7px;}
+  /* 靠右停，别和居中的「正在开门…」压在一起 */
+  .gate-btn .gate-btn-bubbles{position:absolute;inset:0;display:none;align-items:center;justify-content:flex-end;padding-right:14px;gap:7px;}
   .gate-btn.loading .gate-btn-bubbles{display:flex;}
   .gate-btn .gate-btn-bubbles i{width:7px;height:7px;border-radius:50%;
     background:radial-gradient(circle at 34% 30%, rgba(255,255,255,.95), rgba(255,255,255,.45));
@@ -322,7 +346,7 @@
   .gate-btn.loading .gate-btn-txt{padding-right:34px;}
 
   .gate-link{display:block;width:100%;margin-top:16px;background:none;border:none;
-    font-size:13px;line-height:1.6;color:var(--sub);cursor:pointer;text-align:center;
+    font-size:13px;line-height:1.6;color:var(--gate-txt-sub);cursor:pointer;text-align:center;
     transition:color var(--dur-fast) ease;}
   .gate-link:hover{color:var(--gold);}
   .gate-link.strong{color:var(--gold);font-weight:600;}
@@ -349,6 +373,8 @@
 
   @media (prefers-reduced-motion:reduce){
     .gate-card,.gate-view,.gate-mark,.gate-msg,#gateBurst i,.gate-btn .gate-btn-bubbles i{animation:none!important;}
+    /* 停掉动画后爆散圆点会变成一片静止斑点，索性整层不出现 */
+    #gateBurst{display:none!important;}
   }
   @media (max-height:640px){
     #gate{align-items:flex-start;}
@@ -573,9 +599,10 @@
 
       <textarea class="gate-field" id="gateInput" rows="5" spellcheck="false"
         inputmode="text" autocapitalize="characters" autocomplete="off" autocorrect="off"
-        placeholder="PEIPAO-XXXX-XXXX-XXXX" aria-label="激活码"></textarea>
+        placeholder="粘贴你的激活码（很长，直接粘贴最省事）" aria-label="激活码"></textarea>
 
       <div class="gate-msg warn" id="gateMsg" role="status" hidden></div>
+      <div class="gate-msg calm" id="gateShort" role="status" hidden>还差一些，完整的码大约 130 个字符</div>
       <div class="gate-msg calm" id="gateNote" hidden>当前离线也能激活 —— 你的码自带签名，本机就能验，不用联网。</div>
 
       <button class="gate-btn" id="gateBtn" disabled>
@@ -590,10 +617,10 @@
     <div class="gate-view" id="gateViewBuy" hidden>
       <div class="gate-mark" aria-hidden="true"></div>
       <h1 class="gate-title">陪跑精灵是买断制的</h1>
-      <p class="gate-lead">一次付费，激活码永久有效，最多 3 台设备。</p>
+      <p class="gate-lead">一次付费，激活码永久有效，你自己的设备随便装。</p>
       <ul class="gate-facts">
         <li>一次付费，<b>永久</b>可用，不做订阅、不做续费</li>
-        <li>一个码最多 <b>3 台</b>设备，手机、平板、电脑都算</li>
+        <li>一个码，你自己的设备<b>随便装</b>，手机、平板、电脑都算</li>
         <li>计划和打卡记录全在<b>本机</b>，卸载前可导出带走</li>
       </ul>
       <div class="gate-msg calm" id="gateBuyMsg" hidden></div>
@@ -618,8 +645,8 @@ const escapeHtml=(s)=> String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<
 const GATE_PUBKEY_JWK={"kty":"EC","crv":"P-256","x":"VKNlojOZ2dIIwkarpOjIcIwstPY7A1KzY92YyeecHsQ","y":"RYWaSszI1Uh4PCS9AnBhwdezqNXp-kCDq5Gl42udZqY","ext":true};
 // TODO: 上架后填入购买页链接（如 https://xxx.com/buy），留空时按钮只给提示不跳转
 const GATE_PURCHASE_URL='';
-// TODO: 换成你的联系邮箱
-const GATE_HELP_MAIL='mailto:hi@example.com?subject=%E9%99%AA%E8%B7%91%E7%B2%BE%E7%81%B5%20%E6%BF%80%E6%B4%BB%E7%A0%81';
+// 联系邮箱：求助 / 发票 / 吊销申诉统一入口（GATE_PURCHASE_URL 留空时购买按钮兜底也走它）
+const GATE_HELP_MAIL='mailto:77252724@qq.com?subject=%E9%99%AA%E8%B7%91%E7%B2%BE%E7%81%B5%20%E6%BF%80%E6%B4%BB%E7%A0%81';
 // Base32 去混淆字符集：剔除 0 / O / 1 / I
 const GATE_B32='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const GATE_MIN_LEN=104;   // 65 字节的最短可解长度，低于此按“还没输完”处理
@@ -739,6 +766,14 @@ function gateSyncBtn(){
   gateEl.btn.disabled=gateBusy||!enough;
 }
 
+// 输够一截但还没输完时给个进度感的提示。
+// 注意：不能靠 GATE_COPY.short —— gateSubmit 在长度不足时提前 return，那条分支永远走不到。
+function gateSyncShort(){
+  if(!gateEl.short||!gateEl.input) return;
+  const n=gateBodyOf(gateEl.input.value).length;
+  gateEl.short.hidden=!(n>=20&&n<GATE_MIN_LEN);
+}
+
 function gateSetLoading(on){
   gateEl.btn.classList.toggle('loading',!!on);
   gateEl.btnTxt.textContent=on?'正在开门…':'进门';
@@ -772,6 +807,7 @@ function gateOnInput(){
     try{ el.setSelectionRange(pos,pos); }catch(e){}
   }
   gateHideMsg();
+  gateSyncShort();
   gateSyncBtn();
 }
 
@@ -826,10 +862,14 @@ function gateActivate(rawCode,payload){
   g.classList.add('gate-done');
   setTimeout(()=>{
     g.classList.remove('show','gate-done');
-    const layer=document.getElementById('gateBurst');
-    layer.classList.remove('show'); layer.innerHTML='';
     render();                                     // 无缝接进气泡墙，绝不白屏
   },420);
+  // 爆散气泡最迟 140ms 延迟 + 420ms 时长 = 560ms 才散完，晚一拍再清图层，别把庆祝掐断。
+  // 图层 pointer-events:none，多留这 160ms 只是让气泡飘过刚渲染出来的气泡墙。
+  setTimeout(()=>{
+    const layer=document.getElementById('gateBurst');
+    if(layer){ layer.classList.remove('show'); layer.innerHTML=''; }
+  },580);
 }
 
 function gateSwitch(view,focus){
@@ -847,6 +887,7 @@ function showGate(reason){
   g.classList.add('show');
   gateSwitch('activate');
   gateSyncNote();
+  gateSyncShort();
   gateSyncBtn();
   if(reason) gateShowMsg(reason);
 }
@@ -856,6 +897,7 @@ function gateBindUI(){
   gateEl.btn=document.getElementById('gateBtn');
   gateEl.btnTxt=document.getElementById('gateBtnTxt');
   gateEl.msg=document.getElementById('gateMsg');
+  gateEl.short=document.getElementById('gateShort');
   gateEl.note=document.getElementById('gateNote');
   if(!gateEl.input) return;
   gateEl.input.addEventListener('input',gateOnInput);
@@ -1248,6 +1290,27 @@ function initWander(o, depth, maxOff){
   o.jit=rand(0.05,0.15); o.spr=rand(0.012,0.03);
 }
 
+// ====== 首屏轻引导（气泡墙明示提示） ======
+// 存储键 pp_hint_done = {hero:1, goal:1}
+// hero：首次创建目标后置位；goal：首次从字泡进入目标后置位。置位后不再打扰。
+const HINT_KEY='hint_done';
+// 文案长度受泡内弦长约束：hero ≤7 字、goal ≤4 字，否则窄屏会被截断
+const HINT_TEXT={ hero:'点我，建个目标', goal:'点我进入' };
+const HINT_MIN_R=40; // 半径小于此值的目标泡塞不下药丸，宁可不提示也不做视觉噪音
+function hintState(){ const v=load(HINT_KEY,null); return (v&&typeof v==='object'&&!Array.isArray(v))?v:{}; }
+function hintDone(k){ return !!hintState()[k]; }
+function markHintDone(k,silent){
+  const s=hintState(); if(s[k]) return;
+  s[k]=1; try{ save(HINT_KEY,s); }catch(e){}
+  if(!silent) fadeOutHint(k);
+}
+function fadeOutHint(k){
+  document.querySelectorAll('.bub-hint[data-hint="'+k+'"]').forEach(el=>{
+    el.classList.add('out');
+    setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); },400);
+  });
+}
+
 function makeBubble(opts){
   const el=document.createElement('div'); el.className='bub'+(opts.hero?' hero':'');
   const r=opts.r||(opts.hero?heroR:60);
@@ -1255,6 +1318,13 @@ function makeBubble(opts){
   el.style.left=opts.x+'px'; el.style.top=opts.y+'px';
   const label=document.createElement('div'); label.className='label'; label.innerHTML=opts.label||''; el.appendChild(label);
   if(opts.water!=null){ const w=document.createElement('div'); w.className='water'; el.appendChild(w); el._water=w; }
+  // 轻引导提示：绝对定位的 water 不参与 flex 流，提示作为第二个流内子元素排在 label 下方
+  if(opts.hint){
+    el.classList.add('has-hint');
+    const h=document.createElement('div'); h.className='bub-hint';
+    h.setAttribute('data-hint', opts.hintKey||'');
+    h.textContent=opts.hint; el.appendChild(h); el._hint=h;
+  }
   el._b=opts;
   const dmap={1:1,2:0.78,3:0.6}, amap={1:0.92,2:0.7,3:0.5};
   const dv=opts.depth||1;
@@ -1262,7 +1332,7 @@ function makeBubble(opts){
   el._b.scale=(opts.hero||opts.type==='goal')?1:dmap[dv];
   el._b.baseAlpha=(opts.hero||opts.type==='goal')?0.95:amap[dv];
   el._b.popIn=1;
-  if(opts.type==='goal'){ el.onclick=()=>{ ensureAudio(); showFlow(opts.goalId); }; }
+  if(opts.type==='goal'){ el.onclick=()=>{ ensureAudio(); markHintDone('goal'); showFlow(opts.goalId); }; }
   else if(opts.type==='hero'){ el.onclick=()=>{ ensureAudio(); openWizard(); }; }
   else { el.onclick=()=>popBubble(el); }
   bubbles.push(el); document.getElementById('bubbleField').appendChild(el);
@@ -1358,14 +1428,23 @@ function buildSplash(){
   const field=document.getElementById('bubbleField'); field.innerHTML=''; bubbles=[]; poppedCount=0; totalBubbles=0; fieldPlaced=[];
   const W=innerWidth, H=innerHeight; _lastW=W; _lastH=H;
   const pack=packField(W,H);
-  const hero=makeBubble({x:W/2, y:H/2, r:pack.heroR, type:'hero', hero:true, label:'你只管开始<br>剩下的交给我'});
+  // 轻引导：已有目标的老用户视为已掌握「建目标」，静默置位，只保留「进目标」提示
+  if(goals.length>0) markHintDone('hero', true);
+  const heroHint = hintDone('hero') ? null : HINT_TEXT.hero;
+  const hero=makeBubble({x:W/2, y:H/2, r:pack.heroR, type:'hero', hero:true, label:'你只管开始<br>剩下的交给我', hint:heroHint, hintKey:'hero'});
   initWander(hero._b, 1, 13);
   fieldPlaced.push({x:W/2, y:H/2, r:pack.heroR, el:hero}); totalBubbles++;
   const g=Math.min(goals.length, 8);
   const spots=pickGoalSpots(pack.fields, g, W, H);
+  // 轻引导：只挂在最大的那颗目标泡上，保证可读且不铺满屏
+  let goalHintAt=-1;
+  if(g>0 && !hintDone('goal')){
+    let bestR=-1; spots.forEach((idx,i)=>{ const rr=pack.fields[idx].r; if(rr>bestR){ bestR=rr; goalHintAt=i; } });
+    if(bestR<HINT_MIN_R) goalHintAt=-1;
+  }
   spots.forEach((idx,i)=>{
     const f=pack.fields[idx]; const gg=goals[i]; const comp=goalCompletion(gg);
-    const el=makeBubble({x:f.x, y:f.y, r:f.r, type:'goal', goalId:gg.id, water:comp, label:'🎯 '+(gg.plan.goal||'目标')+'<br><small>'+comp+'%</small>'});
+    const el=makeBubble({x:f.x, y:f.y, r:f.r, type:'goal', goalId:gg.id, water:comp, label:'🎯 '+(gg.plan.goal||'目标')+'<br><small>'+comp+'%</small>', hint:(i===goalHintAt?HINT_TEXT.goal:null), hintKey:'goal'});
     if(el._water) el._water.style.height=comp+'%';
     initWander(el._b, 1, 13);
     fieldPlaced.push({x:f.x, y:f.y, r:f.r, el:el}); totalBubbles++; f._used=true;
@@ -1438,7 +1517,7 @@ let currentGoalId=null;
 function bootSplash(){ document.getElementById('flow').classList.remove('show'); document.getElementById('topnav').style.display='none'; document.getElementById('wizard').classList.remove('show'); document.getElementById('splash').classList.remove('hide'); currentGoalId=null; buildSplash(); }
 function openWizard(){ document.getElementById('splash').classList.add('hide'); document.getElementById('wizard').classList.add('show'); showStep(1); }
 function backToSplash(){ bootSplash(); }
-function commitGoal(plan){ const g=makeGoal(plan); goals.push(g); saveGoals(); currentGoalId=g.id; return g; }
+function commitGoal(plan){ const g=makeGoal(plan); goals.push(g); saveGoals(); currentGoalId=g.id; markHintDone('hero'); return g; }
 
 function parseJSON(s){ try{ return JSON.parse(s); }catch(e){} const m=s&&s.match(/\{[\s\S]*\}/); if(m){ try{ return JSON.parse(m[0]); }catch(e){} } return null; }
 
