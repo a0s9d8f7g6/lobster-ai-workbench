@@ -749,12 +749,15 @@ function renderRecord(){
 // ====== 气泡墙引擎 ======
 let bubbles=[]; let poppedCount=0; let totalBubbles=0; let tiltX=0, tiltY=0; let audioCtx=null; let rafId=null; let heroR=64; let fieldPlaced=[]; let _lastW=0, _lastH=0;
 const BG_PRESETS=[
-  {name:'抹茶绿', bg:'linear-gradient(135deg,#dff0e2,#bfe3c8)', size:''},
-  {name:'爱马仕橙', bg:'linear-gradient(135deg,#f3b07a,#e8822e)', size:''},
-  {name:'粉兰', bg:'linear-gradient(135deg,#ffd9e8,#cfe0ff)', size:''},
-  {name:'象牙白', bg:'linear-gradient(135deg,#fffdf8,#f3ecdf)', size:''},
-  {name:'旧纸张', bg:'linear-gradient(135deg,#efe6d2,#e3d6ba)', size:''},
-  {name:'田园碎花', bg:'repeating-linear-gradient(45deg,rgba(150,180,110,.22) 0 14px,transparent 14px 28px),repeating-linear-gradient(-45deg,rgba(150,180,110,.22) 0 14px,transparent 14px 28px),#f3ead2', size:'56px 56px,56px 56px,auto'}
+  {name:'粉蓝梦幻', bg:"url('themes/theme1.png') center/cover no-repeat", size:''},
+  {name:'彩虹阳光', bg:"url('themes/theme2.png') center/cover no-repeat", size:''},
+  {name:'糖果彩虹', bg:"url('themes/theme3.png') center/cover no-repeat", size:''},
+  {name:'暖金日落', bg:"url('themes/theme4.png') center/cover no-repeat", size:''},
+  {name:'深海青绿', bg:"url('themes/theme5.png') center/cover no-repeat", size:''},
+  {name:'梦幻水下', bg:"url('themes/theme6.png') center/cover no-repeat", size:''},
+  {name:'极简粉蓝', bg:"url('themes/theme7.png') center/cover no-repeat", size:''},
+  {name:'黑底霓虹', bg:"url('themes/theme8.png') center/cover no-repeat", size:''},
+  {name:'阳光森林', bg:"url('themes/theme9.png') center/cover no-repeat", size:''}
 ];
 function ensureAudio(){ if(audioCtx) return; try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
 function popSound(){ if(!audioCtx) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(620+Math.random()*380,t); o.frequency.exponentialRampToValueAtTime(170,t+0.12); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.28,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.18); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.2); }
@@ -769,6 +772,12 @@ function makeBubble(opts){
   const label=document.createElement('div'); label.className='label'; label.innerHTML=opts.label||''; el.appendChild(label);
   if(opts.water!=null){ const w=document.createElement('div'); w.className='water'; el.appendChild(w); el._water=w; }
   el._b=opts;
+  const dmap={1:1,2:0.78,3:0.6}, amap={1:0.92,2:0.7,3:0.5};
+  const dv=opts.depth||1;
+  el._b.depth=dv;
+  el._b.scale=(opts.hero||opts.type==='goal')?1:dmap[dv];
+  el._b.baseAlpha=(opts.hero||opts.type==='goal')?0.95:amap[dv];
+  el._b.popIn=1;
   if(opts.type==='goal'){ el.onclick=()=>{ ensureAudio(); showFlow(opts.goalId); }; }
   else if(opts.type==='hero'){ el.onclick=()=>{ ensureAudio(); openWizard(); }; }
   else { el.onclick=()=>popBubble(el); }
@@ -787,8 +796,23 @@ function popBubble(el){
   poppedCount++;
   const idx=fieldPlaced.findIndex(p=>p.el===el); if(idx>=0) fieldPlaced.splice(idx,1);
   setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); bubbles=bubbles.filter(b=>b!==el); },420);
-  if(totalBubbles>0 && poppedCount/totalBubbles>=0.9){ placeExtra(6); }
+  spawnRising(parseFloat(el.style.left)||innerWidth/2, parseFloat(el.style.top)||innerHeight/2);
 }
+function spawnRising(px,py){
+  for(let a=0;a<200;a++){
+    const rr=rand(38,60);
+    const x=rand(40+rr, innerWidth-40-rr), y=rand(40+rr, innerHeight-40-rr);
+    if(fieldFits(x,y,rr)){
+      const el=makeBubble({x:x,y:y,r:rr,type:'empty',label:'',depth:1});
+      el._b.phase=Math.random()*6.28; el._b.amp=rand(6,12); el._b.speed=rand(0.3,0.7);
+      el._b.popIn=0;
+      fieldPlaced.push({x:x,y:y,r:rr,el:el}); totalBubbles++;
+      return;
+    }
+  }
+}
+function lerp(a,b,t){ return a+(b-a)*t; }
+function easeOut(t){ return 1-Math.pow(1-t,3); }
 function fieldFits(x,y,r){
   const margin=12, gap=12;
   if(x-r<margin||x+r>innerWidth-margin||y-r<margin||y+r>innerHeight-margin) return false;
@@ -807,7 +831,7 @@ function placeExtra(n){
   }
 }
 function packField(W,H){
-  const margin=12, gap=12;
+  const margin=40, gap=10;
   const cx=W/2, cy=H/2;
   heroR=Math.min(72, Math.min(W,H)*0.18);
   const placed=[{x:cx,y:cy,r:heroR}];
@@ -816,7 +840,7 @@ function packField(W,H){
     for(const p of placed){ const dx=x-p.x, dy=y-p.y, min=r+p.r+gap; if(dx*dx+dy*dy<min*min) return false; }
     return true;
   };
-  const target=0.8*W*H;
+  const target=0.7*W*H;
   let area=Math.PI*heroR*heroR, r=54, passes=0;
   outer: while(r>=24 && passes<90){
     passes++; let any=false;
@@ -852,7 +876,7 @@ function buildSplash(){
   const W=innerWidth, H=innerHeight; _lastW=W; _lastH=H;
   const pack=packField(W,H);
   const hero=makeBubble({x:W/2, y:H/2, r:pack.heroR, type:'hero', hero:true, label:'你只管开始<br>剩下的交给我'});
-  hero._b.phase=Math.random()*6.28; hero._b.amp=rand(3,6); hero._b.speed=rand(0.3,0.7);
+  hero._b.phase=Math.random()*6.28; hero._b.amp=rand(6,12); hero._b.speed=rand(0.3,0.7);
   fieldPlaced.push({x:W/2, y:H/2, r:pack.heroR, el:hero}); totalBubbles++;
   const g=Math.min(goals.length, 8);
   const spots=pickGoalSpots(pack.fields, g, W, H);
@@ -860,27 +884,31 @@ function buildSplash(){
     const f=pack.fields[idx]; const gg=goals[i]; const comp=goalCompletion(gg);
     const el=makeBubble({x:f.x, y:f.y, r:f.r, type:'goal', goalId:gg.id, water:comp, label:'🎯 '+(gg.plan.goal||'目标')+'<br><small>'+comp+'%</small>'});
     if(el._water) el._water.style.height=comp+'%';
-    el._b.phase=Math.random()*6.28; el._b.amp=rand(3,6); el._b.speed=rand(0.3,0.7);
+    el._b.phase=Math.random()*6.28; el._b.amp=rand(6,12); el._b.speed=rand(0.3,0.7);
     fieldPlaced.push({x:f.x, y:f.y, r:f.r, el:el}); totalBubbles++; f._used=true;
   });
   pack.fields.forEach(f=>{
     if(f._used) return;
-    const el=makeBubble({x:f.x, y:f.y, r:f.r, type:'empty', label:''});
-    el._b.phase=Math.random()*6.28; el._b.amp=rand(3,6); el._b.speed=rand(0.3,0.7);
+    const dv=1+Math.floor(Math.random()*3);
+    const el=makeBubble({x:f.x, y:f.y, r:f.r, type:'empty', label:'', depth:dv});
+    el._b.phase=Math.random()*6.28; el._b.amp=rand(6,12); el._b.speed=rand(0.3,0.7);
     fieldPlaced.push({x:f.x, y:f.y, r:f.r, el:el}); totalBubbles++;
   });
   startTilt(); startLoop();
 }
 function startLoop(){
   if(rafId) return;
-  const K=14;
+  const K=40;
   const loop=(ts)=>{
     const time=ts/1000;
     const tgx=tiltX*K, tgy=tiltY*K;
     bubbles.forEach(b=>{ const o=b._b; if(!o || b._popped) return;
+      let sc=o.scale||1, al=(o.baseAlpha!=null?o.baseAlpha:1);
+      if(o.popIn<1){ o.popIn=Math.min(1,o.popIn+0.045); const t=easeOut(o.popIn); sc=lerp(0.4, o.scale||1, t); al=lerp(0.2, o.baseAlpha!=null?o.baseAlpha:1, t); }
       const tx=tgx + Math.sin(time*o.speed+o.phase)*o.amp;
-      const ty=tgy + Math.cos(time*o.speed*0.73+o.phase*1.27)*o.amp*0.85;
-      b.style.transform='translate(-50%,-50%) translate('+tx.toFixed(1)+'px,'+ty.toFixed(1)+'px)';
+      const ty=tgy + Math.cos(time*o.speed*0.73+o.phase*1.27)*o.amp*0.85 + ((o.popIn<1)?(1-o.popIn)*30:0);
+      b.style.transform='translate(-50%,-50%) translate('+tx.toFixed(1)+'px,'+ty.toFixed(1)+'px) scale('+sc.toFixed(3)+')';
+      b.style.opacity=al.toFixed(3);
     });
     rafId=requestAnimationFrame(loop);
   };
@@ -902,7 +930,7 @@ function startTilt(){
 }
 
 // ====== 背景 ======
-function applySavedBg(){ const s=load('bg',null); if(s){ document.body.style.background=s.bg; if(s.size) document.body.style.backgroundSize=s.size; } }
+function applySavedBg(){ const s=load('bg',null); if(s){ document.body.style.background=s.bg; if(s.size) document.body.style.backgroundSize=s.size; if(s.pos) document.body.style.backgroundPosition=s.pos; if(s.rep) document.body.style.backgroundRepeat=s.rep; } else { document.body.style.background="url('themes/theme1.png')"; document.body.style.backgroundSize='cover'; document.body.style.backgroundPosition='center'; document.body.style.backgroundRepeat='no-repeat'; } }
 function openBgPicker(){
   const grid=document.getElementById('bgGrid'); grid.innerHTML='';
   BG_PRESETS.forEach(p=>{ const d=document.createElement('div'); d.className='bg-opt'; d.style.background=p.bg; if(p.size) d.style.backgroundSize=p.size; const n=document.createElement('div'); n.className='name'; n.textContent=p.name; d.appendChild(n); d.onclick=()=>{ document.body.style.background=p.bg; if(p.size) document.body.style.backgroundSize=p.size; save('bg',{bg:p.bg,size:p.size}); document.getElementById('bgMask').classList.remove('show'); }; grid.appendChild(d); });
@@ -910,7 +938,7 @@ function openBgPicker(){
 }
 document.getElementById('bgClose').onclick=()=>document.getElementById('bgMask').classList.remove('show');
 document.getElementById('bgCustomBtn').onclick=()=>document.getElementById('bgFile').click();
-document.getElementById('bgFile').onchange=(e)=>{ const file=e.target.files[0]; if(!file) return; const rd=new FileReader(); rd.onload=()=>{ const url=rd.result; document.body.style.background='url('+url+') center/cover no-repeat'; save('bg',{bg:'url('+url+')',size:'cover'}); document.getElementById('bgMask').classList.remove('show'); }; rd.readAsDataURL(file); e.target.value=''; };
+document.getElementById('bgFile').onchange=(e)=>{ const file=e.target.files[0]; if(!file) return; const rd=new FileReader(); rd.onload=()=>{ const url=rd.result; document.body.style.background='url('+url+') center/cover no-repeat'; save('bg',{bg:'url('+url+') center/cover no-repeat',size:''}); document.getElementById('bgMask').classList.remove('show'); }; rd.readAsDataURL(file); e.target.value=''; };
 document.getElementById('bgMask').onclick=(e)=>{ if(e.target.id==='bgMask') e.target.classList.remove('show'); };
 
 // ====== 导航 ======
