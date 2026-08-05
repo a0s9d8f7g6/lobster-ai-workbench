@@ -31,7 +31,7 @@
     --gate-btn-h:52px;
     --gate-btn-shadow:0 8px 22px rgba(217,116,63,.26);
     --gate-btn-off-bg:#ece2d8;
-    --gate-btn-off-txt:#b3a89d;
+    --gate-btn-off-txt:#8f8478;   /* 对 --gate-btn-off-bg 2.86:1（原 #b3a89d 仅 1.83:1，几乎看不见） */
     --gate-panel-r:20px;
     --gate-shadow:0 18px 48px rgba(46,42,38,.10);
     --warn:#c2664a; --warn-soft:#fbeee8;
@@ -314,7 +314,8 @@
     overflow-y:auto;word-break:break-all;
     letter-spacing:.4px;font-variant-numeric:tabular-nums;
     transition:border-color var(--dur-fast) ease,box-shadow var(--dur-fast) ease;}
-  .gate-field::placeholder{color:var(--sub);opacity:.8;letter-spacing:.6px;}
+  /* 用 gate 作用域的 --gate-txt-sub；opacity 必须是 1，否则合成后又掉回 3.7:1 */
+  .gate-field::placeholder{color:var(--gate-txt-sub);opacity:1;letter-spacing:.6px;}
   .gate-field:focus{border-color:var(--gold);box-shadow:var(--gate-field-ring);}
   .gate-field:disabled{opacity:.6;}
 
@@ -373,6 +374,10 @@
 
   @media (prefers-reduced-motion:reduce){
     .gate-card,.gate-view,.gate-mark,.gate-msg,#gateBurst i,.gate-btn .gate-btn-bubbles i{animation:none!important;}
+    /* 只关 animation 不够：卡片退场的 -26px 是 transition 播的，一并停掉 */
+    #gate,#gate.gate-done,.gate-card,.gate-field,.gate-btn,.gate-link{transition:none!important;}
+    /* 停了 transition 若还留着 -26px，会变成瞬间跳一下，索性不位移，只做即时隐藏 */
+    #gate.gate-done .gate-card{transform:none!important;}
     /* 停掉动画后爆散圆点会变成一片静止斑点，索性整层不出现 */
     #gateBurst{display:none!important;}
   }
@@ -617,7 +622,7 @@
     <div class="gate-view" id="gateViewBuy" hidden>
       <div class="gate-mark" aria-hidden="true"></div>
       <h1 class="gate-title">陪跑精灵是买断制的</h1>
-      <p class="gate-lead">一次付费，激活码永久有效，你自己的设备随便装。</p>
+      <p class="gate-lead">先把话说在前面，下面三条就是全部规则。</p>
       <ul class="gate-facts">
         <li>一次付费，<b>永久</b>可用，不做订阅、不做续费</li>
         <li>一个码，你自己的设备<b>随便装</b>，手机、平板、电脑都算</li>
@@ -735,7 +740,9 @@ async function verifyCode(code){
 const gateEl={};
 let gateBusy=false;
 
-function gateHelpHref(){ return GATE_PURCHASE_URL||GATE_HELP_MAIL; }
+// 恒定走邮件：这里的调用方是 revoked / nocrypto / error，都是「已付过钱、只是码出问题」的人，
+// 不能因为填了 GATE_PURCHASE_URL 就把他们甩去购买页。购买兜底由 gateBuyBtn 自己处理。
+function gateHelpHref(){ return GATE_HELP_MAIL; }
 
 const GATE_COPY={
   mismatch:'这个码好像对不上，检查下有没有漏字符？也可以直接粘贴。',
