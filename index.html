@@ -785,6 +785,12 @@ function ensureAudio(){ if(audioCtx) return; try{ audioCtx=new (window.AudioCont
 function popSound(){ if(!audioCtx) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(620+Math.random()*380,t); o.frequency.exponentialRampToValueAtTime(170,t+0.12); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.28,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.18); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.2); }
 function rand(a,b){ return a+Math.random()*(b-a); }
 function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+// 无序游走初始化：每颗气泡独立随机漂移（弹簧回拉 + 随机扰动），既无序又不会飘出重叠区
+function initWander(o, depth, maxOff){
+  o.ox=0; o.oy=0; o.vx=rand(-0.45,0.45); o.vy=rand(-0.45,0.45);
+  o.maxOff=(maxOff!=null)?maxOff:(depth===1?9:depth===2?6:depth===3?4:9);
+  o.jit=rand(0.05,0.15); o.spr=rand(0.012,0.03);
+}
 
 function makeBubble(opts){
   const el=document.createElement('div'); el.className='bub'+(opts.hero?' hero':'');
@@ -826,8 +832,7 @@ function spawnRising(px,py){
     const x=rand(40+rr, innerWidth-40-rr), y=rand(40+rr, innerHeight-40-rr);
     if(fieldFits(x,y,rr)){
       const el=makeBubble({x:x,y:y,r:rr,type:'empty',label:'',depth:1});
-      el._b.phase=Math.random()*6.28; el._b.amp=rand(6,12); el._b.speed=rand(0.3,0.7);
-      el._b.popIn=0;
+      el._b.popIn=0; initWander(el._b, 1, 9);
       fieldPlaced.push({x:x,y:y,r:rr,el:el}); totalBubbles++;
       return;
     }
@@ -847,7 +852,7 @@ function placeExtra(n){
     for(let a=0;a<260;a++){
       const rr=rand(24,40);
       const x=rand(12+rr, innerWidth-12-rr), y=rand(12+rr, innerHeight-12-rr);
-      if(fieldFits(x,y,rr)){ const el=makeBubble({x:x,y:y,r:rr,type:'empty',label:''}); el._b.phase=Math.random()*6.28; el._b.amp=rand(3,6); el._b.speed=rand(0.3,0.7); el.classList.add('grow'); fieldPlaced.push({x:x,y:y,r:rr,el:el}); totalBubbles++; done=true; break; }
+      if(fieldFits(x,y,rr)){ const el=makeBubble({x:x,y:y,r:rr,type:'empty',label:''}); initWander(el._b, 1, 6); el.classList.add('grow'); fieldPlaced.push({x:x,y:y,r:rr,el:el}); totalBubbles++; done=true; break; }
     }
     if(!done) break;
   }
@@ -898,7 +903,7 @@ function buildSplash(){
   const W=innerWidth, H=innerHeight; _lastW=W; _lastH=H;
   const pack=packField(W,H);
   const hero=makeBubble({x:W/2, y:H/2, r:pack.heroR, type:'hero', hero:true, label:'你只管开始<br>剩下的交给我'});
-  hero._b.phase=Math.random()*6.28; hero._b.amp=rand(6,12); hero._b.speed=rand(0.3,0.7);
+  initWander(hero._b, 1, 13);
   fieldPlaced.push({x:W/2, y:H/2, r:pack.heroR, el:hero}); totalBubbles++;
   const g=Math.min(goals.length, 8);
   const spots=pickGoalSpots(pack.fields, g, W, H);
@@ -906,14 +911,14 @@ function buildSplash(){
     const f=pack.fields[idx]; const gg=goals[i]; const comp=goalCompletion(gg);
     const el=makeBubble({x:f.x, y:f.y, r:f.r, type:'goal', goalId:gg.id, water:comp, label:'🎯 '+(gg.plan.goal||'目标')+'<br><small>'+comp+'%</small>'});
     if(el._water) el._water.style.height=comp+'%';
-    el._b.phase=Math.random()*6.28; el._b.amp=rand(6,12); el._b.speed=rand(0.3,0.7);
+    initWander(el._b, 1, 13);
     fieldPlaced.push({x:f.x, y:f.y, r:f.r, el:el}); totalBubbles++; f._used=true;
   });
   pack.fields.forEach(f=>{
     if(f._used) return;
     const dv=1+Math.floor(Math.random()*3);
     const el=makeBubble({x:f.x, y:f.y, r:f.r, type:'empty', label:'', depth:dv});
-    el._b.phase=Math.random()*6.28; el._b.amp=rand(6,12); el._b.speed=rand(0.3,0.7);
+    initWander(el._b, dv, null);
     fieldPlaced.push({x:f.x, y:f.y, r:f.r, el:el}); totalBubbles++;
   });
   startTilt(); startLoop();
@@ -927,8 +932,15 @@ function startLoop(){
     bubbles.forEach(b=>{ const o=b._b; if(!o || b._popped) return;
       let sc=o.scale||1, al=(o.baseAlpha!=null?o.baseAlpha:1);
       if(o.popIn<1){ o.popIn=Math.min(1,o.popIn+0.045); const t=easeOut(o.popIn); sc=lerp(0.4, o.scale||1, t); al=lerp(0.2, o.baseAlpha!=null?o.baseAlpha:1, t); }
-      const tx=tgx + Math.sin(time*o.speed+o.phase)*o.amp;
-      const ty=tgy + Math.cos(time*o.speed*0.73+o.phase*1.27)*o.amp*0.85 + ((o.popIn<1)?(1-o.popIn)*30:0);
+      // 无序游走：每颗气泡独立随机漂移（随机扰动 + 弹簧回拉），永不同步、永不重复
+      o.vx += (Math.random()-0.5)*o.jit + (-o.ox)*o.spr;
+      o.vy += (Math.random()-0.5)*o.jit + (-o.oy)*o.spr;
+      o.vx*=0.94; o.vy*=0.94;
+      o.ox += o.vx; o.oy += o.vy;
+      const wm=o.maxOff, wd=Math.hypot(o.ox,o.oy);
+      if(wd>wm){ o.ox=o.ox/wd*wm; o.oy=o.oy/wd*wm; o.vx*=0.4; o.vy*=0.4; }
+      const tx=tgx + o.ox;
+      const ty=tgy + o.oy + ((o.popIn<1)?(1-o.popIn)*30:0);
       b.style.transform='translate(-50%,-50%) translate('+tx.toFixed(1)+'px,'+ty.toFixed(1)+'px) scale('+sc.toFixed(3)+')';
       b.style.opacity=al.toFixed(3);
     });
