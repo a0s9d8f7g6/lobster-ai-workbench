@@ -17,6 +17,7 @@
     --txt:#2e2a26; --sub:#8a7f74;
     --green:#3a9d6e; --red:#d9534f; --blue:#4a7fb5;
     --ip-gold:#d4af37;
+    --bub-tint:rgba(150,190,255,.18); /* 泡泡玻璃体主题色调，随主题切换 */
     --font:'PingFang SC','Microsoft YaHei',sans-serif;
     --radius:20px; --shadow:0 4px 20px rgba(0,0,0,.06);
   }
@@ -29,13 +30,34 @@
   #splash{position:fixed;inset:0;z-index:2000;overflow:hidden;transition:opacity .6s ease,visibility .6s;background:transparent;}
   #splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
   #bubbleField{position:absolute;inset:0;z-index:2;}
-  .bub{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;will-change:transform;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.34),rgba(255,255,255,.08) 60%,rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.4);box-shadow:0 6px 22px rgba(217,116,63,.08),inset 0 -6px 16px rgba(255,255,255,.18);overflow:hidden;transform:translate(-50%,-50%);}
-  .bub .label{position:relative;z-index:3;font-size:15px;font-weight:700;color:#5a4632;padding:0 8px;line-height:1.35;text-shadow:0 1px 2px rgba(255,255,255,.7);pointer-events:none;max-width:90%;overflow:hidden;}
+  .bub{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;will-change:transform;overflow:hidden;transform:translate(-50%,-50%);
+    background:
+      radial-gradient(circle at 33% 28%, rgba(255,255,255,.62), rgba(255,255,255,.06) 52%, rgba(255,255,255,0) 70%),
+      radial-gradient(circle at 70% 78%, var(--bub-tint), transparent 62%),
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,.12), rgba(255,255,255,.02) 78%);
+    border:1px solid rgba(255,255,255,.5);
+    box-shadow:0 8px 26px rgba(0,0,0,.12), inset 0 -10px 22px rgba(255,255,255,.28), inset 0 10px 20px rgba(255,255,255,.16);
+  }
+  .bub::before{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+    background:conic-gradient(from 0deg, rgba(255,0,140,.0), rgba(255,0,140,.38), rgba(0,200,255,.34), rgba(120,255,40,.30), rgba(255,220,0,.32), rgba(255,0,210,.32), rgba(255,0,140,.0));
+    -webkit-mask:radial-gradient(circle, transparent 60%, #000 72%, #000 100%);
+            mask:radial-gradient(circle, transparent 60%, #000 72%, #000 100%);
+    mix-blend-mode:screen; opacity:.55;}
+  .bub::after{content:"";position:absolute;left:15%;top:11%;width:38%;height:27%;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle, rgba(255,255,255,.95), rgba(255,255,255,0) 70%);
+    filter:blur(2px);}
+  .bub .label{position:relative;z-index:3;font-size:15px;font-weight:700;color:#4a3a2a;padding:0 8px;line-height:1.35;text-shadow:0 1px 3px rgba(255,255,255,.9),0 0 2px rgba(255,255,255,.7);pointer-events:none;max-width:90%;overflow:hidden;}
   .bub .label small{font-size:11px;font-weight:600;opacity:.82;}
   .bub .water{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,rgba(90,160,200,.5),rgba(58,157,110,.62));transition:height .9s ease;z-index:1;}
   .bub .water::before{content:"";position:absolute;top:-7px;left:0;right:0;height:14px;background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.55),transparent 70%);}
-  .bub.hero{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.5),rgba(255,210,175,.26));border-color:rgba(217,116,63,.32);box-shadow:0 14px 44px rgba(217,116,63,.14),inset 0 -8px 22px rgba(255,255,255,.22);}
+  .bub.hero{background:
+      radial-gradient(circle at 35% 30%, rgba(255,255,255,.68), rgba(255,255,255,.08) 50%, rgba(255,255,255,0) 70%),
+      radial-gradient(circle at 70% 78%, var(--bub-tint), transparent 60%),
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,.14), rgba(255,255,255,.03) 80%);
+    box-shadow:0 18px 50px rgba(0,0,0,.16), inset 0 -12px 26px rgba(255,255,255,.3), inset 0 12px 24px rgba(255,255,255,.18);}
   .bub.hero .label{font-size:17px;color:var(--gold);}
+  body.theme-dark .bub .label{color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.8),0 0 3px rgba(0,0,0,.6);}
+  body.theme-dark .bub.hero .label{color:#fff;}
   .bub.pop{animation:pop .42s cubic-bezier(.3,.8,.4,1) forwards;z-index:5;pointer-events:none;}
   @keyframes pop{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}22%{transform:translate(-50%,-50%) scale(1.32);opacity:.92;}100%{transform:translate(-50%,-50%) scale(.08);opacity:0;}}
   .pop-ring{position:absolute;z-index:4;border-radius:50%;border:2px solid rgba(255,255,255,.75);box-shadow:0 0 14px rgba(255,255,255,.45);transform:translate(-50%,-50%);pointer-events:none;animation:ring .45s ease-out forwards;}
@@ -749,15 +771,15 @@ function renderRecord(){
 // ====== 气泡墙引擎 ======
 let bubbles=[]; let poppedCount=0; let totalBubbles=0; let tiltX=0, tiltY=0; let audioCtx=null; let rafId=null; let heroR=64; let fieldPlaced=[]; let _lastW=0, _lastH=0;
 const BG_PRESETS=[
-  {name:'粉蓝梦幻', bg:"url('themes/theme1.png') center/cover no-repeat", size:''},
-  {name:'彩虹阳光', bg:"url('themes/theme2.png') center/cover no-repeat", size:''},
-  {name:'糖果彩虹', bg:"url('themes/theme3.png') center/cover no-repeat", size:''},
-  {name:'暖金日落', bg:"url('themes/theme4.png') center/cover no-repeat", size:''},
-  {name:'深海青绿', bg:"url('themes/theme5.png') center/cover no-repeat", size:''},
-  {name:'梦幻水下', bg:"url('themes/theme6.png') center/cover no-repeat", size:''},
-  {name:'极简粉蓝', bg:"url('themes/theme7.png') center/cover no-repeat", size:''},
-  {name:'黑底霓虹', bg:"url('themes/theme8.png') center/cover no-repeat", size:''},
-  {name:'阳光森林', bg:"url('themes/theme9.png') center/cover no-repeat", size:''}
+  {name:'粉蓝梦幻', bg:"url('themes/theme1.png') center/cover no-repeat", size:'', tint:'rgba(150,190,255,.20)', dark:false},
+  {name:'彩虹阳光', bg:"url('themes/theme2.png') center/cover no-repeat", size:'', tint:'rgba(255,212,150,.24)', dark:false},
+  {name:'糖果彩虹', bg:"url('themes/theme3.png') center/cover no-repeat", size:'', tint:'rgba(255,168,206,.20)', dark:false},
+  {name:'暖金日落', bg:"url('themes/theme4.png') center/cover no-repeat", size:'', tint:'rgba(255,184,120,.26)', dark:false},
+  {name:'深海青绿', bg:"url('themes/theme5.png') center/cover no-repeat", size:'', tint:'rgba(120,212,200,.24)', dark:false},
+  {name:'梦幻水下', bg:"url('themes/theme6.png') center/cover no-repeat", size:'', tint:'rgba(176,156,255,.22)', dark:false},
+  {name:'极简粉蓝', bg:"url('themes/theme7.png') center/cover no-repeat", size:'', tint:'rgba(212,226,255,.18)', dark:false},
+  {name:'黑底霓虹', bg:"url('themes/theme8.png') center/cover no-repeat", size:'', tint:'rgba(150,120,255,.30)', dark:true},
+  {name:'阳光森林', bg:"url('themes/theme9.png') center/cover no-repeat", size:'', tint:'rgba(182,222,150,.22)', dark:false}
 ];
 function ensureAudio(){ if(audioCtx) return; try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
 function popSound(){ if(!audioCtx) return; const t=audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(620+Math.random()*380,t); o.frequency.exponentialRampToValueAtTime(170,t+0.12); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.28,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.18); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.2); }
@@ -930,15 +952,17 @@ function startTilt(){
 }
 
 // ====== 背景 ======
-function applySavedBg(){ const s=load('bg',null); if(s){ document.body.style.background=s.bg; if(s.size) document.body.style.backgroundSize=s.size; if(s.pos) document.body.style.backgroundPosition=s.pos; if(s.rep) document.body.style.backgroundRepeat=s.rep; } else { document.body.style.background="url('themes/theme1.png')"; document.body.style.backgroundSize='cover'; document.body.style.backgroundPosition='center'; document.body.style.backgroundRepeat='no-repeat'; } }
+function applyThemeTint(p){ if(!p) return; document.documentElement.style.setProperty('--bub-tint', p.tint||'rgba(150,190,255,.18)'); document.body.classList.toggle('theme-dark', !!p.dark); }
+function presetFromBg(bg){ const m=bg&&bg.match(/theme(\d)\.png/); return m? (BG_PRESETS[parseInt(m[1],10)-1]||null) : null; }
+function applySavedBg(){ const s=load('bg',null); if(s){ document.body.style.background=s.bg; if(s.size) document.body.style.backgroundSize=s.size; if(s.pos) document.body.style.backgroundPosition=s.pos; if(s.rep) document.body.style.backgroundRepeat=s.rep; applyThemeTint(presetFromBg(s.bg)); } else { document.body.style.background="url('themes/theme1.png')"; document.body.style.backgroundSize='cover'; document.body.style.backgroundPosition='center'; document.body.style.backgroundRepeat='no-repeat'; applyThemeTint(BG_PRESETS[0]); } }
 function openBgPicker(){
   const grid=document.getElementById('bgGrid'); grid.innerHTML='';
-  BG_PRESETS.forEach(p=>{ const d=document.createElement('div'); d.className='bg-opt'; d.style.background=p.bg; if(p.size) d.style.backgroundSize=p.size; const n=document.createElement('div'); n.className='name'; n.textContent=p.name; d.appendChild(n); d.onclick=()=>{ document.body.style.background=p.bg; if(p.size) document.body.style.backgroundSize=p.size; save('bg',{bg:p.bg,size:p.size}); document.getElementById('bgMask').classList.remove('show'); }; grid.appendChild(d); });
+  BG_PRESETS.forEach(p=>{ const d=document.createElement('div'); d.className='bg-opt'; d.style.background=p.bg; if(p.size) d.style.backgroundSize=p.size; const n=document.createElement('div'); n.className='name'; n.textContent=p.name; d.appendChild(n); d.onclick=()=>{ document.body.style.background=p.bg; if(p.size) document.body.style.backgroundSize=p.size; save('bg',{bg:p.bg,size:p.size}); applyThemeTint(p); document.getElementById('bgMask').classList.remove('show'); }; grid.appendChild(d); });
   document.getElementById('bgMask').classList.add('show');
 }
 document.getElementById('bgClose').onclick=()=>document.getElementById('bgMask').classList.remove('show');
 document.getElementById('bgCustomBtn').onclick=()=>document.getElementById('bgFile').click();
-document.getElementById('bgFile').onchange=(e)=>{ const file=e.target.files[0]; if(!file) return; const rd=new FileReader(); rd.onload=()=>{ const url=rd.result; document.body.style.background='url('+url+') center/cover no-repeat'; save('bg',{bg:'url('+url+') center/cover no-repeat',size:''}); document.getElementById('bgMask').classList.remove('show'); }; rd.readAsDataURL(file); e.target.value=''; };
+document.getElementById('bgFile').onchange=(e)=>{ const file=e.target.files[0]; if(!file) return; const rd=new FileReader(); rd.onload=()=>{ const url=rd.result; document.body.style.background='url('+url+') center/cover no-repeat'; save('bg',{bg:'url('+url+') center/cover no-repeat',size:''}); applyThemeTint({tint:'rgba(255,255,255,.16)',dark:false}); document.getElementById('bgMask').classList.remove('show'); }; rd.readAsDataURL(file); e.target.value=''; };
 document.getElementById('bgMask').onclick=(e)=>{ if(e.target.id==='bgMask') e.target.classList.remove('show'); };
 
 // ====== 导航 ======
