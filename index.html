@@ -1316,7 +1316,7 @@ async function generatePlan(){
   try{
     const plan=parseJSON(await callAI(sys,usr));
     if(!plan||!plan.weeks){ status.innerHTML='生成结果格式异常，请重试。<br><button class="btn-secondary" style="margin-top:10px;" onclick="useFallback()">先用精灵模板继续</button>'; btn.disabled=false; return; }
-    plan.who=wizardData.who; commitGoal(plan); backToSplash();
+    plan.who=wizardData.who; commitGoal(plan); showFlow();
   }catch(e){ status.innerHTML='生成失败：'+e.message+'<br><button class="btn-secondary" style="margin-top:10px;" onclick="useFallback()">先用精灵模板继续</button><div style="font-size:12px;color:var(--sub);margin-top:8px;">先用模板开始陪跑，之后可在「⚙ 设置 → AI 设置」修正 Key 再重新拆解。</div>'; btn.disabled=false; }
 }
 
@@ -1347,7 +1347,7 @@ function fallbackPlan(){
   }
   return {goal:goal,who:wizardData.who,weeks:weeks,_fallback:true};
 }
-function useFallback(){ const plan=fallbackPlan(); commitGoal(plan); backToSplash(); }
+function useFallback(){ const plan=fallbackPlan(); commitGoal(plan); showFlow(); }
 
 // ====== 主渲染 ======
 function render(){ bootSplash(); }
