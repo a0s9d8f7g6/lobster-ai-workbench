@@ -66,6 +66,9 @@
     filter:blur(2px);}
   .bub .label{position:relative;z-index:3;font-size:15px;font-weight:700;color:#4a3a2a;padding:0 8px;line-height:1.35;text-shadow:0 1px 3px rgba(255,255,255,.9),0 0 2px rgba(255,255,255,.7);pointer-events:none;max-width:90%;overflow:hidden;}
   .bub .label small{font-size:11px;font-weight:600;opacity:.82;}
+  /* P2 陪跑短句泡：10-18 字要在直径 88px 起的圆里排 2-3 行，字号必须比常规 label 小一档 */
+  .bub.coach .label{font-size:11px;font-weight:600;line-height:1.32;max-width:78%;letter-spacing:.2px;opacity:.9;}
+  @media (max-width:340px){ .bub.coach .label{font-size:10px;} }
   .bub .water{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(180deg,rgba(90,160,200,.5),rgba(58,157,110,.62));transition:height .9s ease;z-index:1;}
   .bub .water::before{content:"";position:absolute;top:-7px;left:0;right:0;height:14px;background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.55),transparent 70%);}
   .bub.hero{background:
@@ -185,6 +188,8 @@
   .ai-vid{flex:1;min-width:88px;text-align:center;background:var(--panel2);border:1px solid var(--line);color:var(--sub);padding:9px 4px;border-radius:12px;font-size:12px;text-decoration:none;transition:.15s;}
   .ai-vid:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-light);}
   .pp-push{background:linear-gradient(135deg,#fff8f3,#ffeee4);border:1px dashed var(--gold);color:var(--txt);padding:14px 16px;border-radius:16px;font-size:14px;line-height:1.6;margin-bottom:14px;}
+  /* 断更 ≥7 天：留门不催促，视觉也跟着退一档 */
+  .pp-push.soft{background:var(--panel2);border-color:var(--line);color:var(--sub);}
   .pp-cheer{font-size:15px;color:var(--green);margin:12px 0 4px;line-height:1.6;font-weight:600;}
   .pp-foot{margin-top:18px;display:flex;flex-direction:column;gap:10px;padding:0 4px;}
   .pp-link{color:var(--blue);cursor:pointer;font-size:14px;font-weight:500;}
@@ -200,6 +205,17 @@
   .ai-day .dl{font-size:12px;color:var(--blue);font-weight:600;margin-bottom:4px;}
   .ai-day .dt{font-size:13px;color:var(--txt);line-height:1.6;}
   .ai-day .ok{font-size:12px;color:var(--green);margin-top:4px;}
+
+  /* 履历 · 学分总览（P3）：视觉沿用 .streak-bar 的暖色卡，和下方 .rec-card 同一套圆角/描边/阴影 */
+  .credit-hero{background:linear-gradient(135deg,#fff6ee,#fdeee2);border:1.5px solid var(--line);border-radius:22px;
+    padding:20px 18px;margin-bottom:14px;text-align:center;box-shadow:var(--shadow);}
+  .credit-hero .cl{font-size:12px;color:var(--sub);letter-spacing:1px;}
+  .credit-hero .cn{font-size:46px;font-weight:800;color:var(--gold);line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums;}
+  .credit-hero .next{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.6;}
+  .credit-hero .formula{font-size:11px;color:var(--sub);opacity:.82;margin-top:6px;}
+  .lv-badge{display:inline-block;margin-top:10px;padding:7px 16px;border-radius:20px;font-size:13px;font-weight:700;
+    color:var(--gold);background:var(--gold-light);border:1px solid rgba(217,116,63,.28);
+    box-shadow:0 2px 8px rgba(217,116,63,.12);}
 
   /* 履历 */
   .rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
@@ -273,6 +289,7 @@
   #gate{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;
     /* 门禁作用域内的可读性令牌：不污染全局 --sub / --warn */
     --gate-txt-sub:#6f6459;   /* 对白底 5.77:1、对 --panel2 5.05:1，过 WCAG AA */
+    --gate-gold-txt:#b0521f;  /* 能当正文用的金：对白底 5.16:1。--gold 只有 3.22:1，一律不许承载小字 */
     --warn:#a34e33;           /* 仅 gate 内覆盖：对 --warn-soft 5.00:1 */
     padding:24px;overflow-y:auto;background:var(--bg);
     background-image:radial-gradient(circle at 18% 12%, rgba(224,138,79,.10), transparent 42%),
@@ -349,8 +366,9 @@
   .gate-link{display:block;width:100%;margin-top:16px;background:none;border:none;
     font-size:13px;line-height:1.6;color:var(--gate-txt-sub);cursor:pointer;text-align:center;
     transition:color var(--dur-fast) ease;}
-  .gate-link:hover{color:var(--gold);}
-  .gate-link.strong{color:var(--gold);font-weight:600;}
+  /* hover 不能让字更难读：原来 5.77:1 → 3.22:1 是反向状态 */
+  .gate-link:hover{color:var(--gate-gold-txt);}
+  .gate-link.strong{color:var(--gate-gold-txt);font-weight:600;}
 
   .gate-facts{list-style:none;margin:0 0 22px;padding:0;}
   .gate-facts li{position:relative;padding-left:22px;font-size:14px;line-height:1.75;color:var(--txt);margin-bottom:9px;}
@@ -358,7 +376,25 @@
   .gate-facts li::before{content:"";position:absolute;left:2px;top:9px;width:8px;height:8px;border-radius:50%;
     background:radial-gradient(circle at 34% 30%, rgba(255,255,255,.9), var(--gold-soft));
     box-shadow:0 1px 4px rgba(217,116,63,.28);}
-  .gate-facts li b{font-weight:700;color:var(--gold);}
+  /* 14px 加粗够不上 WCAG 大文本（需 ≥18.66px 加粗），--gold 的 3.22:1 不能用来承载主张。
+     金色只留在 li::before 的圆点上做非文本装饰；重点靠字重区分，CTA 因此重新成为屏内唯一暖色焦点。 */
+  .gate-facts li b{font-weight:700;color:var(--txt);}
+
+  /* 价格块：购买屏唯一视觉焦点。
+     数字刻意用 --txt 而不是 --gold —— #d9743f 对白底只有 3.22:1，撑不起 4.5:1；
+     金色退到描边和分隔线上做非文本装饰，对比度和调性两头都保住。 */
+  .gate-price{margin:0 0 18px;padding:16px 18px;background:var(--gold-light);
+    border:1px solid rgba(217,116,63,.18);border-radius:16px;}
+  .gate-price-row{display:flex;align-items:center;gap:16px;}
+  /* baseline 对齐让 ¥ 像上标一样贴住数字顶部，是价格牌的常规排法，不显廉价 */
+  .gate-price-main{display:flex;align-items:baseline;gap:2px;color:var(--txt);
+    font-variant-numeric:tabular-nums;}
+  .gate-price-cur{font-size:20px;font-weight:700;line-height:1;}
+  .gate-price-num{font-size:42px;font-weight:800;line-height:1;letter-spacing:-.5px;}
+  .gate-price-side{flex:1;min-width:0;padding-left:16px;border-left:1px solid rgba(217,116,63,.22);}
+  .gate-price-side b{display:block;font-size:14px;font-weight:700;line-height:1.4;color:var(--txt);}
+  .gate-price-foot{margin-top:12px;padding-top:12px;border-top:1px dashed rgba(217,116,63,.22);
+    font-size:12.5px;line-height:1.65;color:var(--gate-txt-sub);}
 
   /* 激活成功：小气泡向上散开 */
   #gateBurst{position:fixed;inset:0;z-index:3001;pointer-events:none;overflow:hidden;display:none;}
@@ -381,12 +417,32 @@
     /* 停掉动画后爆散圆点会变成一片静止斑点，索性整层不出现 */
     #gateBurst{display:none!important;}
   }
+  /* 641~800px 高的机器（iPhone SE2/3、8 的 375×667 正好在这）：卡片比视口高，
+     而 flex 居中容器往上溢出的部分是滚不回来的，会把顶部直接吃掉。
+     不用 align-items:safe center —— 老浏览器不认这个关键字会整条声明作废，退回 stretch 更糟。 */
+  @media (max-height:800px){
+    #gate{align-items:flex-start;}
+  }
+  /* 窄屏收档。断点取 380 而非 360：375px 上右栏净宽仅够放下「一次买断，永久可用」9 个字，
+     零余量必折行，361~374px 更是必折。放在下面的 max-height 块之前，
+     好让 360×640 这类又窄又矮的机器最终吃到矮屏那一档（同优先级，后写的赢）。 */
+  @media (max-width:380px){
+    .gate-price{padding:14px 15px;}
+    .gate-price-row{gap:12px;}
+    .gate-price-cur{font-size:18px;}
+    .gate-price-num{font-size:34px;}
+    .gate-price-side{padding-left:12px;}
+  }
   @media (max-height:640px){
     #gate{align-items:flex-start;}
     .gate-card{padding:22px;}
     .gate-mark{width:44px;height:44px;margin-bottom:12px;}
     .gate-title{font-size:20px;}
     .gate-lead{margin-bottom:16px;}
+    /* 矮屏（横屏 / 小机型）：价格块收一档，别把按钮顶到折叠线以下 */
+    .gate-price{margin-bottom:14px;padding:13px 16px;}
+    .gate-price-num{font-size:32px;}
+    .gate-price-foot{margin-top:10px;padding-top:10px;}
   }
 </style>
 </head>
@@ -621,15 +677,28 @@
     <!-- 屏 2 · 购买引导 -->
     <div class="gate-view" id="gateViewBuy" hidden>
       <div class="gate-mark" aria-hidden="true"></div>
-      <h1 class="gate-title">陪跑精灵是买断制的</h1>
-      <p class="gate-lead">先把话说在前面，下面三条就是全部规则。</p>
+      <h1 class="gate-title" id="gateBuyTitle">陪跑精灵是买断制的</h1>
+      <p class="gate-lead">该说的都写在下面了，看完再决定。</p>
+
+      <div class="gate-price">
+        <div class="gate-price-row">
+          <span class="gate-price-main"><span class="gate-price-cur">¥</span><span class="gate-price-num">9.9</span></span>
+          <span class="gate-price-side">
+            <b>一次买断，永久可用</b>
+          </span>
+        </div>
+        <p class="gate-price-foot">定这个价，是想让你少纠结一会儿。往后有更新照常给，不再收第二次钱。</p>
+      </div>
+
       <ul class="gate-facts">
-        <li>一次付费，<b>永久</b>可用，不做订阅、不做续费</li>
+        <!-- 这条的默认文案假设发卡平台已就绪；GATE_PURCHASE_URL 为空时由 gateSyncBuyCopy() 改写成人工口径 -->
+        <li id="gateFactDeliver">付款后<b>自动发码</b>，当场就能拿到，不用等我回消息</li>
         <li>一个码，你自己的设备<b>随便装</b>，手机、平板、电脑都算</li>
         <li>计划和打卡记录全在<b>本机</b>，卸载前可导出带走</li>
       </ul>
-      <div class="gate-msg calm" id="gateBuyMsg" hidden></div>
-      <button class="gate-btn" id="gateBuyBtn"><span class="gate-btn-txt">去获取激活码</span></button>
+      <button class="gate-btn" id="gateBuyBtn" aria-describedby="gateBuyMsg"><span class="gate-btn-txt" id="gateBuyBtnTxt">付 ¥9.9，拿激活码</span></button>
+      <!-- 放在按钮之后：消息插入时不再把刚点过的按钮从手指底下顶走 -->
+      <div class="gate-msg calm" id="gateBuyMsg" role="status" hidden></div>
       <button class="gate-link strong" id="gateToActivate">已经有码了，返回激活</button>
     </div>
 
@@ -648,7 +717,11 @@ const escapeHtml=(s)=> String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<
 // ====== 门禁 · 激活码（离线验签） ======
 // 公钥（ECDSA P-256）。私钥只在卖家本机 _keys/private.jwk，绝不进这个文件。
 const GATE_PUBKEY_JWK={"kty":"EC","crv":"P-256","x":"VKNlojOZ2dIIwkarpOjIcIwstPY7A1KzY92YyeecHsQ","y":"RYWaSszI1Uh4PCS9AnBhwdezqNXp-kCDq5Gl42udZqY","ext":true};
-// TODO: 上架后填入购买页链接（如 https://xxx.com/buy），留空时按钮只给提示不跳转
+// ↓↓↓ 填这里 ↓↓↓
+// 发卡平台（自动发货）的商品链接，整条粘进单引号里，例如 'https://你的店铺域名/p/xxxxxx'。
+// 填上之后：购买屏的按钮直接新窗打开这个链接，付完款由平台自动发码，不用改任何别的代码。
+// 留空时：按钮不跳转，只在 #gateBuyMsg 里提示走 GATE_HELP_MAIL 写信手动开码（fail-safe，不会卡死）。
+// 改完记得把 sw.js 里的缓存版本号 bump 一位再部署，否则老用户刷出来的还是旧页面、点了还是走邮件。
 const GATE_PURCHASE_URL='';
 // 联系邮箱：求助 / 发票 / 吊销申诉统一入口（GATE_PURCHASE_URL 留空时购买按钮兜底也走它）
 const GATE_HELP_MAIL='mailto:77252724@qq.com?subject=%E9%99%AA%E8%B7%91%E7%B2%BE%E7%81%B5%20%E6%BF%80%E6%B4%BB%E7%A0%81';
@@ -754,12 +827,26 @@ const GATE_COPY={
   error:'这一步没走通，八成是环境的事，不是你的码有问题。重开一次试试，或者<a href="REPLACE_HELP">找我要帮忙</a>。'
 };
 
+// live region 的播报前提：内容变更时元素已经在无障碍树里。
+// hidden 元素不在树内，所以必须「先显示，下一帧再写内容」——
+// 反过来写（先塞 innerHTML 再取消 hidden）NVDA / JAWS / VoiceOver 都不保证播报，role="status" 等于白加。
+// 延迟一帧带来的竞态：gateHideMsg 在每次击键时都会调用，若它抢在待执行的那帧之前跑，
+// 旧内容会被写进已隐藏的元素，下次展示时先闪一帧脏字。所以取消挂起的帧。
+function gateTell(el,html){
+  if(!el) return;
+  if(el._tellRaf){ cancelAnimationFrame(el._tellRaf); el._tellRaf=0; }
+  el.hidden=false;
+  el._tellRaf=requestAnimationFrame(()=>{ el._tellRaf=0; el.innerHTML=html; });
+}
+function gateCancelTell(el){
+  if(el&&el._tellRaf){ cancelAnimationFrame(el._tellRaf); el._tellRaf=0; }
+}
+
 function gateShowMsg(reason){
   const html=(GATE_COPY[reason]||GATE_COPY.mismatch).split('REPLACE_HELP').join(gateHelpHref());
-  gateEl.msg.innerHTML=html;
-  gateEl.msg.hidden=false;
+  gateTell(gateEl.msg,html);
 }
-function gateHideMsg(){ gateEl.msg.hidden=true; gateEl.msg.innerHTML=''; }
+function gateHideMsg(){ gateCancelTell(gateEl.msg); gateEl.msg.hidden=true; gateEl.msg.innerHTML=''; }
 
 function gateSyncNote(){
   // 离线态：常驻中性提示，安抚而不是报警
@@ -884,6 +971,9 @@ function gateSwitch(view,focus){
   const b=document.getElementById('gateViewBuy');
   const buy=(view==='buy');
   a.hidden=buy; b.hidden=!buy;
+  // accname 规范规定引用隐藏元素时仍取其文本，不同步就会把购买屏念成「欢迎回来，先递把钥匙」
+  const g=document.getElementById('gate');
+  if(g) g.setAttribute('aria-labelledby',buy?'gateBuyTitle':'gateTitle');
   // 只在用户主动返回激活屏时聚焦；首屏不抢焦点，免得手机键盘一上来就糊住卡片
   if(!buy&&focus) setTimeout(()=>{ try{ gateEl.input.focus(); }catch(e){} },60);
 }
@@ -899,7 +989,20 @@ function showGate(reason){
   if(reason) gateShowMsg(reason);
 }
 
+// 购买屏文案跟着 GATE_PURCHASE_URL 走：
+// 平台没上线（URL 为空）时，唯一能走的路径就是写信人工发码，
+// 这时页面上一句「自动 / 当场 / 不用等」都不能留，否则就是收钱页上的失实陈述。
+// 平台一上线，填好 URL 自动恢复自动发货口径，不用再回来改文案。
+function gateSyncBuyCopy(){
+  if(GATE_PURCHASE_URL) return;
+  const f=document.getElementById('gateFactDeliver');
+  const t=document.getElementById('gateBuyBtnTxt');
+  if(f) f.innerHTML='眼下是<b>人工发码</b>，写信给我，看到就发，通常当天';
+  if(t) t.textContent='¥9.9 买断，去拿激活码';   // 「去拿」不承诺当场扣款
+}
+
 function gateBindUI(){
+  gateSyncBuyCopy();
   gateEl.input=document.getElementById('gateInput');
   gateEl.btn=document.getElementById('gateBtn');
   gateEl.btnTxt=document.getElementById('gateBtnTxt');
@@ -914,9 +1017,16 @@ function gateBindUI(){
   document.getElementById('gateToActivate').addEventListener('click',()=>gateSwitch('activate',true));
   document.getElementById('gateBuyBtn').addEventListener('click',()=>{
     const m=document.getElementById('gateBuyMsg');
-    if(GATE_PURCHASE_URL){ window.open(GATE_PURCHASE_URL,'_blank','noopener'); return; }
-    m.innerHTML='购买通道还在铺，先<a href="'+GATE_HELP_MAIL+'">写封信给我</a>，我手动发码给你。';
-    m.hidden=false;
+    if(GATE_PURCHASE_URL){
+      let w=null;
+      try{ w=window.open(GATE_PURCHASE_URL,'_blank','noopener'); }catch(e){ w=null; }
+      if(w) return;
+      // 被弹窗拦截时 window.open 返回 null；不留兜底这按钮就是个零反馈的死键
+      gateTell(m,'浏览器把新窗口拦下了，<a href="'+escapeHtml(GATE_PURCHASE_URL)+'" target="_blank" rel="noopener">点这里打开购买页</a>。');
+      return;
+    }
+    // 不解释进度、不给没有日期的承诺，只交付路径；口径与 gateSyncBuyCopy() 改写后的第一条规则一致
+    gateTell(m,'<a href="'+GATE_HELP_MAIL+'">写封信给我</a>，说一声要码就行，我看到就发，通常当天。');
   });
   window.addEventListener('online',gateSyncNote);
   window.addEventListener('offline',gateSyncNote);
@@ -1030,10 +1140,51 @@ function calcStreak(plan){
 }
 function lastDone(plan){ const a=doneDates(plan).sort(); return a.length?a[a.length-1]:null; }
 
+// ====== P2 · 陪跑话术层 ======
+// 全部语料遵循四条原则：
+//   ① 主动态 —— 给结论、给下一步，不把问题反抛给用户（不写「你觉得呢？」）
+//   ② 给选项不给填空 —— 卡住时提供可挑的轻动作，而不是一句「加油」
+//   ③ 正反馈用具体细节 —— 夸「你没拖到明天」，不夸「你真棒」
+//   ④ 放弃时捞人 —— 不指责、不失踪，位置一直留着
+// 气泡墙空泡语料：10-18 字，短到能塞进泡内两三行。
+const COACH_LINES=[
+  '今天这一步，已经赢过昨天的你',
+  '卡住就拆更小，别硬扛',
+  '先做五分钟，做完再决定停不停',
+  '状态差就挑最轻的那一步做',
+  '别追进度条，只追今天这一格',
+  '断了几天也算数，回来就继续',
+  '把难的挪到明天，今天先挑顺手的',
+  '做到一半也是做到，记下来就行',
+  '不用等状态好，动起来状态才来',
+  '收工前留个尾巴，明天好接上'
+];
+// 空泡文案池：每次 buildSplash() 洗牌重发，保证同一屏内不出现重复文案
+let _coachPool=[];
+function shuffleCoach(){
+  const a=COACH_LINES.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; }
+  _coachPool=a;
+}
+// 半径小于此值塞不下 10-18 字，宁可留白也不做视觉噪音（同 HINT_MIN_R 的取舍）
+const COACH_MIN_R=44;
+function coachLine(r){
+  if(r<COACH_MIN_R) return '';
+  // 池空了就留白，不重洗 —— 严格保证同一屏内不出现重复文案。
+  // 池在每次 buildSplash() 开头补满，戳破气泡后新生成的泡继续消耗剩余额度。
+  if(!_coachPool.length) return '';
+  return _coachPool.pop();
+}
+
 // ====== 正反馈 ======
 const CHEERS=[
-  '这一步你做到了 ✓ 今天这股劲头很猛。','漂亮，又啃下一块。明天继续推下一步。',
-  '做到了就好，行动永远比完美重要。','不错，目标就是这样一天天被做小的。'
+  '这一步落地了 ✓ 今天这股劲头很稳。',
+  '漂亮，又啃下一块，明天接着推下一步。',
+  '做到了就好，行动永远比完美重要。',
+  '不错，目标就是这样一天天被做小的。',
+  '刚才那一下很干脆，没拖到明天。',
+  '今天你把「想做」变成了「做完」。',
+  '这一步别人可能还在犹豫，你已经交卷了。'
 ];
 function cheer(plan){
   let s=CHEERS[Math.floor(Math.random()*CHEERS.length)];
@@ -1043,11 +1194,27 @@ function cheer(plan){
   if(who) s+=' 你这位'+who+'，离目标又近了一步。';
   return s;
 }
+// 捞人文案 · 第一层：断更 3-6 天，语气正常、直接给下一步。{goal} 会被替换成目标名。
 const PUSHES=[
-  '好几天没动了？不用从头来，今天只做一步就够 👇',
-  '断了没关系，最怕的是不回来。今天这一步，交给我陪你。',
-  '目标还在，只是歇了会儿。现在，只做今天这一步。'
+  '「{goal}」还在等你，今天只做一步就够 👇',
+  '断了两三天不算断，回来做「{goal}」的下一步。',
+  '不用补前面的账，从「{goal}」今天这一步接上就行。',
+  '歇过了就该动了，「{goal}」下一步我陪你做。',
+  '我一直给「{goal}」留着位置，今天回来坐下就行。'
 ];
+// 捞人文案 · 第二层：断更 ≥7 天（含从未打卡，gap 记 99），语气更轻、不催不问、只留门。
+const PUSHES_LONG=[
+  '「{goal}」我一直替你留着，想回来随时开始。',
+  '停了一阵也没关系，「{goal}」的下一步一直在这儿。',
+  '不用解释去哪了，「{goal}」今天做多少算多少。',
+  '这事儿还在，「{goal}」随时能从今天这一步重开。'
+];
+// 按断更时长挑一条，并把 {goal} 换成真实目标名（返回纯文本，调用方用 textContent 落地）
+function pushLine(plan,gap){
+  const pool=(gap>=7)?PUSHES_LONG:PUSHES;
+  const line=pool[Math.floor(Math.random()*pool.length)];
+  return line.split('{goal}').join((plan&&plan.goal)||'这个目标');
+}
 
 // ====== 开屏进入 ======
 let wizardData={goal:'',level:'',hours:'',date:'',who:''};
@@ -1195,9 +1362,14 @@ function showFlow(goalId){
   const f=document.getElementById('flow'); f.classList.add('show'); f.innerHTML='';
   const plan=g.plan;
 
-  // 放弃捞人
+  // 放弃捞人（分层）：3-6 天用常规语气，≥7 天（含从未打卡）换更轻的一档，两档都不指责
   const ld=lastDone(plan); const gap=ld?Math.round((new Date(today())-new Date(ld))/864e5):99;
-  if(gap>=3){ const push=document.createElement('div'); push.className='pp-push'; push.textContent=PUSHES[Math.floor(Math.random()*PUSHES.length)]; f.appendChild(push); }
+  if(gap>=3){
+    const push=document.createElement('div');
+    push.className='pp-push'+(gap>=7?' soft':'');
+    push.textContent=pushLine(plan,gap);   // textContent：目标名是用户输入，不走 innerHTML
+    f.appendChild(push);
+  }
 
   // streak 条
   const bar=document.createElement('div'); bar.className='streak-bar';
@@ -1244,19 +1416,69 @@ function foot(c,g){
   full.onclick=()=>fullBox.classList.toggle('show');
   const wall=document.createElement('div'); wall.className='pp-link'; wall.textContent='← 返回目标墙';
   wall.onclick=()=>backToSplash();
-  const add=document.createElement('div'); add.className='pp-link'; add.textContent='➕ 添加新目标';
+  const add=document.createElement('div'); add.id='addBtn'; add.className='pp-link'; add.textContent='➕ 添加新目标';
   add.onclick=()=>openWizard();
   const del=document.createElement('div'); del.className='pp-link'; del.textContent='🗑 删除此目标';
   del.onclick=()=>{ if(confirm('删除此目标会清空它的所有进度，确定？')){ goals=goals.filter(x=>x.id!==g.id); saveGoals(); backToSplash(); } };
-  const rec=document.createElement('div'); rec.className='pp-link'; rec.textContent='📜 我的履历';
+  const rec=document.createElement('div'); rec.className='pp-link'; rec.textContent='📜 学分与履历';
   rec.onclick=()=>renderRecord();
   f.append(full,wall,add,del,rec); c.append(f,fullBox);
 }
 
+// ====== P3 · 学分 ======
+// 学分公式（实时从 pp_goals 推导，不落新存储键，导入导出天然兼容）：
+//   总学分 = 已完成步骤数 × 10 + 最长连续天数 × 5
+//   · 已完成步骤 = 所有目标 plan.weeks[].days[] 里 done 为真的条目总数
+//     （这里刻意用 truthy 而非 done===true：履历页「累计完成步骤」卡就是 truthy 口径，
+//       导入的旧数据可能把 done 存成 1，两边不一致会让学分和步骤数当场对不上）
+//   · 最长连续天数 = 各目标 calcStreak() 的最大值，与履历卡「最长连续」同源，口径一致
+const CREDIT_PER_STEP=10;
+const CREDIT_PER_STREAK_DAY=5;
+function calcCredits(list){
+  const arr=Array.isArray(list)?list:[];
+  let steps=0, best=0;
+  arr.forEach(g=>{
+    const p=g&&g.plan; if(!p||!p.weeks) return;
+    steps+=allDays(p).filter(x=>!!x.d.done).length;
+    best=Math.max(best,calcStreak(p));
+  });
+  return steps*CREDIT_PER_STEP + best*CREDIT_PER_STREAK_DAY;
+}
+// 等级阈值：<100 陪跑新手 / 100-299 进阶陪跑员 / 300-599 资深陪跑员 / ≥600 金牌陪跑教练
+const CREDIT_TIERS=[
+  {min:0,   name:'陪跑新手',     icon:'🌱'},
+  {min:100, name:'进阶陪跑员',   icon:'🚀'},
+  {min:300, name:'资深陪跑员',   icon:'🔥'},
+  {min:600, name:'金牌陪跑教练', icon:'🏅'}
+];
+function creditTier(credits){
+  const c=Number(credits)||0;
+  let t=CREDIT_TIERS[0];
+  for(let i=0;i<CREDIT_TIERS.length;i++){ if(c>=CREDIT_TIERS[i].min) t=CREDIT_TIERS[i]; }
+  return t;
+}
+function creditLevel(credits){ return creditTier(credits).name; }
+
 function renderRecord(){
   const c=document.getElementById('flow'); c.innerHTML='';
+
+  // 顶部：学分总数 + 等级徽章
+  const credits=calcCredits(goals);
+  const tier=creditTier(credits);
+  const lvName=creditLevel(credits);
+  const next=CREDIT_TIERS.filter(t=>t.min>credits)[0]||null;
+  const cr=document.createElement('div'); cr.className='credit-hero';
+  cr.innerHTML='<div class="cl">陪跑学分</div>'+
+    '<div class="cn">'+credits+'</div>'+
+    '<div class="lv-badge">'+tier.icon+' '+escapeHtml(lvName)+'</div>'+
+    '<div class="next">'+(next
+      ? ('再攒 '+(next.min-credits)+' 分，升到「'+escapeHtml(next.name)+'」')
+      : '已经是最高等级 —— 你把这件事做成了习惯。')+'</div>'+
+    '<div class="formula">完成一步 +'+CREDIT_PER_STEP+' 分 · 最长连续每天 +'+CREDIT_PER_STREAK_DAY+' 分</div>';
+  c.appendChild(cr);
+
   const hero=document.createElement('div'); hero.className='pp-hero';
-  hero.innerHTML='你真做成的事，都记在这里。<br>换设备前记得在 <b>「⚙ 设置 → 数据备份」</b> 导出。';
+  hero.innerHTML='学分是你<b>真做过的事</b>换来的，刷不出来，也删不掉。<br>换设备前记得在 <b>「⚙ 设置 → 数据备份」</b> 导出。';
   c.appendChild(hero);
   let total=0, doneGoals=0, bestStreak=0; const items=[];
   goals.forEach(g=>{ const p=g.plan; if(!p||!p.weeks) return; const all=allDays(p); const done=all.filter(x=>x.d.done); total+=done.length; if(isAllDone(p)) doneGoals++; bestStreak=Math.max(bestStreak,calcStreak(p)); done.forEach(x=>items.push({t:x.d.task,d:x.d.doneDate})); });
@@ -1267,7 +1489,7 @@ function renderRecord(){
   c.appendChild(grid);
   const list=document.createElement('div'); list.className='rec-list';
   items.sort((a,b)=>b.d.localeCompare(a.d)).forEach(it=>{ const r=document.createElement('div'); r.className='item'; r.innerHTML='<span>'+escapeHtml(it.t)+'</span><span class="d">'+it.d+'</span>'; list.appendChild(r); });
-  if(!total){ const e=document.createElement('div'); e.className='empty'; e.textContent='还没有完成的步骤，去完成今天这一步吧'; list.appendChild(e); }
+  if(!total){ const e=document.createElement('div'); e.className='empty'; e.textContent='学分还是 0，完成今天这一步就先进账 '+CREDIT_PER_STEP+' 分'; list.appendChild(e); }
   c.appendChild(list);
   const back=document.createElement('div'); back.className='pp-link'; back.style.marginTop='16px'; back.textContent='← 返回陪跑';
   back.onclick=()=>{ const g=getGoal(currentGoalId)||goals[0]; if(g) showFlow(g.id); else backToSplash(); }; c.appendChild(back);
@@ -1323,7 +1545,15 @@ function makeBubble(opts){
   const r=opts.r||(opts.hero?heroR:60);
   el.style.width=(r*2)+'px'; el.style.height=(r*2)+'px';
   el.style.left=opts.x+'px'; el.style.top=opts.y+'px';
-  const label=document.createElement('div'); label.className='label'; label.innerHTML=opts.label||''; el.appendChild(label);
+  // P2 · 空泡不再留白：从 COACH_LINES 轮转注入一句陪跑短句。
+  // 只给 depth 1（最前景，不缩放不降透明度）且半径 ≥ COACH_MIN_R 的泡上字，
+  // 远景泡和小填充泡继续留白 —— 字挤成一团比留白更糟。
+  let labelHtml=opts.label||'';
+  if(!labelHtml && opts.type==='empty' && COACH_LINES.length && (opts.depth||1)===1){
+    const line=coachLine(r);
+    if(line){ labelHtml=escapeHtml(line); el.classList.add('coach'); }
+  }
+  const label=document.createElement('div'); label.className='label'; label.innerHTML=labelHtml; el.appendChild(label);
   if(opts.water!=null){ const w=document.createElement('div'); w.className='water'; el.appendChild(w); el._water=w; }
   // 轻引导提示：绝对定位的 water 不参与 flex 流，提示作为第二个流内子元素排在 label 下方
   if(opts.hint){
@@ -1364,6 +1594,7 @@ function spawnRising(px,py){
     const rr=rand(38,60);
     const x=rand(40+rr, innerWidth-40-rr), y=rand(40+rr, innerHeight-40-rr);
     if(fieldFits(x,y,rr)){
+      // label 留空 → makeBubble 按半径从 COACH_LINES 取一句（rr 落在 38-60，够大的会带字）
       const el=makeBubble({x:x,y:y,r:rr,type:'empty',label:'',depth:1});
       el._b.popIn=0; initWander(el._b, 1, 9);
       fieldPlaced.push({x:x,y:y,r:rr,el:el}); totalBubbles++;
@@ -1385,6 +1616,7 @@ function placeExtra(n){
     for(let a=0;a<260;a++){
       const rr=rand(24,40);
       const x=rand(12+rr, innerWidth-12-rr), y=rand(12+rr, innerHeight-12-rr);
+      // 这批填充泡 rr 只有 24-40，低于 COACH_MIN_R，makeBubble 会自动跳过 COACH_LINES 注入，保持留白
       if(fieldFits(x,y,rr)){ const el=makeBubble({x:x,y:y,r:rr,type:'empty',label:''}); initWander(el._b, 1, 6); el.classList.add('grow'); fieldPlaced.push({x:x,y:y,r:rr,el:el}); totalBubbles++; done=true; break; }
     }
     if(!done) break;
@@ -1433,6 +1665,7 @@ function pickGoalSpots(fields,g,W,H){
 }
 function buildSplash(){
   const field=document.getElementById('bubbleField'); field.innerHTML=''; bubbles=[]; poppedCount=0; totalBubbles=0; fieldPlaced=[];
+  shuffleCoach();   // P2 · 每次重建气泡墙都重洗 COACH_LINES，保证同一屏内不出现重复文案
   const W=innerWidth, H=innerHeight; _lastW=W; _lastH=H;
   const pack=packField(W,H);
   // 轻引导：已有目标的老用户视为已掌握「建目标」，静默置位，只保留「进目标」提示
@@ -1459,6 +1692,7 @@ function buildSplash(){
   pack.fields.forEach(f=>{
     if(f._used) return;
     const dv=1+Math.floor(Math.random()*3);
+    // label 留空 → makeBubble 只给 depth 1 且够大的泡从 COACH_LINES 注入陪跑短句，远景泡保持留白
     const el=makeBubble({x:f.x, y:f.y, r:f.r, type:'empty', label:'', depth:dv});
     initWander(el._b, dv, null);
     fieldPlaced.push({x:f.x, y:f.y, r:f.r, el:el}); totalBubbles++;
@@ -1533,7 +1767,12 @@ buildDots(); initDateInput();
 applySavedBg();
 gateBoot();   // 门禁拦在 render() 之前：有码直接进气泡墙，没码先递钥匙
 document.getElementById('bgBtn').onclick=()=>openBgPicker();
-document.getElementById('addBtn').onclick=()=>openWizard();
+// #addBtn（「➕ 添加新目标」）由 foot() 在进入陪跑页时动态创建，启动这一刻并不在 DOM 里。
+// 这里必须判空：原先直接 .onclick 会抛 TypeError，把下面所有绑定
+//（微信提示 / 设置下拉 / 数据导入导出 / setSave / SW 注册 / 安装横幅）整段掐死。
+// 真正的点击行为已在 foot() 内就地绑定，此处只做兜底。
+const _addBtn=document.getElementById('addBtn');
+if(_addBtn) _addBtn.onclick=()=>openWizard();
 
 if(/micromessenger/i.test(navigator.userAgent)) document.getElementById('wxTip').classList.add('show');
 
